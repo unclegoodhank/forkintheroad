@@ -1,0 +1,11 @@
+node_modules/
+
+# SSL certs (regenerate locally with openssl)
+key.pem
+cert.pem
+
+# Database (generated from Want-to-go.csv on first run)
+restaurants.db
+
+# macOS
+.DS_Store

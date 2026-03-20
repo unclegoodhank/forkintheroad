@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fork in the Road</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    .skip-link {
+      position: absolute; top: -48px; left: 1rem;
+      background: #006f84; color: white;
+      padding: 10px 16px; border-radius: 0 0 4px 4px;
+      font-size: 13px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+      text-decoration: none; z-index: 200; transition: top 0.15s;
+    }
+    .skip-link:focus { top: 0; outline: 2px solid #fff; outline-offset: 2px; }
+
+    body {
+      font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fcf9f3;
+      color: #1c1810;
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #141412; color: #e8e6df; }
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 2rem;
+    }
+
+    .header {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #f9f3e7;
+    }
+    .header h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 34px;
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: -0.5px;
+      color: #1c1810;
+      margin-bottom: 0.3rem;
+    }
+    .header p {
+      font-size: 13px;
+      color: #6b6560;
+    }
+    @media (prefers-color-scheme: dark) {
+      .header { border-color: #2a2a26; }
+      .header h1 { color: #e8e6df; }
+      .header p { color: #8a8a85; }
+    }
+
+    .location-section {
+      background: white;
+      border: 1px solid #f9f3e7;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.01), 0 1px 2px rgba(0,0,0,0.01);
+    }
+    @media (prefers-color-scheme: dark) {
+      .location-section { background: #1e1e1c; border-color: #2a2a26; }
+    }
+
+    .location-section h3 {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b6560;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .location-section h3 { color: #8a8a85; }
+    }
+
+    .location-input {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 1rem;
+    }
+    .input-group { display: flex; flex-direction: column; }
+    .input-group label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #6b6560;
+      margin-bottom: 4px;
+    }
+    @media (prefers-color-scheme: dark) { .input-group label { color: #8a8a85; } }
+
+    input[type="number"] {
+      padding: 10px 12px;
+      border: 1px solid #f9f3e7;
+      background: white;
+      color: #1c1810;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    @media (prefers-color-scheme: dark) {
+      input[type="number"] { background: #1e1e1c; border-color: #2a2a26; color: #e8e6df; }
+    }
+    input[type="number"]:focus {
+      outline: 2px solid #006f84; outline-offset: 1px; border-color: #006f84;
+    }
+
+    .button-group { display: flex; gap: 10px; margin-bottom: 1rem; }
+
+    .btn {
+      flex: 1;
+      padding: 11px 16px;
+      border: 1px solid #c2baa8;
+      background: white;
+      color: #1c1810;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    @media (prefers-color-scheme: dark) {
+      .btn { background: #1e1e1c; border-color: #3a3a36; color: #e8e6df; }
+    }
+    .btn:hover { background: #eeece6; border-color: #978f80; }
+    @media (prefers-color-scheme: dark) {
+      .btn:hover { background: #2a2a26; border-color: #4a4a46; }
+    }
+    .btn.primary { background: #006f84; color: white; border-color: #006f84; }
+    .btn.primary:hover { background: #005a6b; border-color: #005a6b; }
+
+    .current-location {
+      background: #e5f3f7;
+      border-left: 3px solid #006f84;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #555;
+      display: flex;
+      align-items: center;
+    }
+    @media (prefers-color-scheme: dark) {
+      .current-location { background: #0a2530; border-left-color: #006f84; color: #8a8a85; }
+    }
+    .current-location strong { color: #1c1810; font-weight: 500; }
+    @media (prefers-color-scheme: dark) {
+      .current-location strong { color: #e8e6df; }
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 1.25rem;
+      background: white;
+      border: 1px solid #f9f3e7;
+      padding: 1rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.01), 0 1px 2px rgba(0,0,0,0.01);
+    }
+    @media (prefers-color-scheme: dark) {
+      .filters { background: #1e1e1c; border-color: #2a2a26; }
+    }
+
+    .filters select {
+      padding: 9px 32px 9px 10px;
+      border: 1px solid #f9f3e7;
+      background: white;
+      color: #1c1810;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+    @media (prefers-color-scheme: dark) {
+      .filters select {
+        background-color: #1e1e1c;
+        border-color: #2a2a26;
+        color: #e8e6df;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aaa' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      }
+    }
+    .filters select:focus { outline: 2px solid #006f84; outline-offset: 1px; border-color: #006f84; }
+
+    .segmented {
+      display: flex;
+      border: 1px solid #f9f3e7;
+      overflow: hidden;
+      background: white;
+    }
+    .segmented label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      padding: 9px 6px;
+      cursor: pointer;
+      color: #1c1810;
+      user-select: none;
+      border-right: 1px solid #f9f3e7;
+      transition: background 0.12s;
+    }
+    .segmented label:last-child { border-right: none; }
+    .segmented input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .segmented label:has(input:checked) { background: #006f84; color: white; }
+    .segmented label:has(input:focus-visible) { outline: 2px solid #006f84; outline-offset: -2px; }
+    @media (prefers-color-scheme: dark) {
+      .segmented { background: #1e1e1c; border-color: #2a2a26; }
+      .segmented label { color: #e8e6df; border-color: #2a2a26; }
+      .segmented label:has(input:checked) { background: #006f84; color: white; }
+    }
+
+    .radius-slider-wrap {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .radius-slider-wrap label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      color: #6b6560;
+      white-space: nowrap;
+      min-width: 120px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .radius-slider-wrap label { color: #8a8a85; }
+    }
+    #radiusFilter {
+      flex: 1;
+      accent-color: #006f84;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: linear-gradient(to right, #006f84 var(--pct, 22%), #c2baa8 var(--pct, 22%));
+      outline: none;
+    }
+    @media (prefers-color-scheme: dark) {
+      #radiusFilter {
+        background: linear-gradient(to right, #006f84 var(--pct, 22%), #3a3a36 var(--pct, 22%));
+      }
+    }
+    #radiusFilter::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #006f84;
+      border: 2.5px solid white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.14), 0 3px 10px rgba(0,0,0,0.18), 0 0 0 0.5px rgba(0,0,0,0.06);
+      cursor: pointer;
+    }
+    #radiusFilter::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #006f84;
+      border: 2.5px solid white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.14), 0 3px 10px rgba(0,0,0,0.18), 0 0 0 0.5px rgba(0,0,0,0.06);
+      cursor: pointer;
+    }
+    #radiusFilter:focus-visible { outline: 2px solid #006f84; outline-offset: 4px; }
+
+    #searchFilter {
+      padding: 10px 12px;
+      border: 1px solid #f9f3e7;
+      background: white;
+      color: #1c1810;
+      font-family: inherit;
+      font-size: 14px;
+      width: 100%;
+    }
+    #searchFilter:focus { outline: 2px solid #006f84; outline-offset: 1px; border-color: #006f84; }
+    @media (prefers-color-scheme: dark) {
+      #searchFilter { background: #1e1e1c; border-color: #2a2a26; color: #e8e6df; }
+    }
+
+    .visited-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border: 1px solid #c2baa8;
+      background: transparent;
+      color: #6b6560;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      width: fit-content;
+      min-height: 28px;
+      flex: none;
+    }
+    .visited-btn:hover { border-color: #006f84; color: #006f84; background: #e5f3f7; }
+    .visited-btn.is-visited { background: #006f84; border-color: #006f84; color: white; }
+    @media (prefers-color-scheme: dark) {
+      .visited-btn { background: transparent; border-color: #3a3a36; color: #8a8a85; }
+      .visited-btn:hover { background: #0a2530; border-color: #006f84; color: #4dbdd4; }
+      .visited-btn.is-visited { background: #006f84; border-color: #006f84; color: white; }
+    }
+
+    .card.is-visited { opacity: 0.65; border-left: 3px solid #006f84; }
+    #cardContainer {
+      display: flex;
+      flex-direction: column;
+    }
+    .card {
+      background: white;
+      border: 1px solid #f9f3e7;
+      margin-bottom: -1px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.01);
+      animation: slideIn 0.25s ease-out;
+    }
+    @media (prefers-color-scheme: dark) {
+      .card { background: #1e1e1c; border-color: #2a2a26; }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card.loading { display: flex; justify-content: center; align-items: center; padding: 2rem; border-top: 1px solid #f9f3e7; }
+    .loading-pulse {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #f9f3e7;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @media (prefers-color-scheme: dark) { .loading-pulse { background: #2a2a26; } }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    .restaurant-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: -0.2px;
+      margin-bottom: 0.5rem;
+      color: #1c1810;
+    }
+    @media (prefers-color-scheme: dark) { .restaurant-name { color: #e8e6df; } }
+
+    .distance-badge {
+      display: inline-block;
+      background: transparent;
+      color: #006f84;
+      padding: 0;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 0;
+    }
+    @media (prefers-color-scheme: dark) { .distance-badge { color: #4dbdd4; } }
+
+    .restaurant-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+    .tag {
+      display: inline-block;
+      background: transparent;
+      color: #6b6560;
+      padding: 2px 8px;
+      border: 1px solid #c2baa8;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+    @media (prefers-color-scheme: dark) { .tag { color: #8a8a85; border-color: #3a3a36; } }
+
+    .note {
+      background: #fcf9f3;
+      border-left: 2px solid #006f84;
+      padding: 10px 12px;
+      margin-bottom: 1rem;
+      font-size: 13px;
+      color: #555;
+      font-style: italic;
+    }
+    @media (prefers-color-scheme: dark) {
+      .note { background: #1a1a18; border-left-color: #006f84; color: #8a8a85; }
+    }
+
+    .buttons { display: flex; gap: 10px; }
+    button {
+      flex: 1;
+      padding: 11px 14px;
+      border: 1px solid #c2baa8;
+      background: white;
+      color: #1c1810;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    @media (prefers-color-scheme: dark) {
+      button { background: #1e1e1c; border-color: #3a3a36; color: #e8e6df; }
+    }
+    button:hover { background: #eeece6; border-color: #978f80; }
+    @media (prefers-color-scheme: dark) {
+      button:hover { background: #2a2a26; border-color: #4a4a46; }
+    }
+    button:focus-visible { outline: 2px solid #006f84; outline-offset: 2px; }
+    button:active { transform: scale(0.99); }
+    button.primary { background: #006f84; color: white; border-color: #006f84; }
+    button.primary:hover { background: #005a6b; border-color: #005a6b; }
+
+    .no-location { text-align: center; padding: 2rem 1rem; color: #6b6560; }
+    @media (prefers-color-scheme: dark) { .no-location { color: #8a8a85; } }
+
+    .distance { font-size: 14px; font-weight: 500; color: #006f84; }
+    @media (prefers-color-scheme: dark) { .distance { color: #4dbdd4; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card { animation: none; opacity: 1; transform: none; }
+      .loading-pulse { animation: none; opacity: 0.6; }
+      * { transition-duration: 0.01ms !important; }
+    }
+
+    .maps-link {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      color: #006f84;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    @media (prefers-color-scheme: dark) { .maps-link { color: #4dbdd4; } }
+
+
+    #resultsCount {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #6b6560;
+      margin: 0 0 0 0;
+      padding: 0.75rem 0 0.25rem;
+    }
+    @media (prefers-color-scheme: dark) { #resultsCount { color: #8a8a85; } }
+
+    .empty-state { text-align: center; color: #6b6560; padding: 2rem 0; }
+    @media (prefers-color-scheme: dark) { .empty-state { color: #8a8a85; } }
+
+    a:focus-visible { outline: 2px solid #006f84; outline-offset: 2px; border-radius: 2px; }
+
+    ::placeholder { color: #767676; }
+    @media (prefers-color-scheme: dark) { ::placeholder { color: #909090; } }
+
+    .copy-btn { background: none; border: none; padding: 4px; cursor: pointer; min-width: 24px; min-height: 24px; }
+    .copy-btn:focus-visible { outline: 2px solid #006f84; outline-offset: 2px; }
+
+    /* ── Footer ── */
+    .site-footer {
+      background: #000;
+      color: #fff;
+      margin-top: 1.5rem;
+      padding: 0 1.5rem 3rem;
+    }
+    .site-footer__inner {
+      max-width: 760px;
+      margin: 0 auto;
+      border-top: 1px solid #2a2a2a;
+      padding-top: 3rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      gap: 2rem;
+    }
+    .site-footer__name {
+      display: block;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 28px;
+      font-weight: 400;
+      color: #fff;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.3px;
+    }
+    .site-footer__tagline {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #9a9080;
+    }
+    .site-footer__copy {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9a9080;
+      white-space: nowrap;
+    }
+
+    /* ── Hero carousel ── */
+    #heroCarousel {
+      position: relative;
+      width: 100%;
+      height: clamp(87px, 17vw, 174px);
+      overflow: hidden;
+      background: #1a1a18;
+    }
+    .carousel-slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+      user-select: none;
+    }
+    .carousel-slide.active { opacity: 1; }
+    .site-masthead {
+      background: #fcf9f3;
+      padding: 1.5rem 1.5rem 1.25rem;
+      border-bottom: 1px solid #f9f3e7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+    }
+    .site-masthead__icon {
+      width: clamp(48px, 8vw, 80px);
+      height: clamp(48px, 8vw, 80px);
+      object-fit: contain;
+      flex-shrink: 0;
+      display: block;
+      align-self: center;
+    }
+    .site-masthead h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: clamp(31px, 6.05vw, 61.5px);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: hsl(40 66% 30% / 1);
+      line-height: 1;
+      margin-bottom: 0.6rem;
+    }
+    .site-masthead p {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #978f80;
+    }
+    @media (prefers-color-scheme: dark) {
+      .site-masthead { background: #141412; border-color: #2a2a26; }
+      .site-masthead h1 { color: #e8e6df; }
+      .site-masthead p { color: #8a8a85; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .carousel-slide { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 2.4.1 Skip navigation -->
+  <a href="#cardContainer" class="skip-link">Skip to results</a>
+
+  <div class="site-masthead">
+    <img src="images/Fork Icon Illustration.png" alt="" aria-hidden="true" class="site-masthead__icon">
+    <div>
+      <h1>Fork in the Road</h1>
+      <p>Edmond's personal guide on where to eat</p>
+    </div>
+  </div>
+
+  <div id="heroCarousel" role="region" aria-label="Photo carousel">
+    <img src="images/1.jpg" class="carousel-slide active" alt="" aria-hidden="true">
+    <img src="images/2.jpg" class="carousel-slide" alt="" aria-hidden="true">
+    <img src="images/3.jpg" class="carousel-slide" alt="" aria-hidden="true">
+    <img src="images/4.jpg" class="carousel-slide" alt="" aria-hidden="true">
+    <img src="images/5.jpg" class="carousel-slide" alt="" aria-hidden="true">
+    <img src="images/6.jpg" class="carousel-slide" alt="" aria-hidden="true">
+  </div>
+
+  <div class="container">
+
+    <div id="recommender">
+      <div class="location-section">
+        <h3>Your Location</h3>
+        <div class="button-group">
+          <button class="btn primary" onclick="useCurrentLocation()">Get my location</button>
+        </div>
+        <div id="currentLocationDisplay" class="current-location" style="display:none;">
+          <strong><span id="locName"></span></strong>
+        </div>
+        <div id="locationError" style="display:none;font-size:12px;color:#b04030;margin-top:6px;line-height:1.5;"></div>
+        <input type="hidden" id="lat" value="37.7749">
+        <input type="hidden" id="lng" value="-122.4194">
+      </div>
+      
+      <div class="filters" role="group" aria-label="Search and filters">
+        <input type="text" id="searchFilter"
+               aria-label="Search by name, cuisine, or note"
+               placeholder="Search by name, cuisine, or note…"
+               style="grid-column:1/-1;">
+        <select id="cuisineFilter" aria-label="Filter by cuisine">
+          <option value="">All cuisines</option>
+        </select>
+        <div class="segmented" role="group" aria-label="Filter by visited status">
+          <label><input type="radio" name="visitedFilter" value="" checked>All</label>
+          <label><input type="radio" name="visitedFilter" value="unvisited">Not visited</label>
+          <label><input type="radio" name="visitedFilter" value="visited">Visited</label>
+        </div>
+        <div class="radius-slider-wrap">
+          <label for="radiusFilter" id="radiusLabel">Within 25 miles</label>
+          <input type="range" id="radiusFilter" min="1" max="100" value="25" aria-labelledby="radiusLabel">
+        </div>
+      </div>
+      
+      <p id="resultsCount" aria-live="polite" aria-atomic="true"></p>
+
+      <div id="cardContainer" tabindex="-1">
+        <div class="card loading">
+          <div class="loading-pulse"></div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <div>
+        <span class="site-footer__name">Fork in the Road</span>
+        <p class="site-footer__tagline">Find places by distance from your location</p>
+      </div>
+      <div style="text-align:right;">
+        <p class="site-footer__copy">Made in Oakland, California.</p>
+        <p class="site-footer__copy" style="margin-top:0.4rem;">&copy; 2026</p>
+        <p style="margin-top:0.75rem;"><a href="/new-stuff" class="site-footer__copy" style="color:#9a9080;text-decoration:underline;">Check out new stuff</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    let restaurantData = [];
+
+    const savedLocation = JSON.parse(localStorage.getItem('currentLocation') || 'null');
+    let currentLocation = savedLocation || {lat: 37.7749, lng: -122.4194, name: "San Francisco"};
+
+    function saveLocation(loc) {
+      currentLocation = loc;
+      localStorage.setItem('currentLocation', JSON.stringify(loc));
+    }
+    let filteredData = [];
+    const cardElements = new Map();
+    const visited = new Set();
+
+    async function toggleVisited(id) {
+      const r = restaurantData.find(x => x.id === id);
+      if (!r) return;
+      const nowVisited = !visited.has(r.title);
+      if (nowVisited) visited.add(r.title); else visited.delete(r.title);
+      r.visited = nowVisited ? 1 : 0;
+
+      document.querySelectorAll(`.visited-btn[data-id="${id}"]`).forEach(btn => {
+        btn.classList.toggle('is-visited', nowVisited);
+        btn.textContent = nowVisited ? '✓ Visited' : '○ Mark visited';
+        const card = btn.closest('.card');
+        if (card) card.classList.toggle('is-visited', nowVisited);
+      });
+
+      await fetch(`/api/restaurants/${id}/visited`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visited: nowVisited })
+      });
+    }    
+    function getCuisines() {
+      const cuisines = new Set(restaurantData.map(r => r.cuisine).filter(c => c));
+      return Array.from(cuisines).sort();
+    }
+    
+    function calculateDistance(lat1, lng1, lat2, lng2) {
+      const R = 3959; // Earth's radius in miles
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+    
+    function updateLocationDisplay() {
+      const display = document.getElementById('currentLocationDisplay');
+      const locName = document.getElementById('locName');
+      if (display) display.style.display = 'block';
+      if (locName) locName.textContent = currentLocation.name;
+    }
+    
+    async function reverseGeocode(lat, lng) {
+      try {
+        const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
+        const res = await fetch(url, {headers: {'User-Agent': 'want-to-go-app/1.0'}});
+        const data = await res.json();
+        const a = data.address || {};
+        const city = a.city || a.town || a.village || a.suburb || a.county || '';
+        const zip = a.postcode || '';
+        return [city, zip].filter(Boolean).join(' ');
+      } catch {
+        return '';
+      }
+    }
+
+    function useCurrentLocation() {
+      if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser.');
+        return;
+      }
+      const btn = document.querySelector('button[onclick="useCurrentLocation()"]');
+      btn.textContent = '⏳ Locating…';
+      btn.disabled = true;
+      navigator.geolocation.getCurrentPosition(
+        async pos => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          document.getElementById('lat').value = lat.toFixed(6);
+          document.getElementById('lng').value = lng.toFixed(6);
+          saveLocation({lat, lng, name: 'Current location'});
+          document.getElementById('locationError').style.display = 'none';
+          updateLocationDisplay();
+          applyFilters();
+          btn.textContent = 'Get my location';
+          btn.disabled = false;
+          const place = await reverseGeocode(lat, lng);
+          if (place) {
+            saveLocation({lat, lng, name: place});
+            document.getElementById('locName').textContent = place;
+          }
+        },
+        err => {
+          const tips = {
+            1: 'Location access was denied. Allow it in your browser settings, then try again.',
+            2: 'Location unavailable. Enable Location Services for this browser in System Settings → Privacy & Security → Location Services.',
+            3: 'Timed out. Enable Location Services for this browser in System Settings → Privacy & Security → Location Services.',
+          };
+          const errEl = document.getElementById('locationError');
+          errEl.textContent = tips[err.code] || err.message;
+          errEl.style.display = 'block';
+          btn.textContent = 'Get my location';
+          btn.disabled = false;
+        },
+        {enableHighAccuracy: false, timeout: 30000, maximumAge: 60000}
+      );
+    }
+    
+    function populateFilters() {
+      const cuisineSelect = document.getElementById('cuisineFilter');
+      const cuisineCounts = restaurantData.reduce((acc, r) => {
+        if (r.cuisine) acc[r.cuisine] = (acc[r.cuisine] || 0) + 1;
+        return acc;
+      }, {});
+      getCuisines().forEach(cuisine => {
+        const option = document.createElement('option');
+        option.value = cuisine;
+        option.textContent = `${cuisine} (${cuisineCounts[cuisine]})`;
+        cuisineSelect.appendChild(option);
+      });
+    }
+    
+    function renderAllCards() {
+      const container = document.getElementById('cardContainer');
+      container.innerHTML = '';
+      cardElements.clear();
+
+      restaurantData.forEach((r, i) => {
+        const isV = visited.has(r.title);
+        const titleAttr = r.title.replace(/"/g, '&quot;');
+        const noteText = r.note || r.comment || '';
+        const mapsLink = r.url
+          ? `<a href="${r.url}" target="_blank" rel="noopener" aria-label="Open ${r.title} in Maps" class="maps-link">Open in Maps ↗</a>`
+          : '';
+
+        const el = document.createElement('div');
+        el.className = `card${isV ? ' is-visited' : ''}`;
+        el.innerHTML = `
+          <div class="restaurant-name">${r.title}</div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+            <div class="distance-badge"></div>
+            ${r.cuisine ? `<span class="tag" style="font-size:12px;">${r.cuisine}</span>` : ''}
+            ${r.tags ? `<span class="tag" style="font-size:12px;">${r.tags}</span>` : ''}
+          </div>
+          ${noteText ? `<div class="note">${noteText}</div>` : ''}
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.5rem;">
+            <div>${mapsLink}</div>
+            <button class="visited-btn${isV ? ' is-visited' : ''}" data-id="${r.id}" onclick="toggleVisited(${r.id})">${isV ? '✓ Visited' : '○ Mark visited'}</button>
+          </div>`;
+
+        container.appendChild(el);
+        cardElements.set(i, el);
+      });
+    }
+
+    function applyFilters() {
+      const cuisineFilter = document.getElementById('cuisineFilter').value;
+      const radiusFilter = parseFloat(document.getElementById('radiusFilter').value);
+      const searchQuery = (document.getElementById('searchFilter').value || '').toLowerCase().trim();
+      const visitedFilter = (document.querySelector('input[name="visitedFilter"]:checked') || {value: ''}).value;
+
+      filteredData = restaurantData.reduce((acc, r, i) => {
+        if (r.lat !== null && r.lng !== null) {
+          r.distance = calculateDistance(currentLocation.lat, currentLocation.lng, r.lat, r.lng);
+        } else {
+          r.distance = null;
+        }
+        const cuisineMatch = !cuisineFilter || r.cuisine === cuisineFilter;
+        const radiusMatch = r.distance !== null && r.distance <= radiusFilter;
+        const searchMatch = !searchQuery || [r.title, r.cuisine, r.note, r.tags]
+          .some(f => (f || '').toLowerCase().includes(searchQuery));
+        const isVisited = visited.has(r.title);
+        const visitedMatch = !visitedFilter
+          || (visitedFilter === 'visited' && isVisited)
+          || (visitedFilter === 'unvisited' && !isVisited);
+        if (cuisineMatch && radiusMatch && searchMatch && visitedMatch) acc.push({r, i});
+        return acc;
+      }, []);
+
+      // Sort: by distance ascending
+      filteredData.sort((a, b) => a.r.distance - b.r.distance);
+
+      const container = document.getElementById('cardContainer');
+      // Build sort-order map: data index → position in sorted results
+      const sortOrder = new Map(filteredData.map(({i}, pos) => [i, pos]));
+
+      // Update each card declaratively — no DOM moves, no flicker
+      restaurantData.forEach((r, i) => {
+        const el = cardElements.get(i);
+        if (!el) return;
+        el.querySelector('.distance-badge').textContent = r.distance !== null
+          ? `${Math.round(r.distance * 10) / 10} mi away`
+          : 'Location unknown';
+        const isV = visited.has(r.title);
+        el.classList.toggle('is-visited', isV);
+        const btn = el.querySelector('.visited-btn');
+        btn.classList.toggle('is-visited', isV);
+        btn.textContent = isV ? '✓ Visited' : '○ Mark visited';
+        const visible = sortOrder.has(i);
+        el.hidden = !visible;
+        el.style.order = visible ? sortOrder.get(i) : 0;
+      });
+
+      // Empty state
+      let emptyEl = container.querySelector('.empty-state-card');
+      if (filteredData.length === 0) {
+        if (!emptyEl) {
+          emptyEl = document.createElement('div');
+          emptyEl.className = 'card empty-state-card';
+          emptyEl.innerHTML = `
+            <div class="empty-state">
+              <p style="font-size: 16px; margin-bottom: 8px;">No places match your filters</p>
+              <p style="font-size: 14px;">Try adjusting your preferences or location</p>
+            </div>`;
+          container.appendChild(emptyEl);
+        }
+        emptyEl.hidden = false;
+      } else if (emptyEl) {
+        emptyEl.hidden = true;
+      }
+
+      // Update cuisine counts based on all filters except cuisine
+      Array.from(document.getElementById('cuisineFilter').options).forEach(opt => {
+        if (!opt.value) return;
+        const count = restaurantData.filter(r => {
+          if (r.cuisine !== opt.value) return false;
+          const radiusMatch = r.distance !== null && r.distance <= radiusFilter;
+          const searchMatch = !searchQuery || [r.title, r.cuisine, r.note, r.tags]
+            .some(f => (f || '').toLowerCase().includes(searchQuery));
+          const isVisited = visited.has(r.title);
+          const visitedMatch = !visitedFilter
+            || (visitedFilter === 'visited' && isVisited)
+            || (visitedFilter === 'unvisited' && !isVisited);
+          return radiusMatch && searchMatch && visitedMatch;
+        }).length;
+        opt.textContent = `${opt.value} (${count})`;
+      });
+
+      // Update count
+      const total = restaurantData.length;
+      const shown = filteredData.length;
+      document.getElementById('resultsCount').textContent = `${shown} place${shown !== 1 ? 's' : ''}`;
+    }
+    
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied: ' + text);
+      });
+    }
+    
+    
+
+    document.getElementById('searchFilter').addEventListener('input', applyFilters);
+    document.getElementById('cuisineFilter').addEventListener('change', applyFilters);
+    function updateSliderFill() {
+      const el = document.getElementById('radiusFilter');
+      const pct = (el.value - el.min) / (el.max - el.min) * 100;
+      el.style.setProperty('--pct', pct + '%');
+    }
+    document.getElementById('radiusFilter').addEventListener('input', () => {
+      const val = parseInt(document.getElementById('radiusFilter').value);
+      document.getElementById('radiusLabel').textContent = val === 1 ? 'Within <1 mile' : `Within ${val} miles`;
+      updateSliderFill();
+      applyFilters();
+    });
+    updateSliderFill();
+    document.querySelectorAll('input[name="visitedFilter"]').forEach(el => el.addEventListener('change', applyFilters));
+    
+    // Initialize — fetch data from server
+    (async () => {
+      try {
+        const res = await fetch('/api/restaurants');
+        restaurantData = await res.json();
+        restaurantData.forEach(r => { if (r.visited) visited.add(r.title); });
+      } catch(e) {
+        console.error('Failed to load restaurants:', e);
+      }
+      document.getElementById('lat').value = currentLocation.lat;
+      document.getElementById('lng').value = currentLocation.lng;
+      updateLocationDisplay();
+      populateFilters();
+      renderAllCards();
+      applyFilters();
+    })();
+
+    // ── Hero carousel ──
+    (function () {
+      const slides = document.querySelectorAll('.carousel-slide');
+      let current  = 0;
+
+      function goTo(n) {
+        slides[current].classList.remove('active');
+        current = (n + slides.length) % slides.length;
+        slides[current].classList.add('active');
+      }
+
+      let timer = setInterval(() => goTo(current + 1), 30000);
+
+      function resetTimer() {
+        clearInterval(timer);
+        timer = setInterval(() => goTo(current + 1), 30000);
+      }
+
+      const carousel = document.getElementById('heroCarousel');
+      carousel.addEventListener('mouseenter', () => clearInterval(timer));
+      carousel.addEventListener('mouseleave', () => resetTimer());
+    })();
+  </script>
+</body>
+</html>
