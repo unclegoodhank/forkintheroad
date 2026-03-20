@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
   <title>Fork in the Road</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap');
@@ -490,7 +490,7 @@
       background: #000;
       color: #fff;
       margin-top: 1.5rem;
-      padding: 0 1.5rem 3rem;
+      padding: 0 1.5rem calc(3rem + env(safe-area-inset-bottom));
     }
     .site-footer__inner {
       max-width: 760px;
@@ -606,7 +606,7 @@
 
       .card { padding: 1rem; }
 
-      .site-footer { padding: 0 1rem 2rem; }
+      .site-footer { padding: 0 1rem calc(2rem + env(safe-area-inset-bottom)); }
       .site-footer__inner {
         grid-template-columns: 1fr;
         gap: 1rem;
