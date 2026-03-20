@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Fork in the Road</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@0,400;0,500;0,600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { overflow-x: hidden; }
+
+    body {
+      font-family: 'Open Sans', -apple-system, sans-serif;
+      background: #fcf9f3;
+      color: #1c1810;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    header {
+      background: #1c1810;
+      color: #fcf9f3;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    header h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+    header a { color: #9a9080; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none; }
+    header a:hover { color: #fcf9f3; }
+
+    .toolbar {
+      padding: 1rem 1.5rem;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #f9f3e7;
+    }
+    .toolbar input {
+      flex: 1;
+      min-width: 180px;
+      padding: 8px 12px;
+      border: 1px solid #f9f3e7;
+      background: white;
+      font-family: inherit;
+      font-size: 13px;
+      color: #1c1810;
+    }
+    .toolbar input:focus { outline: 2px solid #006f84; outline-offset: 1px; }
+    #rowCount { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #6b6560; white-space: nowrap; }
+
+    .btn {
+      padding: 8px 14px;
+      border: 1px solid #c2baa8;
+      background: white;
+      color: #1c1810;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn:hover { background: #eeece6; }
+    .btn.primary { background: #006f84; color: white; border-color: #006f84; }
+    .btn.primary:hover { background: #005a6b; }
+    .btn.danger { background: white; color: #b04030; border-color: #e0b0a8; }
+    .btn.danger:hover { background: #fdf0ee; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6b6560;
+      background: #f9f3e7;
+      border-bottom: 1px solid #f0e8d8;
+      white-space: nowrap;
+    }
+    thead th.sortable { cursor: pointer; user-select: none; }
+    thead th.sortable:hover { color: #1c1810; }
+    tbody tr { border-bottom: 1px solid #f9f3e7; }
+    tbody tr:hover { background: #fdfaf5; }
+    tbody td { padding: 10px 12px; vertical-align: middle; }
+    td.title { font-weight: 500; max-width: 200px; }
+    td.cuisine { color: #6b6560; font-size: 13px; }
+    td.note { color: #6b6560; font-size: 13px; font-style: italic; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    td.coords { color: #6b6560; font-size: 12px; font-family: monospace; white-space: nowrap; }
+    .visited-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: #006f84;
+      color: white;
+    }
+    td.actions { white-space: nowrap; text-align: right; }
+    td.actions .btn { padding: 5px 10px; font-size: 11px; }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: white;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.75rem;
+      position: relative;
+    }
+    .modal h2 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6b6560;
+      margin-bottom: 1.25rem;
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #6b6560;
+    }
+    .form-group input, .form-group textarea {
+      padding: 8px 10px;
+      border: 1px solid #f9f3e7;
+      background: #fcf9f3;
+      font-family: inherit;
+      font-size: 13px;
+      color: #1c1810;
+    }
+    .form-group input:focus, .form-group textarea:focus { outline: 2px solid #006f84; outline-offset: 1px; border-color: #006f84; background: white; }
+    .form-group textarea { resize: vertical; min-height: 60px; }
+    .form-group.checkbox { flex-direction: row; align-items: center; gap: 8px; }
+    .form-group.checkbox input { width: auto; accent-color: #006f84; }
+    .form-group.checkbox label { text-transform: uppercase; letter-spacing: 0.07em; font-size: 11px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.5rem; }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; cursor: pointer;
+      font-size: 18px; color: #6b6560; padding: 4px;
+    }
+    .modal-close:hover { color: #1c1810; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Fork in the Road — Admin</h1>
+  <a href="/">← Back to app</a>
+</header>
+
+<div class="toolbar">
+  <input type="text" id="search" placeholder="Search by name, cuisine, note…" oninput="renderTable()">
+  <span id="rowCount"></span>
+</div>
+
+<div style="overflow-x:auto;">
+  <table>
+    <thead>
+      <tr>
+        <th class="sortable" onclick="sort('title')">Name</th>
+        <th class="sortable" onclick="sort('cuisine')">Cuisine</th>
+        <th>Note</th>
+        <th class="sortable" onclick="sort('lat')">Coords</th>
+        <th class="sortable" onclick="sort('visited')">Visited</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<!-- Edit modal -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2>Edit Place</h2>
+    <div class="form-grid">
+      <div class="form-group full"><label>Name</label><input id="f-title" type="text"></div>
+      <div class="form-group"><label>Cuisine / Category</label><input id="f-cuisine" type="text"></div>
+      <div class="form-group"><label>Tags</label><input id="f-tags" type="text"></div>
+      <div class="form-group full"><label>Note</label><textarea id="f-note"></textarea></div>
+      <div class="form-group full"><label>Maps URL</label><input id="f-url" type="text"></div>
+      <div class="form-group"><label>Latitude</label><input id="f-lat" type="number" step="any"></div>
+      <div class="form-group"><label>Longitude</label><input id="f-lng" type="number" step="any"></div>
+      <div class="form-group checkbox full">
+        <input id="f-visited" type="checkbox">
+        <label for="f-visited">Visited</label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="save()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let restaurants = [];
+  let sortKey = 'title';
+  let sortDir = 1;
+  let editingId = null;
+
+  async function load() {
+    restaurants = await fetch('/api/restaurants').then(r => r.json());
+    renderTable();
+  }
+
+  function sort(key) {
+    if (sortKey === key) sortDir *= -1;
+    else { sortKey = key; sortDir = 1; }
+    renderTable();
+  }
+
+  function renderTable() {
+    const q = document.getElementById('search').value.toLowerCase().trim();
+    let rows = restaurants.filter(r =>
+      !q || [r.title, r.cuisine, r.note, r.tags].some(f => (f||'').toLowerCase().includes(q))
+    );
+    rows.sort((a, b) => {
+      const av = a[sortKey] ?? '', bv = b[sortKey] ?? '';
+      return av < bv ? -sortDir : av > bv ? sortDir : 0;
+    });
+    document.getElementById('rowCount').textContent = `${rows.length} places`;
+    document.getElementById('tbody').innerHTML = rows.map(r => `
+      <tr>
+        <td class="title">${esc(r.title)}</td>
+        <td class="cuisine">${esc(r.cuisine)}</td>
+        <td class="note" title="${esc(r.note)}">${esc(r.note)}</td>
+        <td class="coords">${r.lat != null ? `${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}` : '—'}</td>
+        <td>${r.visited ? '<span class="visited-badge">Visited</span>' : ''}</td>
+        <td class="actions">
+          <button class="btn" onclick="openEdit(${r.id})">Edit</button>
+          <button class="btn danger" onclick="del(${r.id})">Delete</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function esc(str) {
+    return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function openEdit(id) {
+    const r = restaurants.find(x => x.id === id);
+    if (!r) return;
+    editingId = id;
+    document.getElementById('f-title').value   = r.title   ?? '';
+    document.getElementById('f-cuisine').value = r.cuisine ?? '';
+    document.getElementById('f-tags').value    = r.tags    ?? '';
+    document.getElementById('f-note').value    = r.note    ?? '';
+    document.getElementById('f-url').value     = r.url     ?? '';
+    document.getElementById('f-lat').value     = r.lat     ?? '';
+    document.getElementById('f-lng').value     = r.lng     ?? '';
+    document.getElementById('f-visited').checked = !!r.visited;
+    document.getElementById('modal').classList.add('open');
+    document.getElementById('f-title').focus();
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    editingId = null;
+  }
+
+  async function save() {
+    const body = {
+      title:   document.getElementById('f-title').value,
+      cuisine: document.getElementById('f-cuisine').value,
+      tags:    document.getElementById('f-tags').value,
+      note:    document.getElementById('f-note').value,
+      url:     document.getElementById('f-url').value,
+      lat:     document.getElementById('f-lat').value,
+      lng:     document.getElementById('f-lng').value,
+      visited: document.getElementById('f-visited').checked,
+    };
+    await fetch(`/api/restaurants/${editingId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const r = restaurants.find(x => x.id === editingId);
+    Object.assign(r, body, { lat: body.lat !== '' ? parseFloat(body.lat) : null, lng: body.lng !== '' ? parseFloat(body.lng) : null, visited: body.visited ? 1 : 0 });
+    closeModal();
+    renderTable();
+  }
+
+  async function del(id) {
+    const r = restaurants.find(x => x.id === id);
+    if (!confirm(`Delete "${r?.title}"?`)) return;
+    await fetch(`/api/restaurants/${id}`, { method: 'DELETE' });
+    restaurants = restaurants.filter(x => x.id !== id);
+    renderTable();
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  // Close modal on Escape
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  load();
+</script>
+</body>
+</html>

@@ -79,7 +79,9 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   if (req.body.password === PASSWORD) {
     req.session.authenticated = true;
-    res.redirect('/new-stuff');
+    const returnTo = req.session.returnTo || '/new-stuff';
+    delete req.session.returnTo;
+    res.redirect(returnTo);
   } else {
     req.session.loginError = 'Incorrect password.';
     res.redirect('/login');
@@ -89,6 +91,24 @@ app.post('/login', (req, res) => {
 app.get('/new-stuff', (req, res) => {
   if (!req.session.authenticated) return res.redirect('/login');
   res.sendFile(path.join(__dirname, 'new-stuff.html'));
+});
+
+// ── Admin ──────────────────────────────────────────────────────────────────
+app.get('/admin', (req, res) => {
+  if (!req.session.authenticated) { req.session.returnTo = '/admin'; return res.redirect('/login'); }
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+app.put('/api/restaurants/:id', (req, res) => {
+  const { title, note, url, tags, cuisine, lat, lng, visited } = req.body;
+  db.prepare(`UPDATE restaurants SET title=?, note=?, url=?, tags=?, cuisine=?, lat=?, lng=?, visited=? WHERE id=?`)
+    .run(title, note, url, tags, cuisine, lat !== '' ? parseFloat(lat) : null, lng !== '' ? parseFloat(lng) : null, visited ? 1 : 0, req.params.id);
+  res.json({ ok: true });
+});
+
+app.delete('/api/restaurants/:id', (req, res) => {
+  db.prepare('DELETE FROM restaurants WHERE id = ?').run(req.params.id);
+  res.json({ ok: true });
 });
 
 // ── Start ──────────────────────────────────────────────────────────────────
