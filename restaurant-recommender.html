@@ -712,6 +712,10 @@
           <label><input type="radio" name="visitedFilter" value="unvisited">Not visited</label>
           <label><input type="radio" name="visitedFilter" value="visited">Visited</label>
         </div>
+        <div class="segmented" role="group" aria-label="Filter by category">
+          <label><input type="radio" name="categoryFilter" value="" checked>All</label>
+          <label><input type="radio" name="categoryFilter" value="food">Food &amp; Drink</label>
+        </div>
         <div class="radius-slider-wrap" style="flex-direction:column;gap:10px;">
           <div class="segmented" role="group" aria-label="Filter mode" style="align-self:flex-start;">
             <label><input type="radio" name="sliderMode" value="distance" checked onchange="setSliderMode('distance')">Distance</label>
@@ -767,6 +771,7 @@
       localStorage.setItem('currentLocation', JSON.stringify(loc));
     }
     let filteredData = [];
+    const FOOD_DRINK_TYPES = new Set(['Restaurant','Bar','Café / Coffee','Bakery','Ice Cream / Dessert','Brewery','Winery']);
     const cardElements = new Map();
     const visited = new Set();
 
@@ -1023,6 +1028,7 @@
       const driveTimeFilter = parseInt(document.getElementById('driveTimeFilter').value);
       const searchQuery = (document.getElementById('searchFilter').value || '').toLowerCase().trim();
       const visitedFilter = (document.querySelector('input[name="visitedFilter"]:checked') || {value: ''}).value;
+      const categoryFilter = (document.querySelector('input[name="categoryFilter"]:checked') || {value: ''}).value;
 
       filteredData = restaurantData.reduce((acc, r, i) => {
         if (r.lat !== null && r.lng !== null) {
@@ -1040,7 +1046,8 @@
         const visitedMatch = !visitedFilter
           || (visitedFilter === 'visited' && isVisited)
           || (visitedFilter === 'unvisited' && !isVisited);
-        if (cuisineMatch && radiusMatch && searchMatch && visitedMatch) acc.push({r, i});
+        const categoryMatch = !categoryFilter || FOOD_DRINK_TYPES.has(r.type);
+        if (cuisineMatch && radiusMatch && searchMatch && visitedMatch && categoryMatch) acc.push({r, i});
         return acc;
       }, []);
 
@@ -1126,6 +1133,7 @@
 
     document.getElementById('searchFilter').addEventListener('input', applyFilters);
     document.getElementById('cuisineFilter').addEventListener('change', applyFilters);
+    document.querySelectorAll('input[name="categoryFilter"]').forEach(el => el.addEventListener('change', applyFilters));
     function updateSliderFill() {
       const el = document.getElementById('radiusFilter');
       const pct = (el.value - el.min) / (el.max - el.min) * 100;

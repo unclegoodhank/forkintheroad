@@ -190,6 +190,7 @@
         <th>Note</th>
         <th class="sortable" onclick="sort('lat')">Coords</th>
         <th class="sortable" onclick="sort('visited')">Visited</th>
+        <th class="sortable" onclick="sort('type')">Food &amp; Drink</th>
         <th></th>
       </tr>
     </thead>
@@ -223,6 +224,14 @@
       <div class="form-group"><label>City</label><input id="f-city" type="text"></div>
       <div class="form-group"><label>State</label><input id="f-state" type="text"></div>
       <div class="form-group"><label>Cuisine / Category</label><input id="f-cuisine" type="text"></div>
+      <div class="form-group"><label>Type</label><select id="f-type">
+        <option value="">— Select type —</option>
+        <option>Restaurant</option><option>Bar</option><option>Café / Coffee</option>
+        <option>Bakery</option><option>Ice Cream / Dessert</option><option>Brewery</option>
+        <option>Winery</option><option>Park / Nature</option><option>Museum</option>
+        <option>Shop</option><option>Market</option><option>Hotel</option>
+        <option>Experience</option><option>Library</option>
+      </select></div>
       <div class="form-group"><label>Tags</label><input id="f-tags" type="text"></div>
       <div class="form-group full"><label>Note</label><textarea id="f-note"></textarea></div>
       <div class="form-group full"><label>Maps URL</label><input id="f-url" type="text"></div>
@@ -245,6 +254,9 @@
   let sortKey = 'title';
   let sortDir = 1;
   let editingId = null; // null = add mode, number = edit mode
+
+  const FOOD_DRINK_TYPES = new Set(['Restaurant','Bar','Café / Coffee','Bakery','Ice Cream / Dessert','Brewery','Winery']);
+  function isFoodDrink(type) { return FOOD_DRINK_TYPES.has(type); }
 
   async function importCSV() {
     const res = await fetch('/api/admin/import-csv', { method: 'POST' });
@@ -282,6 +294,7 @@
         <td class="note" title="${esc(r.note)}">${esc(r.note)}</td>
         <td class="coords">${r.lat != null ? `${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}` : '—'}</td>
         <td>${r.visited ? '<span class="visited-badge">Visited</span>' : ''}</td>
+        <td style="text-align:center;">${isFoodDrink(r.type) ? 'Yes' : 'No'}</td>
         <td class="actions">
           <button class="btn" onclick="openEdit(${r.id})">Edit</button>
           <button class="btn danger" onclick="del(${r.id})">Delete</button>
@@ -330,6 +343,7 @@
     clearTimeout(lookupTimer);
     editingId = null;
     ['f-title','f-city','f-state','f-cuisine','f-tags','f-note','f-url','f-lat','f-lng','f-lookup-url'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-type').value = '';
     document.getElementById('f-visited').checked = false;
     document.getElementById('lookup-status').textContent = '';
     document.getElementById('lookup-status').style.color = '#6b6560';
@@ -354,6 +368,7 @@
     document.getElementById('f-lat').value     = r.lat     ?? '';
     document.getElementById('f-lng').value     = r.lng     ?? '';
     document.getElementById('f-visited').checked = !!r.visited;
+    document.getElementById('f-type').value = r.type ?? '';
     document.getElementById('modal-title').textContent = 'Edit Place';
     document.getElementById('lookup-section').style.display = 'none';
     document.getElementById('modal').classList.add('open');
@@ -416,6 +431,7 @@
       lat:     document.getElementById('f-lat').value,
       lng:     document.getElementById('f-lng').value,
       visited: document.getElementById('f-visited').checked,
+      type:    document.getElementById('f-type').value,
     };
     const parsed = { ...body, lat: body.lat !== '' ? parseFloat(body.lat) : null, lng: body.lng !== '' ? parseFloat(body.lng) : null, visited: body.visited ? 1 : 0 };
 
