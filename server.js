@@ -124,6 +124,25 @@ app.post('/api/restaurants', (req, res) => {
   res.json({ ok: true, id: result.lastInsertRowid });
 });
 
+// Helper: HTTPS GET with redirect following, returns { finalUrl, body }
+function httpsGet(url, headers = {}) {
+  return new Promise((resolve, reject) => {
+    const lib = url.startsWith('https') ? require('https') : require('http');
+    lib.get(url, { headers }, res => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        const next = res.headers.location.startsWith('http')
+          ? res.headers.location
+          : new URL(res.headers.location, url).href;
+        res.resume();
+        return httpsGet(next, headers).then(resolve).catch(reject);
+      }
+      let body = '';
+      res.on('data', d => body += d);
+      res.on('end', () => resolve({ finalUrl: url, body }));
+    }).on('error', reject);
+  });
+}
+
 app.post('/api/lookup', async (req, res) => {
   const { url } = req.body;
   if (!url || typeof url !== 'string') return res.status(400).json({ error: 'URL required' });
@@ -133,11 +152,8 @@ app.post('/api/lookup', async (req, res) => {
 
     // Follow redirects for short links (maps.app.goo.gl, goo.gl, etc.)
     if (/goo\.gl|maps\.app/i.test(workingUrl)) {
-      const r = await fetch(workingUrl, {
-        redirect: 'follow',
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible)' },
-      });
-      workingUrl = r.url;
+      const { finalUrl } = await httpsGet(workingUrl, { 'User-Agent': 'Mozilla/5.0 (compatible)' });
+      workingUrl = finalUrl;
     }
 
     // Extract place name from URL path
@@ -160,11 +176,11 @@ app.post('/api/lookup', async (req, res) => {
 
     // Last resort: Nominatim geocoding by name
     if (lat === null && title) {
-      const nomRes = await fetch(
+      const { body } = await httpsGet(
         `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(title)}&format=json&limit=1`,
-        { headers: { 'User-Agent': 'fork-in-the-road-app/1.0' } }
+        { 'User-Agent': 'fork-in-the-road-app/1.0' }
       );
-      const nomData = await nomRes.json();
+      const nomData = JSON.parse(body);
       if (nomData[0]) { lat = parseFloat(nomData[0].lat); lng = parseFloat(nomData[0].lon); }
     }
 
