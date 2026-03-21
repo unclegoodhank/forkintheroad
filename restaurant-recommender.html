@@ -1055,7 +1055,7 @@
           const mi = Math.round(r.distance * 10) / 10;
           const mins = driveMinutes(r);
           const hasReal = osrmCache.has(r.id);
-          el.querySelector('.distance-badge').innerHTML = `${hasReal ? '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:5px;vertical-align:middle;"></span>' : '~'}${mins} min`;
+          el.querySelector('.distance-badge').innerHTML = `${hasReal ? '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:5px;vertical-align:middle;"></span>' : '~'}${mins} min · ${mi} mi`;
         } else {
           el.querySelector('.distance-badge').textContent = 'Location unknown';
         }
