@@ -931,7 +931,9 @@
         const rush = (t >= 6*60 && t < 10*60) || (t >= 14*60 && t < 18*60+45);
         mins = Math.round(r.distance / (rush ? 10 : 15) * 60);
       }
-      return Math.max(5, Math.round(mins * 1.15));
+      // Floor: straight-line distance at 65 mph is the physical minimum possible
+      const distFloor = r.distance / 65 * 60;
+      return Math.max(5, Math.round(Math.max(mins, distFloor) * 1.15));
     }
 
     function validRouteSecs(secs, distMi) {
