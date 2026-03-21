@@ -487,6 +487,19 @@
       flex-direction: column;
       gap: 12px;
     }
+    .cuisine-wrap {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      margin-top: -12px;
+      transition: grid-template-rows 0.35s ease, opacity 0.25s ease, margin-top 0.35s ease;
+    }
+    .cuisine-wrap.visible {
+      grid-template-rows: 1fr;
+      opacity: 1;
+      margin-top: 0;
+    }
+    .cuisine-wrap > select { min-height: 0; overflow: hidden; }
 
     .filter-visited-row { flex: 0 0 100%; }
 
@@ -768,9 +781,11 @@
             <label><input type="radio" name="categoryFilter" value="" checked>All</label>
             <label><input type="radio" name="categoryFilter" value="food">Food &amp; Drink</label>
           </div>
-          <select id="cuisineFilter" aria-label="Filter by cuisine" style="opacity:0.35;pointer-events:none;">
-            <option value="">All cuisines</option>
-          </select>
+          <div class="cuisine-wrap">
+            <select id="cuisineFilter" aria-label="Filter by cuisine">
+              <option value="">All cuisines</option>
+            </select>
+          </div>
         </div>
         <div class="segmented filter-visited-row" role="group" aria-label="Filter by visited status">
           <label><input type="radio" name="visitedFilter" value="" checked>All</label>
@@ -1199,10 +1214,9 @@
     document.getElementById('cuisineFilter').addEventListener('change', applyFilters);
     document.querySelectorAll('input[name="categoryFilter"]').forEach(el => el.addEventListener('change', () => {
       const isFood = document.querySelector('input[name="categoryFilter"]:checked').value === 'food';
-      const sel = document.getElementById('cuisineFilter');
-      sel.style.opacity = isFood ? '1' : '0.35';
-      sel.style.pointerEvents = isFood ? '' : 'none';
-      if (!isFood) sel.value = '';
+      const wrap = document.querySelector('.cuisine-wrap');
+      wrap.classList.toggle('visible', isFood);
+      if (!isFood) document.getElementById('cuisineFilter').value = '';
       applyFilters();
     }));
     function updateSliderFill() {
