@@ -5,29 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
   <title>Fork in the Road</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap');
 
-    :root { --accent: hsla(191, 100%, 26%, 1); }
+    :root {
+      /* M3 Color Tokens — Teal primary */
+      --md-primary:                   hsl(186 100% 26%);
+      --md-on-primary:                hsl(0 0% 100%);
+      --md-primary-container:         hsl(185 100% 87%);
+      --md-on-primary-container:      hsl(193 100% 7%);
+      --md-surface:                   hsl(192 40% 98%);
+      --md-on-surface:                hsl(194 8% 11%);
+      --md-surface-variant:           hsl(193 14% 88%);
+      --md-on-surface-variant:        hsl(194 8% 27%);
+      --md-outline:                   hsl(194 6% 45%);
+      --md-outline-variant:           hsl(192 9% 77%);
+      --md-surface-container-lowest:  hsl(0 0% 100%);
+      --md-surface-container-low:     hsl(194 30% 96%);
+      --md-surface-container:         hsl(193 23% 94%);
+      --md-surface-container-high:    hsl(193 17% 91%);
+      --md-surface-container-highest: hsl(192 13% 88%);
+      --md-error:                     hsl(0 72% 51%);
+      /* M3 Shape */
+      --shape-xs:   4px;
+      --shape-sm:   8px;
+      --shape-md:  12px;
+      --shape-lg:  16px;
+      --shape-xl:  28px;
+      --shape-full: 9999px;
+      /* compat alias */
+      --accent: var(--md-primary);
+    }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     .skip-link {
       position: absolute; top: -48px; left: 1rem;
-      background: var(--accent); color: hsla(0, 0%, 100%, 1);
-      padding: 10px 16px; border-radius: 0 0 4px 4px;
-      font-size: 13px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+      background: var(--md-primary); color: var(--md-on-primary);
+      padding: 10px 16px; border-radius: 0 0 var(--shape-xs) var(--shape-xs);
+      font-size: 14px; font-weight: 500; letter-spacing: 0.1px;
       text-decoration: none; z-index: 200; transition: top 0.15s;
     }
-    .skip-link:focus { top: 0; outline: 2px solid hsla(0, 0%, 100%, 1); outline-offset: 2px; }
+    .skip-link:focus { top: 0; outline: 2px solid var(--md-on-primary); outline-offset: 2px; }
 
-    html { overflow-x: clip; background-color: hsla(0, 0%, 0%, 1); }
+    html { overflow-x: clip; background-color: hsl(194 20% 5%); }
 
     body {
-      font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: hsla(42, 60%, 97%, 1);
-      color: hsla(36, 43%, 9%, 1);
+      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--md-surface);
+      color: var(--md-on-surface);
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
     }
@@ -40,7 +67,7 @@
     .header {
       margin-bottom: 2.5rem;
       padding-bottom: 1.5rem;
-      border-bottom: 1px solid hsla(42, 67%, 94%, 1);
+      border-bottom: 1px solid var(--md-outline-variant);
     }
     .header h1 {
       font-family: 'Playfair Display', Georgia, serif;
@@ -48,27 +75,27 @@
       font-weight: 400;
       font-style: italic;
       letter-spacing: -0.5px;
-      color: hsla(36, 43%, 9%, 1);
+      color: var(--md-on-surface);
       margin-bottom: 0.3rem;
     }
     .header p {
-      font-size: 13px;
-      color: hsla(30, 5%, 39%, 1);
+      font-size: 14px;
+      color: var(--md-on-surface-variant);
     }
     .location-section {
-      background: hsla(0, 0%, 100%, 1);
-      border: 1px solid hsla(42, 67%, 94%, 1);
+      background: var(--md-surface-container-low);
+      border: 1px solid var(--md-outline-variant);
+      border-radius: var(--shape-md);
       padding: 1.25rem 1.5rem;
       margin-bottom: 1.25rem;
-      box-shadow: 0 1px 6px hsla(0, 0%, 0%, 0.01), 0 1px 2px hsla(0, 0%, 0%, 0.01);
     }
     .location-section h3 {
-      font-size: 11px;
-      font-weight: 600;
-      color: hsla(30, 5%, 39%, 1);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--md-on-surface-variant);
       margin-bottom: 1rem;
       text-transform: uppercase;
-      letter-spacing: 1.2px;
+      letter-spacing: 0.5px;
     }
     .location-input {
       display: grid;
@@ -78,89 +105,97 @@
     }
     .input-group { display: flex; flex-direction: column; }
     .input-group label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.8px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
-      color: hsla(30, 5%, 39%, 1);
+      color: var(--md-on-surface-variant);
       margin-bottom: 4px;
     }
     input[type="number"] {
       padding: 10px 12px;
-      border: 1px solid hsla(42, 67%, 94%, 1);
-      background: hsla(0, 0%, 100%, 1);
-      color: hsla(36, 43%, 9%, 1);
+      border: 1px solid var(--md-outline);
+      border-radius: var(--shape-xs);
+      background: var(--md-surface-container-lowest);
+      color: var(--md-on-surface);
       font-family: inherit;
       font-size: 14px;
     }
     input[type="number"]:focus {
-      outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent);
+      outline: 2px solid var(--md-primary); outline-offset: 0; border-color: var(--md-primary);
     }
 
     .button-group { display: flex; gap: 10px; margin-bottom: 1rem; }
 
     .btn {
       flex: 1;
-      padding: 11px 16px;
-      border: 1px solid hsla(38, 18%, 71%, 1);
-      background: hsla(0, 0%, 100%, 1);
-      color: hsla(36, 43%, 9%, 1);
+      padding: 10px 24px;
+      border: 1px solid var(--md-outline);
+      border-radius: var(--shape-full);
+      background: transparent;
+      color: var(--md-primary);
       font-family: inherit;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.7px;
-      text-transform: uppercase;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.1px;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
+      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
     }
-    .btn:hover { background: hsla(45, 19%, 92%, 1); border-color: hsla(39, 10%, 55%, 1); }
-    .btn.primary { background: var(--accent); color: hsla(0, 0%, 100%, 1); border-color: var(--accent); }
-    .btn.primary:hover { background: hsla(190, 100%, 21%, 1); border-color: hsla(190, 100%, 21%, 1); }
+    .btn:hover { background: hsl(186 100% 26% / 0.08); }
+    .btn.primary {
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      border-color: var(--md-primary);
+      box-shadow: 0 1px 2px hsl(0 0% 0% / 0.3), 0 1px 3px 1px hsl(0 0% 0% / 0.15);
+    }
+    .btn.primary:hover { background: hsl(186 100% 22%); border-color: hsl(186 100% 22%); }
 
     .current-location {
-      background: hsla(193, 53%, 93%, 1);
-      border-left: 3px solid var(--accent);
+      background: var(--md-primary-container);
+      border-radius: var(--shape-xs);
       padding: 10px 14px;
-      font-size: 13px;
-      color: hsla(0, 0%, 33%, 1);
+      font-size: 14px;
+      color: var(--md-on-primary-container);
       display: flex;
       align-items: center;
     }
-    .current-location strong { color: hsla(36, 43%, 9%, 1); font-weight: 500; }
+    .current-location strong { color: var(--md-on-primary-container); font-weight: 500; }
 
     .filters {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 16px;
       margin-bottom: 1.25rem;
-      background: hsla(0, 0%, 100%, 1);
-      border: 1px solid hsla(42, 67%, 94%, 1);
+      background: var(--md-surface-container-low);
+      border: 1px solid var(--md-outline-variant);
+      border-radius: var(--shape-md);
       padding: 1rem;
-      box-shadow: 0 1px 6px hsla(0, 0%, 0%, 0.01), 0 1px 2px hsla(0, 0%, 0%, 0.01);
     }
     .filters > * { min-width: 0; }
 
     .filters select {
       width: auto;
-      padding: 9px 32px 9px 10px;
-      border: 1px solid hsla(42, 67%, 94%, 1);
-      background: hsla(0, 0%, 100%, 1);
-      color: hsla(36, 43%, 9%, 1);
+      padding: 9px 32px 9px 12px;
+      border: 1px solid var(--md-outline);
+      border-radius: var(--shape-xs);
+      background: var(--md-surface-container-lowest);
+      color: var(--md-on-surface);
       font-family: inherit;
-      font-size: 13px;
+      font-size: 14px;
       cursor: pointer;
       appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 10px center;
     }
-    .filters select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+    .filters select:focus { outline: 2px solid var(--md-primary); outline-offset: 0; border-color: var(--md-primary); }
 
     .segmented {
       display: flex;
-      border: 1px solid hsla(42, 67%, 94%, 1);
+      border: 1px solid var(--md-outline);
+      border-radius: var(--shape-full);
       overflow: hidden;
-      background: hsla(0, 0%, 100%, 1);
+      background: transparent;
     }
     .segmented label {
       flex: 1;
@@ -168,149 +203,152 @@
       align-items: center;
       justify-content: center;
       font-family: inherit;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.6px;
-      text-transform: uppercase;
-      padding: 9px 6px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.1px;
+      padding: 10px 16px;
       cursor: pointer;
-      color: hsla(36, 43%, 9%, 1);
+      color: var(--md-on-surface-variant);
       user-select: none;
-      border-right: 1px solid hsla(42, 67%, 94%, 1);
-      transition: background 0.15s;
+      border-right: 1px solid var(--md-outline);
+      transition: background 0.15s, color 0.15s;
     }
     .segmented label:last-child { border-right: none; }
     .segmented input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
-    .segmented label:has(input:checked) { background: var(--accent); color: hsla(0, 0%, 100%, 1); }
-    .segmented label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .segmented label:has(input:checked) { background: hsl(186 100% 26% / 0.12); color: var(--md-primary); font-weight: 600; }
+    .segmented label:hover:not(:has(input:checked)) { background: hsl(186 100% 26% / 0.06); }
+    .segmented label:has(input:focus-visible) { outline: 2px solid var(--md-primary); outline-offset: -2px; }
 
     .radius-slider-wrap {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      border-top: 1px solid hsla(42, 67%, 94%, 1);
-      padding-top: 12px;
-      margin-top: 4px;
+      border-top: 1px solid var(--md-outline-variant);
+      padding-top: 20px;
+      margin-top: 16px;
     }
     #radiusLabel,
     #driveTimeLabel {
       display: block;
       text-align: right;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.7px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
-      color: hsla(30, 5%, 39%, 1);
+      color: var(--md-on-surface-variant);
     }
     #radiusFilter {
       flex: 1;
-      accent-color: var(--accent);
+      accent-color: var(--md-primary);
       cursor: pointer;
       -webkit-appearance: none;
       appearance: none;
       height: 4px;
-      border-radius: 999px;
-      background: linear-gradient(to right, var(--accent) var(--pct, 22%), hsla(38, 18%, 71%, 1) var(--pct, 22%));
+      border-radius: var(--shape-full);
+      background: linear-gradient(to right, var(--md-primary) var(--pct, 22%), var(--md-surface-variant) var(--pct, 22%));
     }
-    #radiusFilter::-webkit-slider-runnable-track { border-radius: 999px; height: 4px; }
-    #radiusFilter::-moz-range-track { border-radius: 999px; height: 4px; }
+    #radiusFilter::-webkit-slider-runnable-track { border-radius: var(--shape-full); height: 4px; }
+    #radiusFilter::-moz-range-track { border-radius: var(--shape-full); height: 4px; }
     #radiusFilter::-webkit-slider-thumb {
       -webkit-appearance: none;
       width: 20px;
       height: 20px;
       margin-top: -8px;
       border-radius: 50%;
-      background: var(--accent);
-      border: 2.5px solid hsla(0, 0%, 100%, 1);
-      box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.14), 0 3px 10px hsla(0, 0%, 0%, 0.18), 0 0 0 0.5px hsla(0, 0%, 0%, 0.06);
+      background: var(--md-primary);
+      border: 2.5px solid var(--md-surface-container-lowest);
+      box-shadow: 0 1px 3px hsl(0 0% 0% / 0.14), 0 3px 10px hsl(0 0% 0% / 0.18);
       cursor: pointer;
     }
     #radiusFilter::-moz-range-thumb {
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background: var(--accent);
-      border: 2.5px solid hsla(0, 0%, 100%, 1);
-      box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.14), 0 3px 10px hsla(0, 0%, 0%, 0.18), 0 0 0 0.5px hsla(0, 0%, 0%, 0.06);
+      background: var(--md-primary);
+      border: 2.5px solid var(--md-surface-container-lowest);
+      box-shadow: 0 1px 3px hsl(0 0% 0% / 0.14), 0 3px 10px hsl(0 0% 0% / 0.18);
       cursor: pointer;
     }
-    #radiusFilter:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+    #radiusFilter:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 4px; }
 
     #driveTimeFilter {
       flex: 1;
-      accent-color: var(--accent);
+      accent-color: var(--md-primary);
       cursor: pointer;
       -webkit-appearance: none;
       appearance: none;
       height: 4px;
-      border-radius: 999px;
-      background: linear-gradient(to right, var(--accent) var(--pct, 20%), hsla(38, 18%, 71%, 1) var(--pct, 20%));
+      border-radius: var(--shape-full);
+      background: linear-gradient(to right, var(--md-primary) var(--pct, 20%), var(--md-surface-variant) var(--pct, 20%));
     }
-    #driveTimeFilter::-webkit-slider-runnable-track { border-radius: 999px; height: 4px; }
-    #driveTimeFilter::-moz-range-track { border-radius: 999px; height: 4px; }
+    #driveTimeFilter::-webkit-slider-runnable-track { border-radius: var(--shape-full); height: 4px; }
+    #driveTimeFilter::-moz-range-track { border-radius: var(--shape-full); height: 4px; }
     #driveTimeFilter::-webkit-slider-thumb {
       -webkit-appearance: none;
       width: 20px;
       height: 20px;
       margin-top: -8px;
       border-radius: 50%;
-      background: var(--accent);
-      border: 2.5px solid hsla(0, 0%, 100%, 1);
-      box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.14), 0 3px 10px hsla(0, 0%, 0%, 0.18), 0 0 0 0.5px hsla(0, 0%, 0%, 0.06);
+      background: var(--md-primary);
+      border: 2.5px solid var(--md-surface-container-lowest);
+      box-shadow: 0 1px 3px hsl(0 0% 0% / 0.14), 0 3px 10px hsl(0 0% 0% / 0.18);
       cursor: pointer;
     }
     #driveTimeFilter::-moz-range-thumb {
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background: var(--accent);
-      border: 2.5px solid hsla(0, 0%, 100%, 1);
-      box-shadow: 0 1px 3px hsla(0, 0%, 0%, 0.14), 0 3px 10px hsla(0, 0%, 0%, 0.18), 0 0 0 0.5px hsla(0, 0%, 0%, 0.06);
+      background: var(--md-primary);
+      border: 2.5px solid var(--md-surface-container-lowest);
+      box-shadow: 0 1px 3px hsl(0 0% 0% / 0.14), 0 3px 10px hsl(0 0% 0% / 0.18);
       cursor: pointer;
     }
-    #driveTimeFilter:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+    #driveTimeFilter:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 4px; }
 
     #searchFilter {
-      padding: 10px 12px;
-      border: 1px solid hsla(42, 67%, 94%, 1);
-      background: hsla(0, 0%, 100%, 1);
-      color: hsla(36, 43%, 9%, 1);
+      padding: 10px 16px;
+      border: 1px solid var(--md-outline);
+      border-radius: var(--shape-full);
+      background: var(--md-surface-container-lowest);
+      color: var(--md-on-surface);
       font-family: inherit;
       font-size: 14px;
       width: 100%;
     }
-    #searchFilter:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+    #searchFilter:focus { outline: 2px solid var(--md-primary); outline-offset: 0; border-color: var(--md-primary); }
     .visited-btn {
       display: inline-flex;
       align-items: center;
-      padding: 5px 10px;
-      border: 1px solid hsla(38, 18%, 71%, 1);
-      color: hsla(30, 5%, 39%, 1);
+      padding: 6px 16px;
+      border: 1px solid var(--md-outline);
+      border-radius: var(--shape-full);
+      background: transparent;
+      color: var(--md-on-surface-variant);
       font-family: inherit;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.6px;
-      text-transform: uppercase;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.1px;
       cursor: pointer;
       transition: all 0.15s;
       white-space: nowrap;
       width: fit-content;
-      min-height: 28px;
+      min-height: 32px;
       flex: none;
     }
-    .visited-btn:hover { border-color: var(--accent); color: var(--accent); background: hsla(193, 53%, 93%, 1); }
-    .visited-btn.is-visited { background: var(--accent); border-color: var(--accent); color: hsla(0, 0%, 100%, 1); }
-    .card.is-visited { opacity: 0.65; border-left: 3px solid var(--accent); }
+    .visited-btn:hover { border-color: var(--md-primary); color: var(--md-primary); background: hsl(186 100% 26% / 0.08); }
+    .visited-btn.is-visited { background: var(--md-primary); border-color: var(--md-primary); color: var(--md-on-primary); }
+    .card.is-visited { opacity: 0.65; border-left: 3px solid var(--md-primary); }
     #cardContainer {
       display: flex;
       flex-direction: column;
+      gap: 8px;
     }
     .card {
-      background: hsla(0, 0%, 100%, 1);
-      border: 1px solid hsla(42, 67%, 94%, 1);
-      margin-bottom: -1px;
+      background: var(--md-surface-container-low);
+      border: 1px solid var(--md-outline-variant);
+      border-radius: var(--shape-md);
       padding: 1.5rem;
-      box-shadow: 0 1px 4px hsla(0, 0%, 0%, 0.01);
+      box-shadow: 0 1px 2px hsl(0 0% 0% / 0.06), 0 1px 3px 1px hsl(0 0% 0% / 0.04);
       animation: slideIn 0.25s ease-out;
     }
     @keyframes slideIn {
@@ -318,10 +356,10 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .card.loading { display: flex; justify-content: center; align-items: center; padding: 2rem; border-top: 1px solid hsla(42, 67%, 94%, 1); }
+    .card.loading { display: flex; justify-content: center; align-items: center; padding: 2rem; }
     .loading-pulse {
       width: 28px; height: 28px; border-radius: 50%;
-      background: hsla(42, 67%, 94%, 1);
+      background: var(--md-surface-variant);
       animation: pulse 1.5s ease-in-out infinite;
     }
     @keyframes pulse {
@@ -335,61 +373,67 @@
       font-weight: 400;
       letter-spacing: -0.2px;
       margin-bottom: 0.5rem;
-      color: hsla(36, 43%, 9%, 1);
+      color: var(--md-on-surface);
     }
     .distance-badge {
       display: inline-block;
       background: transparent;
-      color: var(--accent);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.6px;
-      text-transform: uppercase;
+      color: var(--md-primary);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
       margin-bottom: 0;
     }
     .restaurant-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
     .tag {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
       background: transparent;
-      color: hsla(30, 5%, 39%, 1);
-      padding: 2px 8px;
-      border: 1px solid hsla(38, 18%, 71%, 1);
-      font-size: 11px;
+      color: var(--md-on-surface-variant);
+      padding: 4px 12px;
+      border: 1px solid var(--md-outline);
+      border-radius: var(--shape-sm);
+      font-size: 12px;
       font-weight: 500;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.1px;
     }
     .note {
-      background: hsla(42, 60%, 97%, 1);
-      border-left: 2px solid var(--accent);
+      background: var(--md-primary-container);
+      border-radius: var(--shape-xs);
       padding: 10px 12px;
       margin-bottom: 1rem;
-      font-size: 13px;
-      color: hsla(0, 0%, 33%, 1);
+      font-size: 14px;
+      color: var(--md-on-primary-container);
       font-style: italic;
     }
-    .buttons { display: flex; gap: 10px; }
+    .buttons { display: flex; gap: 8px; }
     button {
       flex: 1;
-      padding: 11px 14px;
-      border: 1px solid hsla(38, 18%, 71%, 1);
-      background: hsla(0, 0%, 100%, 1);
-      color: hsla(36, 43%, 9%, 1);
+      padding: 10px 16px;
+      border: 1px solid var(--md-outline);
+      border-radius: var(--shape-full);
+      background: transparent;
+      color: var(--md-primary);
       font-family: inherit;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.7px;
-      text-transform: uppercase;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.1px;
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s;
     }
-    button:hover { background: hsla(45, 19%, 92%, 1); border-color: hsla(39, 10%, 55%, 1); }
-    button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    button:hover { background: hsl(186 100% 26% / 0.08); }
+    button:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
     button:active { transform: scale(0.99); }
-    button.primary { background: var(--accent); color: hsla(0, 0%, 100%, 1); border-color: var(--accent); }
-    button.primary:hover { background: hsla(190, 100%, 21%, 1); border-color: hsla(190, 100%, 21%, 1); }
+    button.primary {
+      background: var(--md-primary);
+      color: var(--md-on-primary);
+      border-color: var(--md-primary);
+      box-shadow: 0 1px 2px hsl(0 0% 0% / 0.3), 0 1px 3px 1px hsl(0 0% 0% / 0.15);
+    }
+    button.primary:hover { background: hsl(186 100% 22%); border-color: hsl(186 100% 22%); }
 
-    .no-location { text-align: center; padding: 2rem 1rem; color: hsla(30, 5%, 39%, 1); }
-    .distance { font-size: 14px; font-weight: 500; color: var(--accent); }
+    .no-location { text-align: center; padding: 2rem 1rem; color: var(--md-on-surface-variant); }
+    .distance { font-size: 14px; font-weight: 500; color: var(--md-primary); }
     @media (prefers-reduced-motion: reduce) {
       .card { animation: none; opacity: 1; transform: none; }
       .loading-pulse { animation: none; opacity: 0.6; }
@@ -397,32 +441,32 @@
     }
 
     .maps-link {
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.4px;
-      color: var(--accent);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.1px;
+      color: var(--md-primary);
       text-decoration: underline;
       text-underline-offset: 2px;
     }
     #resultsCount {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.8px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
-      color: hsla(30, 5%, 39%, 1);
+      color: var(--md-on-surface-variant);
       padding: 0.75rem 0 0.25rem;
     }
-    .empty-state { text-align: center; color: hsla(30, 5%, 39%, 1); padding: 2rem 0; }
-    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+    .empty-state { text-align: center; color: var(--md-on-surface-variant); padding: 2rem 0; }
+    a:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; border-radius: var(--shape-xs); }
 
-    ::placeholder { color: hsla(0, 0%, 46%, 1); }
+    ::placeholder { color: var(--md-on-surface-variant); opacity: 0.7; }
     .copy-btn { background: none; border: none; padding: 4px; cursor: pointer; min-width: 24px; min-height: 24px; }
-    .copy-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .copy-btn:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
 
     /* ── Location error ── */
     #locationError {
       font-size: 12px;
-      color: hsla(7, 57%, 44%, 1);
+      color: var(--md-error);
       margin-top: 6px;
       line-height: 1.5;
     }
@@ -440,7 +484,7 @@
     .filter-visited-row { flex: 0 0 100%; }
 
     .radius-slider-wrap { flex: 0 0 100%; }
-    .filter-mode-segmented { align-self: flex-start; }
+    .filter-mode-segmented { align-self: stretch; }
 
     #sliderDistance,
     #sliderDriveTime {
@@ -462,8 +506,8 @@
 
     /* ── OSRM status ── */
     #osrmStatus {
-      font-size: 11px;
-      color: hsla(142, 71%, 45%, 1);
+      font-size: 12px;
+      color: hsl(142 71% 35%);
       margin: 0;
     }
     #osrmDots {
@@ -475,7 +519,7 @@
     /* ── Card inner layout ── */
     .card-location {
       font-size: 12px;
-      color: hsla(30, 5%, 39%, 1);
+      color: var(--md-on-surface-variant);
       margin-bottom: 0.35rem;
     }
     .card-meta-row {
@@ -502,7 +546,7 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: hsla(142, 71%, 45%, 1);
+      background: hsl(142 71% 35%);
       margin-right: 5px;
       vertical-align: middle;
     }
@@ -515,14 +559,14 @@
     .site-footer__copy--spaced-sm { margin-top: 0.4rem; }
     .site-footer__copy--spaced-md { margin-top: 0.75rem; }
     .site-footer__link {
-      color: hsla(37, 11%, 55%, 1);
+      color: hsl(194 9% 60%);
       text-decoration: underline;
     }
 
     /* ── Footer ── */
     .site-footer {
-      background: hsla(0, 0%, 0%, 1);
-      color: hsla(0, 0%, 100%, 1);
+      background: hsl(194 20% 8%);
+      color: hsl(0 0% 100%);
       margin-top: 1.5rem;
       padding: 0 1.5rem calc(3rem + env(safe-area-inset-bottom));
     }
@@ -541,23 +585,23 @@
       font-style: italic;
       font-size: 28px;
       font-weight: 400;
-      color: hsla(0, 0%, 100%, 1);
+      color: hsl(0 0% 100%);
       margin-bottom: 0.75rem;
       letter-spacing: -0.3px;
     }
     .site-footer__tagline {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: hsla(37, 11%, 55%, 1);
-    }
-    .site-footer__copy {
-      font-size: 11px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 500;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: hsla(37, 11%, 55%, 1);
+      color: hsl(194 9% 55%);
+    }
+    .site-footer__copy {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: hsl(194 9% 55%);
     }
 
     /* ── Hero carousel ── */
@@ -566,7 +610,7 @@
       width: 100%;
       height: clamp(87px, 17vw, 174px);
       overflow: hidden;
-      background: hsla(60, 4%, 10%, 1);
+      background: hsl(194 20% 10%);
     }
     .carousel-slide {
       position: absolute;
@@ -580,9 +624,9 @@
     }
     .carousel-slide.active { opacity: 1; }
     .site-masthead {
-      background: hsla(42, 60%, 97%, 1);
+      background: var(--md-surface-container-low);
       padding: 1.5rem 1.5rem 1.25rem;
-      border-bottom: 1px solid hsla(42, 67%, 94%, 1);
+      border-bottom: 1px solid var(--md-outline-variant);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -603,16 +647,16 @@
       font-size: clamp(31px, 6.05vw, 61.5px);
       letter-spacing: 0.02em;
       text-transform: uppercase;
-      color: hsl(40 66% 30% / 1);
+      color: var(--md-primary);
       line-height: 1;
       margin-bottom: 0.3rem;
     }
     .site-masthead p {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 500;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: hsla(39, 10%, 55%, 1);
+      color: var(--md-on-surface-variant);
     }
     @media (prefers-reduced-motion: reduce) {
       .carousel-slide { transition: none; }
@@ -632,8 +676,8 @@
       .filters { gap: 12px; }
       .filters select { padding-top: 13px; padding-bottom: 13px; font-size: 15px; }
       .filter-top-row { flex-direction: column; }
-      .segmented label { padding: 13px 6px; font-size: 12px; }
-      #searchFilter { padding: 13px 10px; font-size: 15px; }
+      .segmented label { padding: 13px 8px; font-size: 13px; }
+      #searchFilter { padding: 13px 16px; font-size: 15px; }
 
       .location-section { padding: 1rem; }
 
@@ -648,58 +692,28 @@
     }
 
     @media (prefers-color-scheme: dark) {
-      body { background: hsla(60, 5%, 8%, 1); color: hsla(45, 15%, 88%, 1); }
-      .header { border-color: hsla(60, 4%, 15%, 1); }
-      .header h1 { color: hsla(45, 15%, 88%, 1); }
-      .header p { color: hsla(60, 2%, 53%, 1); }
-      .location-section { background: hsla(60, 3%, 12%, 1); border-color: hsla(60, 4%, 15%, 1); }
-      .location-section h3 { color: hsla(60, 2%, 53%, 1); }
-      .input-group label { color: hsla(60, 2%, 53%, 1); }
-      input[type="number"] { background: hsla(60, 3%, 12%, 1); border-color: hsla(60, 4%, 15%, 1); color: hsla(45, 15%, 88%, 1); }
-      .btn { background: hsla(60, 3%, 12%, 1); border-color: hsla(60, 4%, 22%, 1); color: hsla(45, 15%, 88%, 1); }
-      .btn:hover { background: hsla(60, 4%, 15%, 1); border-color: hsla(60, 3%, 28%, 1); }
-      .current-location { background: hsla(196, 65%, 12%, 1); border-left-color: var(--accent); color: hsla(60, 2%, 53%, 1); }
-      .current-location strong { color: hsla(45, 15%, 88%, 1); }
-      .filters { background: hsla(60, 3%, 12%, 1); border-color: hsla(60, 4%, 15%, 1); }
-      .radius-slider-wrap { border-top-color: hsla(60, 4%, 15%, 1); }
+      :root {
+        /* M3 dark scheme — teal primary */
+        --md-primary:                   hsl(185 100% 80%);
+        --md-on-primary:                hsl(193 100% 13%);
+        --md-primary-container:         hsl(186 100% 19%);
+        --md-on-primary-container:      hsl(185 100% 87%);
+        --md-surface:                   hsl(194 16% 8%);
+        --md-on-surface:                hsl(192 13% 88%);
+        --md-surface-variant:           hsl(194 8% 27%);
+        --md-on-surface-variant:        hsl(192 9% 77%);
+        --md-outline:                   hsl(194 6% 55%);
+        --md-outline-variant:           hsl(194 8% 27%);
+        --md-surface-container-lowest:  hsl(194 20% 5%);
+        --md-surface-container-low:     hsl(194 16% 11%);
+        --md-surface-container:         hsl(193 14% 14%);
+        --md-surface-container-high:    hsl(193 12% 18%);
+        --md-surface-container-highest: hsl(193 10% 22%);
+        --md-error:                     hsl(6 93% 79%);
+      }
       .filters select {
-        background-color: hsla(60, 3%, 12%, 1);
-        border-color: hsla(60, 4%, 15%, 1);
-        color: hsla(45, 15%, 88%, 1);
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aaa' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       }
-      .segmented { background: hsla(60, 3%, 12%, 1); border-color: hsla(60, 4%, 15%, 1); }
-      .segmented label { color: hsla(45, 15%, 88%, 1); border-color: hsla(60, 4%, 15%, 1); }
-      .segmented label:has(input:checked) { background: var(--accent); color: hsla(0, 0%, 100%, 1); }
-      #radiusLabel, #driveTimeLabel { color: hsla(60, 2%, 53%, 1); }
-      #radiusFilter {
-        background: linear-gradient(to right, var(--accent) var(--pct, 22%), hsla(60, 4%, 22%, 1) var(--pct, 22%));
-      }
-      #driveTimeFilter {
-        background: linear-gradient(to right, var(--accent) var(--pct, 20%), hsla(60, 4%, 22%, 1) var(--pct, 20%));
-      }
-      #searchFilter { background: hsla(60, 3%, 12%, 1); border-color: hsla(60, 4%, 15%, 1); color: hsla(45, 15%, 88%, 1); }
-      .visited-btn { border-color: hsla(60, 4%, 22%, 1); color: hsla(60, 2%, 53%, 1); }
-      .visited-btn:hover { background: hsla(196, 65%, 12%, 1); border-color: var(--accent); color: hsla(190, 55%, 57%, 1); }
-      .visited-btn.is-visited { background: var(--accent); border-color: var(--accent); color: hsla(0, 0%, 100%, 1); }
-      .card { background: hsla(60, 3%, 12%, 1); border-color: hsla(60, 4%, 15%, 1); }
-      .loading-pulse { background: hsla(60, 4%, 15%, 1); }
-      .restaurant-name { color: hsla(45, 15%, 88%, 1); }
-      .distance-badge { color: hsla(190, 55%, 57%, 1); }
-      .tag { color: hsla(60, 2%, 53%, 1); border-color: hsla(60, 4%, 22%, 1); }
-      .note { background: hsla(60, 4%, 10%, 1); border-left-color: var(--accent); color: hsla(60, 2%, 53%, 1); }
-      button { background: hsla(60, 3%, 12%, 1); border-color: hsla(60, 4%, 22%, 1); color: hsla(45, 15%, 88%, 1); }
-      button:hover { background: hsla(60, 4%, 15%, 1); border-color: hsla(60, 3%, 28%, 1); }
-      .no-location { color: hsla(60, 2%, 53%, 1); }
-      .distance { color: hsla(190, 55%, 57%, 1); }
-      .maps-link { color: hsla(190, 55%, 57%, 1); }
-      #resultsCount { color: hsla(60, 2%, 53%, 1); }
-      .empty-state { color: hsla(60, 2%, 53%, 1); }
-      ::placeholder { color: hsla(0, 0%, 56%, 1); }
-      .card-location { color: hsla(60, 2%, 53%, 1); }
-      .site-masthead { background: hsla(60, 5%, 8%, 1); border-color: hsla(60, 4%, 15%, 1); }
-      .site-masthead h1 { color: hsla(45, 15%, 88%, 1); }
-      .site-masthead p { color: hsla(60, 2%, 53%, 1); }
     }
   </style>
 </head>
