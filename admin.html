@@ -219,12 +219,14 @@
 
     <div class="form-grid">
       <div class="form-group full"><label>Name</label><input id="f-title" type="text"></div>
+      <div class="form-group"><label>City</label><input id="f-city" type="text"></div>
+      <div class="form-group"><label>State</label><input id="f-state" type="text"></div>
       <div class="form-group"><label>Cuisine / Category</label><input id="f-cuisine" type="text"></div>
       <div class="form-group"><label>Tags</label><input id="f-tags" type="text"></div>
       <div class="form-group full"><label>Note</label><textarea id="f-note"></textarea></div>
       <div class="form-group full"><label>Maps URL</label><input id="f-url" type="text"></div>
-      <div class="form-group"><label>Latitude</label><input id="f-lat" type="number" step="any"></div>
-      <div class="form-group"><label>Longitude</label><input id="f-lng" type="number" step="any"></div>
+      <div class="form-group"><label>Latitude</label><input id="f-lat" type="number" step="any" readonly tabindex="-1" style="opacity:0.5;cursor:default;pointer-events:none;"></div>
+      <div class="form-group"><label>Longitude</label><input id="f-lng" type="number" step="any" readonly tabindex="-1" style="opacity:0.5;cursor:default;pointer-events:none;"></div>
       <div class="form-group checkbox full">
         <input id="f-visited" type="checkbox">
         <label for="f-visited">Visited</label>
@@ -294,9 +296,19 @@
     // Extract name instantly from URL without waiting for server
     setTimeout(() => {
       const url = document.getElementById('f-lookup-url').value.trim();
+      // Try /maps/place/Name/ first
       const m = url.match(/\/maps\/place\/([^/@?#]+)/);
-      const quickName = m && !m[1].startsWith('data')
+      let quickName = m && !m[1].startsWith('data')
         ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
+      // Fall back to ?q=Name,+Address — stop before street number
+      if (!quickName) {
+        const qm = url.match(/[?&]q=([^&]+)/);
+        if (qm) {
+          const parts = decodeURIComponent(qm[1].replace(/\+/g, ' ')).split(',').map(s => s.trim());
+          const addrIdx = parts.findIndex(p => /^\d/.test(p));
+          quickName = (addrIdx > 0 ? parts.slice(0, addrIdx) : parts.slice(0, 1)).join(', ');
+        }
+      }
       if (quickName) {
         document.getElementById('f-title').value = quickName;
         document.getElementById('f-title').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -308,7 +320,7 @@
   function openAdd() {
     clearTimeout(lookupTimer);
     editingId = null;
-    ['f-title','f-cuisine','f-tags','f-note','f-url','f-lat','f-lng','f-lookup-url'].forEach(id => document.getElementById(id).value = '');
+    ['f-title','f-city','f-state','f-cuisine','f-tags','f-note','f-url','f-lat','f-lng','f-lookup-url'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-visited').checked = false;
     document.getElementById('lookup-status').textContent = '';
     document.getElementById('lookup-status').style.color = '#6b6560';
@@ -324,6 +336,8 @@
     if (!r) return;
     editingId = id;
     document.getElementById('f-title').value   = r.title   ?? '';
+    document.getElementById('f-city').value    = r.city    ?? '';
+    document.getElementById('f-state').value   = r.state   ?? '';
     document.getElementById('f-cuisine').value = r.cuisine ?? '';
     document.getElementById('f-tags').value    = r.tags    ?? '';
     document.getElementById('f-note').value    = r.note    ?? '';
@@ -361,7 +375,10 @@
         statusEl.textContent = '✗ ' + data.error;
         return;
       }
-      if (data.title) document.getElementById('f-title').value = data.title;
+      if (data.title)   document.getElementById('f-title').value   = data.title;
+      if (data.city)    document.getElementById('f-city').value    = data.city;
+      if (data.state)   document.getElementById('f-state').value   = data.state;
+      if (data.cuisine) document.getElementById('f-cuisine').value = data.cuisine;
       document.getElementById('f-url').value = data.url ?? url;
       document.getElementById('f-lat').value = data.lat ?? '';
       document.getElementById('f-lng').value = data.lng ?? '';
@@ -381,6 +398,8 @@
   async function save() {
     const body = {
       title:   document.getElementById('f-title').value,
+      city:    document.getElementById('f-city').value,
+      state:   document.getElementById('f-state').value,
       cuisine: document.getElementById('f-cuisine').value,
       tags:    document.getElementById('f-tags').value,
       note:    document.getElementById('f-note').value,

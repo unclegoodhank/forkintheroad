@@ -19,6 +19,10 @@ db.exec(`
   )
 `);
 
+// Migrations — safe to run on existing databases
+try { db.exec(`ALTER TABLE restaurants ADD COLUMN city  TEXT DEFAULT ''`); } catch {}
+try { db.exec(`ALTER TABLE restaurants ADD COLUMN state TEXT DEFAULT ''`); } catch {}
+
 // Seed from CSV on first run
 const empty = db.prepare('SELECT COUNT(*) as n FROM restaurants').get().n === 0;
 if (empty) {
@@ -26,8 +30,8 @@ if (empty) {
   if (fs.existsSync(csvPath)) {
     const rows = parseCSV(fs.readFileSync(csvPath, 'utf-8'));
     const insert = db.prepare(`
-      INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited)
-      VALUES (@title, @note, @url, @tags, @cuisine, @lat, @lng, @visited)
+      INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited, city, state)
+      VALUES (@title, @note, @url, @tags, @cuisine, @lat, @lng, @visited, @city, @state)
     `);
     const seen = new Set();
     const unique = rows
@@ -42,6 +46,8 @@ if (empty) {
         lat:     r.Latitude  ? parseFloat(r.Latitude)  : null,
         lng:     r.Longitude ? parseFloat(r.Longitude) : null,
         visited: (r.Visited || '').trim().toLowerCase() === 'yes' ? 1 : 0,
+        city:    r.City  || '',
+        state:   r.State || '',
       }));
     db.transaction(rows => rows.forEach(r => insert.run(r)))(unique);
     console.log(`Seeded ${unique.length} restaurants from Want-to-go.csv`);

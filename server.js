@@ -39,9 +39,9 @@ app.patch('/api/restaurants/:id/visited', (req, res) => {
 app.get('/export', (req, res) => {
   const rows = db.prepare('SELECT * FROM restaurants ORDER BY id').all();
   const escape = v => { v = String(v ?? ''); return (v.includes(',') || v.includes('"') || v.includes('\n')) ? `"${v.replace(/"/g, '""')}"` : v; };
-  const header = 'Title,Note,URL,Tags,Cuisine,Latitude,Longitude,Visited';
+  const header = 'Title,Note,URL,Tags,Cuisine,Latitude,Longitude,Visited,City,State';
   const csv = [header, ...rows.map(r =>
-    [r.title, r.note, r.url, r.tags, r.cuisine, r.lat, r.lng, r.visited ? 'Yes' : ''].map(escape).join(',')
+    [r.title, r.note, r.url, r.tags, r.cuisine, r.lat, r.lng, r.visited ? 'Yes' : '', r.city, r.state].map(escape).join(',')
   )].join('\n');
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', 'attachment; filename="restaurants.csv"');
@@ -100,9 +100,9 @@ app.get('/admin', (req, res) => {
 });
 
 app.put('/api/restaurants/:id', (req, res) => {
-  const { title, note, url, tags, cuisine, lat, lng, visited } = req.body;
-  db.prepare(`UPDATE restaurants SET title=?, note=?, url=?, tags=?, cuisine=?, lat=?, lng=?, visited=? WHERE id=?`)
-    .run(title, note, url, tags, cuisine, lat !== '' ? parseFloat(lat) : null, lng !== '' ? parseFloat(lng) : null, visited ? 1 : 0, req.params.id);
+  const { title, note, url, tags, cuisine, lat, lng, visited, city, state } = req.body;
+  db.prepare(`UPDATE restaurants SET title=?, note=?, url=?, tags=?, cuisine=?, lat=?, lng=?, visited=?, city=?, state=? WHERE id=?`)
+    .run(title, note, url, tags, cuisine, lat !== '' ? parseFloat(lat) : null, lng !== '' ? parseFloat(lng) : null, visited ? 1 : 0, city || '', state || '', req.params.id);
   res.json({ ok: true });
 });
 
@@ -112,14 +112,14 @@ app.delete('/api/restaurants/:id', (req, res) => {
 });
 
 app.post('/api/restaurants', (req, res) => {
-  const { title, note, url, tags, cuisine, lat, lng, visited } = req.body;
+  const { title, note, url, tags, cuisine, lat, lng, visited, city, state } = req.body;
   const result = db.prepare(
-    `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited, city, state) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     title, note || '', url || '', tags || '', cuisine || '',
     lat !== '' && lat != null ? parseFloat(lat) : null,
     lng !== '' && lng != null ? parseFloat(lng) : null,
-    visited ? 1 : 0
+    visited ? 1 : 0, city || '', state || ''
   );
   res.json({ ok: true, id: result.lastInsertRowid });
 });
@@ -156,9 +156,24 @@ app.post('/api/lookup', async (req, res) => {
       workingUrl = finalUrl;
     }
 
-    // Extract place name from URL path
+    // Extract place name from URL path (/maps/place/Name/...)
     const nameMatch = workingUrl.match(/\/maps\/place\/([^/@?]+)/);
     let title = nameMatch ? decodeURIComponent(nameMatch[1].replace(/\+/g, ' ')) : '';
+
+    // Extract name, city, state from ?q= param (e.g. ?q=Name,+Address,+City,+State+Zip)
+    let city = '', state = '';
+    const qMatch = workingUrl.match(/[?&]q=([^&]+)/);
+    if (qMatch) {
+      const parts = decodeURIComponent(qMatch[1].replace(/\+/g, ' ')).split(',').map(s => s.trim());
+      const addrIdx = parts.findIndex(p => /^\d/.test(p));
+      if (!title) {
+        title = (addrIdx > 0 ? parts.slice(0, addrIdx) : parts.slice(0, 1)).join(', ');
+      }
+      if (addrIdx > 0) {
+        city  = parts[addrIdx + 1] || '';
+        state = (parts[addrIdx + 2] || '').replace(/\s*\d.*/, '').trim(); // strip zip
+      }
+    }
 
     // Prefer precise coords embedded in data param: !3d<lat>!4d<lng>
     let lat = null, lng = null;
@@ -174,8 +189,9 @@ app.post('/api/lookup', async (req, res) => {
       if (atMatch) { lat = parseFloat(atMatch[1]); lng = parseFloat(atMatch[2]); }
     }
 
-    // Fetch the Maps page — extract coords and canonical name from HTML
-    if ((lat === null || !title) && workingUrl.includes('google.com/maps')) {
+    // Fetch the Maps page — extract coords, name, and cuisine category from HTML
+    let cuisine = '';
+    if (workingUrl.includes('google.com/maps')) {
       const { body } = await httpsGet(workingUrl, {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept-Language': 'en-US,en;q=0.9',
@@ -187,6 +203,14 @@ app.post('/api/lookup', async (req, res) => {
       if (!title) {
         const nameMatch2 = body.match(/0x[0-9a-f]+:0x[0-9a-f]+","([^"]+)"\]\]\]/);
         if (nameMatch2) title = nameMatch2[1];
+      }
+      // Extract category from <title>: "Name · Category · Address · Google Maps"
+      const titleTag = body.match(/<title>([^<]+)<\/title>/);
+      if (titleTag) {
+        const sep = titleTag[1].includes('·') ? /\s*·\s*/ : /\s*-\s*/;
+        const parts = titleTag[1].split(sep).map(s => s.trim()).filter(s => s && !/^Google Maps$/i.test(s));
+        // parts[0] = name, parts[1] = category (if it exists and isn't the address)
+        if (parts.length >= 2 && !/^\d/.test(parts[1])) cuisine = parts[1];
       }
     }
 
@@ -200,7 +224,29 @@ app.post('/api/lookup', async (req, res) => {
       if (nomData[0]) { lat = parseFloat(nomData[0].lat); lng = parseFloat(nomData[0].lon); }
     }
 
-    res.json({ title, url: workingUrl, lat, lng });
+    // Nominatim reverse geocode to get name from coordinates when name not found
+    if (!title && lat !== null) {
+      const { body } = await httpsGet(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18`,
+        { 'User-Agent': 'fork-in-the-road-app/1.0' }
+      );
+      const nomData = JSON.parse(body);
+      if (nomData && nomData.name) title = nomData.name;
+    }
+
+    // DuckDuckGo HTML search — extract category from result titles (e.g. "Name | Brunch Restaurant in City, State")
+    if (!cuisine && title) {
+      const q = [title, city, state].filter(Boolean).join(' ');
+      const { body } = await httpsGet(
+        `https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`,
+        { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+      );
+      // Result titles often: "Name | Category in City, State" (from Yelp, TripAdvisor, etc.)
+      const titleMatch = body.match(/\|\s*([^|<"]{4,60}?)\s+(?:in\s+[\w\s,]+|[-–<])/i);
+      if (titleMatch) cuisine = titleMatch[1].trim();
+    }
+
+    res.json({ title, url: workingUrl, lat, lng, city, state, cuisine });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
