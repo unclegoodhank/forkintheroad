@@ -1004,7 +1004,7 @@
           const mi = Math.round(r.distance * 10) / 10;
           const mins = driveMinutes(r);
           const prefix = osrmCache.has(r.id) ? '' : '~';
-          el.querySelector('.distance-badge').textContent = `${mi} mi · ${prefix}${mins} min`;
+          el.querySelector('.distance-badge').textContent = `${prefix}${mins} min`;
         } else {
           el.querySelector('.distance-badge').textContent = 'Location unknown';
         }
