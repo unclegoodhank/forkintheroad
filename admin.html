@@ -40,8 +40,8 @@
       border-bottom: 1px solid #f9f3e7;
     }
     .toolbar input {
-      flex: 1;
-      min-width: 180px;
+      flex: 2;
+      min-width: 320px;
       padding: 8px 12px;
       border: 1px solid #f9f3e7;
       background: white;
@@ -104,6 +104,16 @@
       color: white;
     }
     td.actions { white-space: nowrap; text-align: right; }
+    tr.group-header td {
+      padding: 12px 12px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6b6560;
+      background: #f9f3e7;
+      border-top: 2px solid #f0e8d8;
+    }
     td.actions .btn { padding: 5px 10px; font-size: 11px; }
 
     /* Modal */
@@ -146,14 +156,31 @@
       color: #6b6560;
     }
     .form-group input, .form-group textarea {
-      padding: 8px 10px;
+      padding: 8px 36px 8px 10px;
       border: 1px solid #f9f3e7;
       background: #fcf9f3;
       font-family: inherit;
       font-size: 13px;
       color: #1c1810;
+      width: 100%;
     }
     .form-group input:focus, .form-group textarea:focus { outline: 2px solid #006f84; outline-offset: 1px; border-color: #006f84; background: white; }
+    .input-wrap { position: relative; display: flex; }
+    .input-clear-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b6560;
+      line-height: 0;
+      padding: 4px;
+      display: none;
+    }
+    .input-clear-btn:hover { color: #1c1810; }
+    .input-wrap textarea ~ .input-clear-btn { top: 12px; transform: none; }
     .form-group textarea { resize: vertical; min-height: 60px; }
     .form-group.checkbox { flex-direction: row; align-items: center; gap: 8px; }
     .form-group.checkbox input { width: auto; accent-color: #006f84; }
@@ -174,11 +201,12 @@
   <a href="/">← Back to app</a>
 </header>
 
+<div id="data-notice" style="display:none;padding:8px 1.5rem;font-size:12px;color:#6b6560;background:#f9f3e7;border-bottom:1px solid #f0e8d8;"></div>
 <div class="toolbar">
-  <input type="text" id="search" placeholder="Search by name, cuisine, note…" oninput="renderTable()">
+  <input type="text" id="search" placeholder="Filter by name, cuisine, note…" oninput="renderTable()">
   <span id="rowCount"></span>
+  <span style="flex:1;"></span>
   <button class="btn primary" onclick="openAdd()">+ Add Place</button>
-  <button class="btn" onclick="importCSV()" title="Insert any rows from Want-to-go.csv that are missing from the DB">Sync from CSV</button>
 </div>
 
 <div style="overflow-x:auto;">
@@ -186,6 +214,7 @@
     <thead>
       <tr>
         <th class="sortable" onclick="sort('title')">Name</th>
+        <th class="sortable" onclick="sort('city')">Location</th>
         <th class="sortable" onclick="sort('cuisine')">Cuisine</th>
         <th>Note</th>
         <th class="sortable" onclick="sort('lat')">Coords</th>
@@ -237,12 +266,14 @@
       <div class="form-group full"><label>Maps URL</label><input id="f-url" type="text"></div>
       <div class="form-group"><label>Latitude</label><input id="f-lat" type="number" step="any" readonly tabindex="-1" style="opacity:0.5;cursor:default;pointer-events:none;"></div>
       <div class="form-group"><label>Longitude</label><input id="f-lng" type="number" step="any" readonly tabindex="-1" style="opacity:0.5;cursor:default;pointer-events:none;"></div>
+      <input type="hidden" id="f-country">
       <div class="form-group checkbox full">
         <input id="f-visited" type="checkbox">
         <label for="f-visited">Visited</label>
       </div>
     </div>
     <div class="modal-actions">
+      <button class="btn" id="btn-get-missing" style="display:none;margin-right:auto;" onclick="getMissingInfo()">Get missing info</button>
       <button class="btn" onclick="closeModal()">Cancel</button>
       <button class="btn primary" onclick="save()">Save</button>
     </div>
@@ -250,6 +281,9 @@
 </div>
 
 <script>
+  const STATE_ABBR = {"alabama":"AL","alaska":"AK","arizona":"AZ","arkansas":"AR","california":"CA","colorado":"CO","connecticut":"CT","delaware":"DE","florida":"FL","georgia":"GA","hawaii":"HI","idaho":"ID","illinois":"IL","indiana":"IN","iowa":"IA","kansas":"KS","kentucky":"KY","louisiana":"LA","maine":"ME","maryland":"MD","massachusetts":"MA","michigan":"MI","minnesota":"MN","mississippi":"MS","missouri":"MO","montana":"MT","nebraska":"NE","nevada":"NV","new hampshire":"NH","new jersey":"NJ","new mexico":"NM","new york":"NY","north carolina":"NC","north dakota":"ND","ohio":"OH","oklahoma":"OK","oregon":"OR","pennsylvania":"PA","rhode island":"RI","south carolina":"SC","south dakota":"SD","tennessee":"TN","texas":"TX","utah":"UT","vermont":"VT","virginia":"VA","washington":"WA","west virginia":"WV","wisconsin":"WI","wyoming":"WY","district of columbia":"DC"};
+  function normalizeState(s) { return STATE_ABBR[s.toLowerCase().trim()] ?? s; }
+
   let restaurants = [];
   let sortKey = 'title';
   let sortDir = 1;
@@ -258,16 +292,16 @@
   const FOOD_DRINK_TYPES = new Set(['Restaurant','Bar','Café / Coffee','Bakery','Ice Cream / Dessert','Brewery','Winery']);
   function isFoodDrink(type) { return FOOD_DRINK_TYPES.has(type); }
 
-  async function importCSV() {
-    const res = await fetch('/api/admin/import-csv', { method: 'POST' });
-    const data = await res.json();
-    if (data.error) { alert('Error: ' + data.error); return; }
-    alert(`Sync complete — ${data.added} new place${data.added === 1 ? '' : 's'} added.`);
-    if (data.added > 0) load();
-  }
-
-  async function load() {
+async function load() {
     restaurants = await fetch('/api/restaurants').then(r => r.json());
+    const missingCity = restaurants.filter(r => !r.city).length;
+    const notice = document.getElementById('data-notice');
+    if (missingCity > 0) {
+      notice.textContent = `${missingCity} place${missingCity === 1 ? ' is' : 's are'} missing city data.`;
+      notice.style.display = '';
+    } else {
+      notice.style.display = 'none';
+    }
     renderTable();
   }
 
@@ -277,10 +311,32 @@
     renderTable();
   }
 
+  function rowHtml(r) {
+    return `<tr>
+      <td class="title">${esc(r.title)}</td>
+      <td class="cuisine">${[r.city, r.state ? normalizeState(r.state) : ''].filter(Boolean).map(esc).join(', ') || '—'}</td>
+      <td class="cuisine">${esc(r.cuisine)}</td>
+      <td class="note" title="${esc(r.note)}">${esc(r.note)}</td>
+      <td class="coords">${r.lat != null ? `<a href="https://www.google.com/maps?q=${r.lat},${r.lng}" target="_blank" rel="noopener" style="color:#006f84;text-decoration:none;">${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}</a>` : '—'}</td>
+      <td>${r.visited ? '<span class="visited-badge">Visited</span>' : ''}</td>
+      <td style="text-align:center;">${isFoodDrink(r.type) ? 'Yes' : 'No'}</td>
+      <td class="actions">
+        <button class="btn" onclick="openEdit(${r.id})">Edit</button>
+        <button class="btn danger" onclick="del(${r.id})">Delete</button>
+      </td>
+    </tr>`;
+  }
+
+  function groupHeaderHtml(label, count) {
+    return `<tr class="group-header">
+      <td colspan="8">${esc(label)} <span style="font-weight:400;opacity:0.6;">(${count})</span></td>
+    </tr>`;
+  }
+
   function renderTable() {
     const q = document.getElementById('search').value.toLowerCase().trim();
     let rows = restaurants.filter(r =>
-      !q || [r.title, r.cuisine, r.note, r.tags].some(f => (f||'').toLowerCase().includes(q))
+      !q || [r.title, r.cuisine, r.note, r.tags, r.city, r.state, r.country].some(f => (f||'').toLowerCase().includes(q))
     );
     rows.sort((a, b) => {
       const av = sortKey === 'type' ? (isFoodDrink(a.type) ? 0 : 1) : (a[sortKey] ?? '');
@@ -288,20 +344,33 @@
       return av < bv ? -sortDir : av > bv ? sortDir : 0;
     });
     document.getElementById('rowCount').textContent = `${rows.length} places`;
-    document.getElementById('tbody').innerHTML = rows.map(r => `
-      <tr>
-        <td class="title">${esc(r.title)}</td>
-        <td class="cuisine">${esc(r.cuisine)}</td>
-        <td class="note" title="${esc(r.note)}">${esc(r.note)}</td>
-        <td class="coords">${r.lat != null ? `${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}` : '—'}</td>
-        <td>${r.visited ? '<span class="visited-badge">Visited</span>' : ''}</td>
-        <td style="text-align:center;">${isFoodDrink(r.type) ? 'Yes' : 'No'}</td>
-        <td class="actions">
-          <button class="btn" onclick="openEdit(${r.id})">Edit</button>
-          <button class="btn danger" onclick="del(${r.id})">Delete</button>
-        </td>
-      </tr>
-    `).join('');
+
+    let html = '';
+    if (sortKey === 'city') {
+      // Group by country when sorted by Location
+      const groups = new Map();
+      for (const r of rows) {
+        const key = r.country || '—';
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(r);
+      }
+      // Sort groups: United States first, then alphabetically, unknown last
+      const sorted = [...groups.entries()].sort(([a], [b]) => {
+        if (a === 'United States') return -1;
+        if (b === 'United States') return 1;
+        if (a === '—') return 1;
+        if (b === '—') return -1;
+        return a.localeCompare(b);
+      });
+      for (const [country, items] of sorted) {
+        html += groupHeaderHtml(country, items.length);
+        html += items.map(rowHtml).join('');
+      }
+    } else {
+      html = rows.map(rowHtml).join('');
+    }
+
+    document.getElementById('tbody').innerHTML = html;
   }
 
   function esc(str) {
@@ -343,7 +412,8 @@
   function openAdd() {
     clearTimeout(lookupTimer);
     editingId = null;
-    ['f-title','f-city','f-state','f-cuisine','f-tags','f-note','f-url','f-lat','f-lng','f-lookup-url'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('btn-get-missing').style.display = 'none';
+    ['f-title','f-city','f-state','f-country','f-cuisine','f-tags','f-note','f-url','f-lat','f-lng','f-lookup-url'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-type').value = '';
     document.getElementById('f-visited').checked = false;
     document.getElementById('lookup-status').textContent = '';
@@ -362,6 +432,7 @@
     document.getElementById('f-title').value   = r.title   ?? '';
     document.getElementById('f-city').value    = r.city    ?? '';
     document.getElementById('f-state').value   = r.state   ?? '';
+    document.getElementById('f-country').value = r.country ?? '';
     document.getElementById('f-cuisine').value = r.cuisine ?? '';
     document.getElementById('f-tags').value    = r.tags    ?? '';
     document.getElementById('f-note').value    = r.note    ?? '';
@@ -371,9 +442,11 @@
     document.getElementById('f-visited').checked = !!r.visited;
     document.getElementById('f-type').value = r.type ?? '';
     document.getElementById('modal-title').textContent = 'Edit Place';
-    document.getElementById('lookup-section').style.display = 'none';
+    document.getElementById('btn-get-missing').style.display = '';
+    document.getElementById('lookup-section').style.display = '';
     document.getElementById('modal').classList.add('open');
     document.getElementById('f-title').focus();
+    refreshClearButtons();
   }
 
   function closeModal() {
@@ -402,8 +475,10 @@
       }
       if (data.title)   document.getElementById('f-title').value   = data.title;
       if (data.city)    document.getElementById('f-city').value    = data.city;
-      if (data.state)   document.getElementById('f-state').value   = data.state;
+      if (data.state)   document.getElementById('f-state').value   = normalizeState(data.state);
+      if (data.country) document.getElementById('f-country').value = data.country;
       if (data.cuisine) document.getElementById('f-cuisine').value = data.cuisine;
+      document.getElementById('f-lookup-url').value = '';
       document.getElementById('f-url').value = data.url ?? url;
       document.getElementById('f-lat').value = data.lat ?? '';
       document.getElementById('f-lng').value = data.lng ?? '';
@@ -412,6 +487,7 @@
         ? `✓ ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}`
         : '⚠ Location not found — enter coordinates manually';
       document.getElementById('f-title').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      refreshClearButtons();
     } catch (e) {
       statusEl.style.color = '#b04030';
       statusEl.textContent = '✗ ' + e.message;
@@ -420,11 +496,39 @@
     }
   }
 
+  async function getMissingInfo() {
+    const lat = document.getElementById('f-lat').value;
+    const lng = document.getElementById('f-lng').value;
+    if (!lat || !lng) return alert('No coordinates available for this entry.');
+    const btn = document.getElementById('btn-get-missing');
+    btn.textContent = 'Looking up…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/geocode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lat: parseFloat(lat), lng: parseFloat(lng) }),
+      });
+      const data = await res.json();
+      if (data.error) { alert('Error: ' + data.error); return; }
+      if (data.city  && !document.getElementById('f-city').value)  { document.getElementById('f-city').value  = data.city; }
+      if (data.state && !document.getElementById('f-state').value) { document.getElementById('f-state').value = normalizeState(data.state); }
+      if (data.country) document.getElementById('f-country').value = data.country;
+      refreshClearButtons();
+    } catch (e) {
+      alert('Error: ' + e.message);
+    } finally {
+      btn.textContent = 'Get missing info';
+      btn.disabled = false;
+    }
+  }
+
   async function save() {
     const body = {
       title:   document.getElementById('f-title').value,
       city:    document.getElementById('f-city').value,
       state:   document.getElementById('f-state').value,
+      country: document.getElementById('f-country').value,
       cuisine: document.getElementById('f-cuisine').value,
       tags:    document.getElementById('f-tags').value,
       note:    document.getElementById('f-note').value,
@@ -462,6 +566,33 @@
     await fetch(`/api/restaurants/${id}`, { method: 'DELETE' });
     restaurants = restaurants.filter(x => x.id !== id);
     renderTable();
+  }
+
+  // Inject clear buttons into all text inputs and textareas
+  document.querySelectorAll('input[type=text], input[type=number], input[type=password], textarea').forEach(el => {
+    if (el.readOnly) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'input-wrap';
+    el.parentNode.insertBefore(wrap, el);
+    wrap.appendChild(el);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'input-clear-btn';
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><line x1="6.5" y1="6.5" x2="13.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="13.5" y1="6.5" x2="6.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+    btn.setAttribute('tabindex', '-1');
+    if (el.tagName === 'TEXTAREA') wrap.style.flexDirection = 'column';
+    wrap.appendChild(btn);
+    el._refreshClear = () => { btn.style.display = el.value ? 'block' : 'none'; };
+    el.addEventListener('input', el._refreshClear);
+    btn.addEventListener('click', () => { el.value = ''; el.dispatchEvent(new Event('input')); el.focus(); });
+    el._refreshClear();
+  });
+
+  function refreshClearButtons() {
+    document.querySelectorAll('.input-clear-btn').forEach(btn => {
+      const el = btn.previousElementSibling || btn.parentElement.querySelector('input, textarea');
+      if (el && el._refreshClear) el._refreshClear();
+    });
   }
 
   // Close modal on backdrop click

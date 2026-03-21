@@ -100,9 +100,9 @@ app.get('/admin', (req, res) => {
 });
 
 app.put('/api/restaurants/:id', (req, res) => {
-  const { title, note, url, tags, cuisine, lat, lng, visited, city, state, type } = req.body;
-  db.prepare(`UPDATE restaurants SET title=?, note=?, url=?, tags=?, cuisine=?, lat=?, lng=?, visited=?, city=?, state=?, type=? WHERE id=?`)
-    .run(title, note, url, tags, cuisine, lat !== '' ? parseFloat(lat) : null, lng !== '' ? parseFloat(lng) : null, visited ? 1 : 0, city || '', state || '', type || '', req.params.id);
+  const { title, note, url, tags, cuisine, lat, lng, visited, city, state, country, type } = req.body;
+  db.prepare(`UPDATE restaurants SET title=?, note=?, url=?, tags=?, cuisine=?, lat=?, lng=?, visited=?, city=?, state=?, country=?, type=? WHERE id=?`)
+    .run(title, note, url, tags, cuisine, lat !== '' ? parseFloat(lat) : null, lng !== '' ? parseFloat(lng) : null, visited ? 1 : 0, city || '', state || '', country || '', type || '', req.params.id);
   res.json({ ok: true });
 });
 
@@ -112,14 +112,14 @@ app.delete('/api/restaurants/:id', (req, res) => {
 });
 
 app.post('/api/restaurants', (req, res) => {
-  const { title, note, url, tags, cuisine, lat, lng, visited, city, state, type } = req.body;
+  const { title, note, url, tags, cuisine, lat, lng, visited, city, state, country, type } = req.body;
   const result = db.prepare(
-    `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited, city, state, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited, city, state, country, type, added_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`
   ).run(
     title, note || '', url || '', tags || '', cuisine || '',
     lat !== '' && lat != null ? parseFloat(lat) : null,
     lng !== '' && lng != null ? parseFloat(lng) : null,
-    visited ? 1 : 0, city || '', state || '', type || ''
+    visited ? 1 : 0, city || '', state || '', country || '', type || ''
   );
   res.json({ ok: true, id: result.lastInsertRowid });
 });
@@ -220,6 +220,26 @@ function httpsGet(url, headers = {}) {
   });
 }
 
+app.post('/api/geocode', async (req, res) => {
+  const { lat, lng } = req.body;
+  if (lat == null || lng == null) return res.status(400).json({ error: 'lat and lng required' });
+  try {
+    const { body } = await httpsGet(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=10`,
+      { 'User-Agent': 'fork-in-the-road-app/1.0' }
+    );
+    const data = JSON.parse(body);
+    const addr = data.address || {};
+    res.json({
+      city:    addr.city || addr.town || addr.village || addr.hamlet || addr.suburb || '',
+      state:   addr.state || '',
+      country: addr.country || '',
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.post('/api/lookup', async (req, res) => {
   const { url } = req.body;
   if (!url || typeof url !== 'string') return res.status(400).json({ error: 'URL required' });
@@ -301,14 +321,22 @@ app.post('/api/lookup', async (req, res) => {
       if (nomData[0]) { lat = parseFloat(nomData[0].lat); lng = parseFloat(nomData[0].lon); }
     }
 
-    // Nominatim reverse geocode to get name from coordinates when name not found
-    if (!title && lat !== null) {
+    // Nominatim reverse geocode — get name (if missing) + city/state/country
+    let country = '';
+    if (lat !== null) {
+      const zoom = !title ? 18 : 10;
       const { body } = await httpsGet(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18`,
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=${zoom}`,
         { 'User-Agent': 'fork-in-the-road-app/1.0' }
       );
       const nomData = JSON.parse(body);
-      if (nomData && nomData.name) title = nomData.name;
+      if (nomData) {
+        if (!title && nomData.name) title = nomData.name;
+        const addr = nomData.address || {};
+        if (!city)  city    = addr.city || addr.town || addr.village || addr.hamlet || addr.suburb || '';
+        if (!state) state   = addr.state || '';
+        country = addr.country || '';
+      }
     }
 
     // DuckDuckGo HTML search — extract category from result titles (e.g. "Name | Brunch Restaurant in City, State")
@@ -323,7 +351,7 @@ app.post('/api/lookup', async (req, res) => {
       if (titleMatch) cuisine = titleMatch[1].trim();
     }
 
-    res.json({ title, url: workingUrl, lat, lng, city, state, cuisine });
+    res.json({ title, url: workingUrl, lat, lng, city, state, country, cuisine });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }

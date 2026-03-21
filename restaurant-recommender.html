@@ -259,7 +259,7 @@
       appearance: none;
       height: 3px;
       border-radius: var(--shape-full);
-      background: linear-gradient(to right, var(--md-primary) var(--pct, 22%), var(--md-surface-variant) var(--pct, 22%));
+      background: linear-gradient(to right, hsla(191,100%,18%,1) 0%, var(--md-primary) var(--pct, 0%), var(--md-surface-variant) var(--pct, 0%));
     }
     #radiusFilter::-webkit-slider-runnable-track { border-radius: var(--shape-full); height: 3px; }
     #radiusFilter::-moz-range-track { border-radius: var(--shape-full); height: 3px; }
@@ -289,7 +289,7 @@
     #searchFilter {
       -webkit-appearance: none;
       height: var(--ctrl-height);
-      padding: 0 18px;
+      padding: 0 44px 0 18px;
       border: 1px solid var(--md-outline);
       border-radius: var(--shape-full);
       background: var(--md-surface-container-lowest);
@@ -300,26 +300,30 @@
     }
     #searchFilter:focus { outline: 2px solid var(--md-primary); outline-offset: 0; border-color: var(--md-primary); }
     .visited-btn {
+      -webkit-appearance: none;
+      appearance: none;
       display: inline-flex;
       align-items: center;
-      padding: 6px 18px;
-      border: 1px solid var(--md-outline);
-      border-radius: var(--shape-full);
+      justify-content: center;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 20px;
       background: transparent;
-      color: var(--md-on-surface-variant);
+      outline: none;
       font-family: inherit;
-      font-size: 0.9375rem;
+      font-size: 0.875rem;
       font-weight: 500;
       letter-spacing: 0.1px;
+      color: var(--md-primary);
       cursor: pointer;
-      transition: all 0.15s;
       white-space: nowrap;
-      width: fit-content;
-      min-height: 33px;
       flex: none;
+      transition: background 0.15s;
+      margin-left: auto;
     }
-    .visited-btn:hover { border-color: var(--md-primary); color: var(--md-primary); background: var(--md-primary-container); }
-    .visited-btn.is-visited { background: var(--md-primary); border-color: var(--md-primary); color: var(--md-on-primary); }
+    .visited-btn:hover { background: color-mix(in srgb, var(--md-primary) 8%, transparent); }
+    .visited-btn:active { background: color-mix(in srgb, var(--md-primary) 12%, transparent); }
+    .visited-btn.is-visited { color: var(--md-primary); }
     .card.is-visited { opacity: 0.65; border-left: 3px solid var(--md-primary); }
     #cardContainer {
       display: flex;
@@ -330,7 +334,7 @@
       background: var(--md-surface-container-low);
       border: 1px solid var(--md-outline-variant);
       border-radius: var(--shape-md);
-      padding: 24px;
+      padding: 24px 24px 12px;
       animation: slideIn 0.25s ease-out;
     }
     @keyframes slideIn {
@@ -457,7 +461,8 @@
     }
 
     /* ── Filter layout helpers ── */
-    #searchFilter { flex: 0 0 100%; }
+    #searchFilter { flex: 0 0 100%; width: 100%; }
+    #searchFilter + button { display: none; } /* overridden by JS */
 
     .filter-top-row {
       flex: 0 0 100%;
@@ -550,11 +555,16 @@
 
     .card-footer-row {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 9px;
-      margin-top: 9px;
+      margin-top: 8px;
+    }
+    .card-added-date {
+      font-size: 0.6875rem;
+      color: var(--md-on-surface-variant);
+      opacity: 0.7;
     }
 
 
@@ -678,7 +688,6 @@
       .site-masthead h1 { font-size: 1.5rem; }
       .site-masthead p { letter-spacing: 0.06em; font-size: 0.5625rem; }
       .radius-slider-wrap label { min-width: 0; }
-      .visited-btn { white-space: normal; }
 
       .filters { gap: 12px; }
       .filters select { font-size: 0.9375rem; }
@@ -724,7 +733,7 @@
 </head>
 <body>
   <!-- 2.4.1 Skip navigation -->
-  <div class="build-stamp">build 14:57:23</div>
+  <div class="build-stamp">build 16:46:15</div>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
   <div class="site-masthead">
@@ -762,9 +771,15 @@
       </div>
       
       <div class="filters" role="group" aria-label="Search and filters">
-        <input type="text" id="searchFilter"
-               aria-label="Search by name, cuisine, or note"
-               placeholder="Search by name, cuisine, or note…">
+        <div style="position:relative;width:100%;">
+          <input type="text" id="searchFilter"
+                 aria-label="Search by name, cuisine, or note"
+                 placeholder="Search by name, cuisine, or note…">
+          <button id="searchClear" type="button" aria-label="Clear search"
+                  style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--md-on-surface-variant);line-height:0;padding:4px;">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><line x1="6.5" y1="6.5" x2="13.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="13.5" y1="6.5" x2="6.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
         <div class="filter-top-row">
           <label class="food-toggle">
             <input type="checkbox" id="foodFilter">
@@ -781,10 +796,24 @@
           <label><input type="radio" name="visitedFilter" value="unvisited">Not visited</label>
           <label><input type="radio" name="visitedFilter" value="visited">Visited</label>
         </div>
+        <div style="display:flex;gap:9px;flex:0 0 100%;">
+          <select id="addedFilter" aria-label="Filter by date added" style="flex:1;">
+            <option value="">Any time</option>
+            <option value="7">Added this week</option>
+            <option value="30">Added this month</option>
+            <option value="90">Added last 3 months</option>
+            <option value="365">Added this year</option>
+          </select>
+          <select id="sortOrder" aria-label="Sort order" style="flex:1;">
+            <option value="distance">Sort: Distance</option>
+            <option value="newest">Sort: Newest</option>
+            <option value="oldest">Sort: Oldest</option>
+          </select>
+        </div>
         <div class="radius-slider-wrap">
           <div id="sliderDistance">
-            <label for="radiusFilter" id="radiusLabel">Within 30 miles</label>
-            <input type="range" id="radiusFilter" min="0" max="100" value="35" aria-labelledby="radiusLabel">
+            <label for="radiusFilter" id="radiusLabel">Within 5 miles</label>
+            <input type="range" id="radiusFilter" min="0" max="100" value="0" aria-labelledby="radiusLabel">
             <div class="slider-ticks" aria-hidden="true">
               <span class="slider-tick slider-tick-end" style="left:0%"></span>
               <span class="slider-tick" style="left:11.67%"></span>
@@ -1029,15 +1058,16 @@
         el.className = `card${isV ? ' is-visited' : ''}`;
         el.innerHTML = `
           <div class="restaurant-name">${r.title}</div>
-          ${(r.city || r.state) ? `<div class="card-location">${[r.city, r.state].filter(Boolean).join(', ')}</div>` : ''}
+          <div class="card-location">${[r.city, r.state].filter(Boolean).join(', ')}</div>
           <div class="card-meta-row">
-            <div class="distance-badge"></div>
             ${r.cuisine ? `<span class="tag">${r.cuisine}</span>` : ''}
             ${r.tags ? `<span class="tag">${r.tags}</span>` : ''}
           </div>
           ${noteText ? `<div class="note">${noteText}</div>` : ''}
+          ${r.added_at ? `<div class="card-added-date" style="margin-top:21px;">Added ${new Date(r.added_at + 'Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>` : ''}
           <div class="card-footer-row">
-            <div>${mapsLink}</div>
+            <div class="distance-badge"></div>
+            ${mapsLink}
             <button class="visited-btn${isV ? ' is-visited' : ''}" data-id="${r.id}" onclick="toggleVisited(${r.id})">${isV ? '✓ Visited' : '○ Mark visited'}</button>
           </div>`;
 
@@ -1053,6 +1083,8 @@
       const searchQuery = (document.getElementById('searchFilter').value || '').toLowerCase().trim();
       const visitedFilter = (document.querySelector('input[name="visitedFilter"]:checked') || {value: ''}).value;
       const categoryFilter = document.getElementById('foodFilter').checked;
+      const addedDays = parseInt(document.getElementById('addedFilter').value) || 0;
+      const addedCutoff = addedDays ? new Date(Date.now() - addedDays * 864e5) : null;
 
       filteredData = restaurantData.reduce((acc, r, i) => {
         if (currentLocation && r.lat !== null && r.lng !== null) {
@@ -1062,6 +1094,7 @@
         }
         const cuisineMatch = !cuisineFilter || r.cuisine === cuisineFilter;
         const radiusMatch = !currentLocation || (r.distance !== null && r.distance <= radiusFilter);
+        const addedMatch = !addedCutoff || (r.added_at && new Date(r.added_at + 'Z') >= addedCutoff);
         const searchMatch = !searchQuery || [r.title, r.city, r.state, r.cuisine, r.note, r.tags]
           .some(f => (f || '').toLowerCase().includes(searchQuery));
         const isVisited = visited.has(r.title);
@@ -1073,8 +1106,15 @@
         return acc;
       }, []);
 
-      // Sort: by drive time ascending
-      filteredData.sort((a, b) => (a.r.distance ?? Infinity) - (b.r.distance ?? Infinity));
+      // Sort
+      const sortMode = document.getElementById('sortOrder').value;
+      if (sortMode === 'newest') {
+        filteredData.sort((a, b) => (b.r.added_at || '').localeCompare(a.r.added_at || ''));
+      } else if (sortMode === 'oldest') {
+        filteredData.sort((a, b) => (a.r.added_at || '').localeCompare(b.r.added_at || ''));
+      } else {
+        filteredData.sort((a, b) => (a.r.distance ?? Infinity) - (b.r.distance ?? Infinity));
+      }
 
       const container = document.getElementById('cardContainer');
       // Build sort-order map: data index → position in sorted results
@@ -1149,7 +1189,20 @@
     
     
 
-    document.getElementById('searchFilter').addEventListener('input', applyFilters);
+    document.getElementById('addedFilter').addEventListener('change', applyFilters);
+    document.getElementById('sortOrder').addEventListener('change', applyFilters);
+    const searchFilter = document.getElementById('searchFilter');
+    const searchClear = document.getElementById('searchClear');
+    searchFilter.addEventListener('input', () => {
+      searchClear.style.display = searchFilter.value ? 'block' : 'none';
+      applyFilters();
+    });
+    searchClear.addEventListener('click', () => {
+      searchFilter.value = '';
+      searchClear.style.display = 'none';
+      searchFilter.focus();
+      applyFilters();
+    });
     document.getElementById('cuisineFilter').addEventListener('change', applyFilters);
     document.getElementById('foodFilter').addEventListener('change', () => {
       const isFood = document.getElementById('foodFilter').checked;
@@ -1160,7 +1213,7 @@
       applyFilters();
     });
     function sliderToDistance(val) {
-      if (val <= 70) return Math.max(1, (val / 70) * 60); // 0–60 miles continuous
+      if (val <= 70) return Math.max(5, (val / 70) * 60); // 0–60 miles continuous
       // Snap points at 75=100mi, 80=200mi, 85=300mi, 90=400mi, 95=500mi, 100=Unlimited
       if (val <= 72.5) return 100;
       if (val <= 77.5) return 200;
