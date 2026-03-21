@@ -40,6 +40,13 @@
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    .build-stamp {
+      font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+      font-size: 9px;
+      color: #bbb;
+      padding: 3px 9px;
+      letter-spacing: 0.04em;
+    }
     .skip-link {
       position: absolute; top: -48px; left: 18px;
       background: var(--md-primary); color: var(--md-on-primary);
@@ -778,6 +785,7 @@
 </head>
 <body>
   <!-- 2.4.1 Skip navigation -->
+  <div class="build-stamp">build 12:41:31</div>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
   <div class="site-masthead">
@@ -883,7 +891,8 @@
     let restaurantData = [];
 
     const savedLocation = JSON.parse(localStorage.getItem('currentLocation') || 'null');
-    const realSavedLocation = savedLocation;
+    // Keep coords for distance calc but never show stale name — always re-detect
+    const realSavedLocation = savedLocation ? {...savedLocation, name: null} : null;
     let currentLocation = realSavedLocation || null;
     let _locMap = null, _locMarker = null;
     function showLocationMap(lat, lng) {
@@ -952,16 +961,12 @@
       return R * c;
     }
     
-    function updateLocationDisplay() {
+    function updateLocationDisplay(detecting = false) {
       const display = document.getElementById('currentLocationDisplay');
       const locName = document.getElementById('locName');
       if (!display) return;
-      if (currentLocation) {
-        display.style.display = 'block';
-        if (locName) locName.textContent = currentLocation.name || 'Location unknown';
-      } else {
-        display.style.display = 'none';
-      }
+      display.style.display = 'block';
+      if (locName) locName.textContent = detecting ? 'Detecting…' : (currentLocation?.name || 'Unknown');
     }
     
     async function reverseGeocode(lat, lng) {
@@ -994,6 +999,7 @@
       }
       const btn = document.querySelector('button[onclick="useCurrentLocation()"]');
       if (btn) { btn.textContent = '⏳ Locating…'; btn.disabled = true; }
+      updateLocationDisplay(true);
       navigator.geolocation.getCurrentPosition(
         async pos => {
           const lat = pos.coords.latitude;
