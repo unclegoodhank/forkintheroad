@@ -1335,14 +1335,9 @@
       document.getElementById('lat').value = currentLocation?.lat ?? '';
       document.getElementById('lng').value = currentLocation?.lng ?? '';
       if (realSavedLocation) {
-        updateLocationDisplay();
         showLocationMap(realSavedLocation.lat, realSavedLocation.lng);
-        reverseGeocode(realSavedLocation.lat, realSavedLocation.lng).then(place => {
-          if (place) { saveLocation({...realSavedLocation, name: place}); updateLocationDisplay(); }
-        });
-      } else {
-        useCurrentLocation();
       }
+      useCurrentLocation();
       populateFilters();
       renderAllCards();
       applyFilters();
