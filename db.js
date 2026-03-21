@@ -24,9 +24,9 @@ try { db.exec(`ALTER TABLE restaurants ADD COLUMN city  TEXT DEFAULT ''`); } cat
 try { db.exec(`ALTER TABLE restaurants ADD COLUMN state TEXT DEFAULT ''`); } catch {}
 try { db.exec(`ALTER TABLE restaurants ADD COLUMN type  TEXT DEFAULT ''`); } catch {}
 
-// Seed from CSV on first run
+// Seed from CSV only when SEED_DB=1 is set and the table is empty
 const empty = db.prepare('SELECT COUNT(*) as n FROM restaurants').get().n === 0;
-if (empty) {
+if (empty && process.env.SEED_DB === '1') {
   const csvPath = path.join(__dirname, 'Want-to-go.csv');
   if (fs.existsSync(csvPath)) {
     const rows = parseCSV(fs.readFileSync(csvPath, 'utf-8'));
