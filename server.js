@@ -39,9 +39,9 @@ app.patch('/api/restaurants/:id/visited', (req, res) => {
 app.get('/export', (req, res) => {
   const rows = db.prepare('SELECT * FROM restaurants ORDER BY id').all();
   const escape = v => { v = String(v ?? ''); return (v.includes(',') || v.includes('"') || v.includes('\n')) ? `"${v.replace(/"/g, '""')}"` : v; };
-  const header = 'Title,Note,URL,Tags,Cuisine,Latitude,Longitude,Visited,City,State';
+  const header = 'Title,Note,URL,Tags,Cuisine,Latitude,Longitude,Visited,City,State,Type';
   const csv = [header, ...rows.map(r =>
-    [r.title, r.note, r.url, r.tags, r.cuisine, r.lat, r.lng, r.visited ? 'Yes' : '', r.city, r.state].map(escape).join(',')
+    [r.title, r.note, r.url, r.tags, r.cuisine, r.lat, r.lng, r.visited ? 'Yes' : '', r.city, r.state, r.type].map(escape).join(',')
   )].join('\n');
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', 'attachment; filename="restaurants.csv"');
@@ -100,9 +100,9 @@ app.get('/admin', (req, res) => {
 });
 
 app.put('/api/restaurants/:id', (req, res) => {
-  const { title, note, url, tags, cuisine, lat, lng, visited, city, state } = req.body;
-  db.prepare(`UPDATE restaurants SET title=?, note=?, url=?, tags=?, cuisine=?, lat=?, lng=?, visited=?, city=?, state=? WHERE id=?`)
-    .run(title, note, url, tags, cuisine, lat !== '' ? parseFloat(lat) : null, lng !== '' ? parseFloat(lng) : null, visited ? 1 : 0, city || '', state || '', req.params.id);
+  const { title, note, url, tags, cuisine, lat, lng, visited, city, state, type } = req.body;
+  db.prepare(`UPDATE restaurants SET title=?, note=?, url=?, tags=?, cuisine=?, lat=?, lng=?, visited=?, city=?, state=?, type=? WHERE id=?`)
+    .run(title, note, url, tags, cuisine, lat !== '' ? parseFloat(lat) : null, lng !== '' ? parseFloat(lng) : null, visited ? 1 : 0, city || '', state || '', type || '', req.params.id);
   res.json({ ok: true });
 });
 
@@ -112,14 +112,14 @@ app.delete('/api/restaurants/:id', (req, res) => {
 });
 
 app.post('/api/restaurants', (req, res) => {
-  const { title, note, url, tags, cuisine, lat, lng, visited, city, state } = req.body;
+  const { title, note, url, tags, cuisine, lat, lng, visited, city, state, type } = req.body;
   const result = db.prepare(
-    `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited, city, state) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited, city, state, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     title, note || '', url || '', tags || '', cuisine || '',
     lat !== '' && lat != null ? parseFloat(lat) : null,
     lng !== '' && lng != null ? parseFloat(lng) : null,
-    visited ? 1 : 0, city || '', state || ''
+    visited ? 1 : 0, city || '', state || '', type || ''
   );
   res.json({ ok: true, id: result.lastInsertRowid });
 });
@@ -146,12 +146,12 @@ app.post('/api/admin/import-csv', (req, res) => {
   );
 
   const insert = db.prepare(
-    `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited, city, state)
-     VALUES (@title, @note, @url, @tags, @cuisine, @lat, @lng, @visited, @city, @state)`
+    `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited, city, state, type)
+     VALUES (@title, @note, @url, @tags, @cuisine, @lat, @lng, @visited, @city, @state, @type)`
   );
   const update = db.prepare(
     `UPDATE restaurants SET note=@note, url=@url, tags=@tags, cuisine=@cuisine,
-     lat=@lat, lng=@lng, city=@city, state=@state WHERE id=@id`
+     lat=@lat, lng=@lng, city=@city, state=@state, type=@type WHERE id=@id`
   );
 
   let added = 0, updated = 0;
@@ -169,6 +169,7 @@ app.post('/api/admin/import-csv', (req, res) => {
         visited: (r.Visited || '').trim().toLowerCase() === 'yes' ? 1 : 0,
         city:    r.City  || '',
         state:   r.State || '',
+        type:    r.Type  || '',
       };
       const existingId = existingByTitle.get(r.Title.toLowerCase());
       if (existingId) {
