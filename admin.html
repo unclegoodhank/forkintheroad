@@ -178,6 +178,7 @@
   <input type="text" id="search" placeholder="Search by name, cuisine, note…" oninput="renderTable()">
   <span id="rowCount"></span>
   <button class="btn primary" onclick="openAdd()">+ Add Place</button>
+  <button class="btn" onclick="importCSV()" title="Insert any rows from Want-to-go.csv that are missing from the DB">Sync from CSV</button>
 </div>
 
 <div style="overflow-x:auto;">
@@ -244,6 +245,14 @@
   let sortKey = 'title';
   let sortDir = 1;
   let editingId = null; // null = add mode, number = edit mode
+
+  async function importCSV() {
+    const res = await fetch('/api/admin/import-csv', { method: 'POST' });
+    const data = await res.json();
+    if (data.error) { alert('Error: ' + data.error); return; }
+    alert(`Sync complete — ${data.added} new place${data.added === 1 ? '' : 's'} added.`);
+    if (data.added > 0) load();
+  }
 
   async function load() {
     restaurants = await fetch('/api/restaurants').then(r => r.json());

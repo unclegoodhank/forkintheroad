@@ -124,6 +124,77 @@ app.post('/api/restaurants', (req, res) => {
   res.json({ ok: true, id: result.lastInsertRowid });
 });
 
+// ── CSV import (sync CSV → DB, insert missing rows by title) ───────────────
+app.post('/api/admin/import-csv', (req, res) => {
+  if (!req.session.authenticated) return res.status(401).json({ error: 'Unauthorized' });
+  const csvPath = path.join(__dirname, 'Want-to-go.csv');
+  if (!fs.existsSync(csvPath)) return res.status(404).json({ error: 'CSV not found' });
+
+  const rows = db.require ? [] : (() => {
+    const Database = require('better-sqlite3');
+    return [];
+  })();
+
+  // Re-use db module's parseCSV logic inline
+  const text = fs.readFileSync(csvPath, 'utf-8');
+  const lines = text.split(/\r?\n/);
+  const headers = splitCSVLine(lines[0]);
+  const csvRows = lines.slice(1).map(line => {
+    if (!line.trim()) return null;
+    const vals = splitCSVLine(line);
+    const row = {};
+    headers.forEach((h, i) => row[h] = vals[i] || '');
+    return row;
+  }).filter(Boolean);
+
+  const existingTitles = new Set(
+    db.prepare('SELECT title FROM restaurants').all().map(r => r.title.toLowerCase())
+  );
+
+  const insert = db.prepare(
+    `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited, city, state)
+     VALUES (@title, @note, @url, @tags, @cuisine, @lat, @lng, @visited, @city, @state)`
+  );
+
+  let added = 0;
+  db.transaction(rows => {
+    rows.forEach(r => {
+      if (!r.Title || existingTitles.has(r.Title.toLowerCase())) return;
+      insert.run({
+        title:   r.Title   || '',
+        note:    r.Note    || r.Comment || '',
+        url:     r.URL     || '',
+        tags:    r.Tags    || '',
+        cuisine: r.Cuisine || '',
+        lat:     r.Latitude  ? parseFloat(r.Latitude)  : null,
+        lng:     r.Longitude ? parseFloat(r.Longitude) : null,
+        visited: (r.Visited || '').trim().toLowerCase() === 'yes' ? 1 : 0,
+        city:    r.City  || '',
+        state:   r.State || '',
+      });
+      added++;
+    });
+  })(csvRows);
+
+  res.json({ ok: true, added });
+});
+
+function splitCSVLine(line) {
+  const result = [];
+  let cur = '', inQuote = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      if (inQuote && line[i + 1] === '"') { cur += '"'; i++; }
+      else inQuote = !inQuote;
+    } else if (c === ',' && !inQuote) {
+      result.push(cur); cur = '';
+    } else { cur += c; }
+  }
+  result.push(cur);
+  return result;
+}
+
 // Helper: HTTPS GET with redirect following, returns { finalUrl, body }
 function httpsGet(url, headers = {}) {
   return new Promise((resolve, reject) => {
