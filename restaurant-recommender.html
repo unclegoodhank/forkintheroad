@@ -164,7 +164,8 @@
     .filters {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      column-gap: 8px;
+      row-gap: 24px;
       margin-bottom: 1.25rem;
       background: white;
       border: 1px solid #f9f3e7;
@@ -571,7 +572,7 @@
       text-transform: uppercase;
       color: hsl(40 66% 30% / 1);
       line-height: 1;
-      margin-bottom: 0.6rem;
+      margin-bottom: 0.3rem;
     }
     .site-masthead p {
       font-size: 10px;
@@ -665,9 +666,19 @@
           <label><input type="radio" name="visitedFilter" value="unvisited">Not visited</label>
           <label><input type="radio" name="visitedFilter" value="visited">Visited</label>
         </div>
-        <div class="radius-slider-wrap">
-          <label for="radiusFilter" id="radiusLabel">Within 25 miles</label>
-          <input type="range" id="radiusFilter" min="1" max="100" value="25" aria-labelledby="radiusLabel">
+        <div class="radius-slider-wrap" style="flex-direction:column;gap:10px;">
+          <div style="display:flex;gap:0;border:1px solid #e8e0d0;border-radius:4px;overflow:hidden;align-self:flex-start;">
+            <button id="modeDistance" onclick="setSliderMode('distance')" style="padding:5px 12px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border:none;cursor:pointer;background:#1c1810;color:#fcf9f3;">Distance</button>
+            <button id="modeDriveTime" onclick="setSliderMode('drivetime')" style="padding:5px 12px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border:none;cursor:pointer;background:transparent;color:#6b6560;">Drive Time</button>
+          </div>
+          <div id="sliderDistance" style="display:flex;align-items:center;gap:14px;width:100%;">
+            <label for="radiusFilter" id="radiusLabel" style="white-space:nowrap;">Within 25 miles</label>
+            <input type="range" id="radiusFilter" min="1" max="100" value="25" aria-labelledby="radiusLabel" style="flex:1;">
+          </div>
+          <div id="sliderDriveTime" style="display:none;align-items:center;gap:14px;width:100%;">
+            <label for="driveTimeFilter" id="driveTimeLabel" style="white-space:nowrap;">Within 30 min</label>
+            <input type="range" id="driveTimeFilter" min="5" max="120" step="5" value="30" aria-labelledby="driveTimeLabel" style="flex:1;">
+          </div>
         </div>
       </div>
       
@@ -857,9 +868,30 @@
       });
     }
 
+    let sliderMode = 'distance';
+
+    function driveMinutes(distanceMi) {
+      const h = new Date().getHours(), m = new Date().getMinutes();
+      const t = h * 60 + m;
+      const rush = (t >= 6*60 && t < 10*60) || (t >= 14*60 && t < 18*60+45);
+      return Math.round(distanceMi / (rush ? 15 : 35) * 60);
+    }
+
+    function setSliderMode(mode) {
+      sliderMode = mode;
+      document.getElementById('sliderDistance').style.display  = mode === 'distance'  ? 'flex' : 'none';
+      document.getElementById('sliderDriveTime').style.display = mode === 'drivetime' ? 'flex' : 'none';
+      document.getElementById('modeDistance').style.background  = mode === 'distance'  ? '#1c1810' : 'transparent';
+      document.getElementById('modeDistance').style.color       = mode === 'distance'  ? '#fcf9f3' : '#6b6560';
+      document.getElementById('modeDriveTime').style.background = mode === 'drivetime' ? '#1c1810' : 'transparent';
+      document.getElementById('modeDriveTime').style.color      = mode === 'drivetime' ? '#fcf9f3' : '#6b6560';
+      applyFilters();
+    }
+
     function applyFilters() {
       const cuisineFilter = document.getElementById('cuisineFilter').value;
       const radiusFilter = parseFloat(document.getElementById('radiusFilter').value);
+      const driveTimeFilter = parseInt(document.getElementById('driveTimeFilter').value);
       const searchQuery = (document.getElementById('searchFilter').value || '').toLowerCase().trim();
       const visitedFilter = (document.querySelector('input[name="visitedFilter"]:checked') || {value: ''}).value;
 
@@ -870,7 +902,9 @@
           r.distance = null;
         }
         const cuisineMatch = !cuisineFilter || r.cuisine === cuisineFilter;
-        const radiusMatch = r.distance !== null && r.distance <= radiusFilter;
+        const radiusMatch = sliderMode === 'distance'
+          ? (r.distance !== null && r.distance <= radiusFilter)
+          : (r.distance !== null && driveMinutes(r.distance) <= driveTimeFilter);
         const searchMatch = !searchQuery || [r.title, r.city, r.state, r.cuisine, r.note, r.tags]
           .some(f => (f || '').toLowerCase().includes(searchQuery));
         const isVisited = visited.has(r.title);
@@ -892,9 +926,13 @@
       restaurantData.forEach((r, i) => {
         const el = cardElements.get(i);
         if (!el) return;
-        el.querySelector('.distance-badge').textContent = r.distance !== null
-          ? `${Math.round(r.distance * 10) / 10} mi away`
-          : 'Location unknown';
+        if (r.distance !== null) {
+          const mi = Math.round(r.distance * 10) / 10;
+          const mins = driveMinutes(r.distance);
+          el.querySelector('.distance-badge').textContent = `${mi} mi · ~${mins} min`;
+        } else {
+          el.querySelector('.distance-badge').textContent = 'Location unknown';
+        }
         const isV = visited.has(r.title);
         el.classList.toggle('is-visited', isV);
         const btn = el.querySelector('.visited-btn');
@@ -928,7 +966,9 @@
         if (!opt.value) return;
         const count = restaurantData.filter(r => {
           if (r.cuisine !== opt.value) return false;
-          const radiusMatch = r.distance !== null && r.distance <= radiusFilter;
+          const radiusMatch = sliderMode === 'distance'
+            ? (r.distance !== null && r.distance <= radiusFilter)
+            : (r.distance !== null && driveMinutes(r.distance) <= driveTimeFilter);
           const searchMatch = !searchQuery || [r.title, r.city, r.state, r.cuisine, r.note, r.tags]
             .some(f => (f || '').toLowerCase().includes(searchQuery));
           const isVisited = visited.has(r.title);
@@ -965,6 +1005,11 @@
       const val = parseInt(document.getElementById('radiusFilter').value);
       document.getElementById('radiusLabel').textContent = val === 1 ? 'Within <1 mile' : `Within ${val} miles`;
       updateSliderFill();
+      applyFilters();
+    });
+    document.getElementById('driveTimeFilter').addEventListener('input', () => {
+      const val = parseInt(document.getElementById('driveTimeFilter').value);
+      document.getElementById('driveTimeLabel').textContent = val < 5 ? 'Under 5 min' : val >= 120 ? 'Up to 2 hrs' : `Within ${val} min`;
       applyFilters();
     });
     updateSliderFill();
