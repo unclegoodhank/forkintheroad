@@ -989,8 +989,8 @@
         return acc;
       }, []);
 
-      // Sort: by distance ascending
-      filteredData.sort((a, b) => a.r.distance - b.r.distance);
+      // Sort: by drive time ascending
+      filteredData.sort((a, b) => driveMinutes(a.r) - driveMinutes(b.r));
 
       const container = document.getElementById('cardContainer');
       // Build sort-order map: data index → position in sorted results
