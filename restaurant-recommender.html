@@ -928,9 +928,9 @@
         const h = new Date().getHours(), m = new Date().getMinutes();
         const t = h * 60 + m;
         const rush = (t >= 6*60 && t < 10*60) || (t >= 14*60 && t < 18*60+45);
-        mins = Math.round(r.distance / (rush ? 12 : 15) * 60);
+        mins = Math.round(r.distance / (rush ? 10 : 15) * 60);
       }
-      return Math.max(5, mins);
+      return Math.max(5, Math.round(mins * 1.15));
     }
 
     async function fetchOSRMDriveTimes() {
@@ -1007,8 +1007,8 @@
         if (r.distance !== null) {
           const mi = Math.round(r.distance * 10) / 10;
           const mins = driveMinutes(r);
-          const prefix = osrmCache.has(r.id) ? '' : '~';
-          el.querySelector('.distance-badge').textContent = `${prefix}${mins} min`;
+          const hasReal = osrmCache.has(r.id);
+          el.querySelector('.distance-badge').innerHTML = `${hasReal ? '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:5px;vertical-align:middle;"></span>' : '~'}${mins} min`;
         } else {
           el.querySelector('.distance-badge').textContent = 'Location unknown';
         }
