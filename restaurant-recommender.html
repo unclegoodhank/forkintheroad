@@ -728,8 +728,10 @@
         </div>
       </div>
       
-      <p id="resultsCount" aria-live="polite" aria-atomic="true"></p>
-      <p id="osrmStatus" style="display:none;font-size:11px;color:#22c55e;margin-bottom:0.5rem;">Calculating drive times<span id="osrmDots"></span></p>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.5rem;">
+        <p id="resultsCount" style="margin:0;" aria-live="polite" aria-atomic="true"></p>
+        <p id="osrmStatus" style="display:none;font-size:11px;color:#22c55e;margin:0;">Calculating drive times<span id="osrmDots" style="display:inline-block;width:1.5em;text-align:left;"></span></p>
+      </div>
 
       <div id="cardContainer" tabindex="-1">
         <div class="card loading">
