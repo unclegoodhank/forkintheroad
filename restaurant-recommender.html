@@ -173,11 +173,11 @@
     .filters > * { min-width: 0; }
 
     .filters select {
-      width: auto;
+      width: 100%;
       height: var(--ctrl-height);
       padding: 0 33px 0 12px;
       border: 1px solid var(--md-outline);
-      border-radius: var(--shape-xs);
+      border-radius: var(--shape-full);
       background: var(--md-surface-container-lowest);
       color: var(--md-on-surface);
       font-family: inherit;
@@ -484,9 +484,9 @@
     .filter-top-row {
       flex: 0 0 100%;
       display: flex;
+      flex-direction: column;
       gap: 12px;
     }
-    .filter-top-row .segmented { flex: 1; }
 
     .filter-visited-row { flex: 0 0 100%; }
 
@@ -682,7 +682,6 @@
 
       .filters { gap: 12px; }
       .filters select { font-size: 15px; }
-      .filter-top-row { flex-direction: column; }
       .segmented label { padding: 0 9px; font-size: 12px; }
       #searchFilter { font-size: 15px; }
 
@@ -769,7 +768,7 @@
             <label><input type="radio" name="categoryFilter" value="" checked>All</label>
             <label><input type="radio" name="categoryFilter" value="food">Food &amp; Drink</label>
           </div>
-          <select id="cuisineFilter" aria-label="Filter by cuisine" style="flex:1;opacity:0.35;pointer-events:none;">
+          <select id="cuisineFilter" aria-label="Filter by cuisine" style="opacity:0.35;pointer-events:none;">
             <option value="">All cuisines</option>
           </select>
         </div>
