@@ -517,7 +517,7 @@
 
     .filter-visited-row { flex: 0 0 100%; }
 
-    .radius-slider-wrap { flex: 0 0 100%; }
+    .radius-slider-wrap { flex: 0 0 100%; margin-top: 12px; }
 
     #sliderDistance { display: flex; flex-direction: column; gap: 6px; width: 100%; }
 
@@ -722,7 +722,7 @@
 </head>
 <body>
   <!-- 2.4.1 Skip navigation -->
-  <div class="build-stamp">build 13:59:19</div>
+  <div class="build-stamp">build 14:05:40</div>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
   <div class="site-masthead">
@@ -766,7 +766,7 @@
         <div class="filter-top-row">
           <label class="food-toggle">
             <input type="checkbox" id="foodFilter">
-            <span>Food &amp; Drink only</span>
+            <span>Food and drink only</span>
           </label>
           <div class="cuisine-wrap" inert>
             <select id="cuisineFilter" aria-label="Filter by cuisine">
@@ -1158,7 +1158,7 @@
     }
     function sliderLabel(val) {
       const dist = sliderToDistance(val);
-      if (dist === Infinity) return 'Unlimited';
+      if (dist === Infinity) return 'Unlimited distance';
       const mi = Math.round(dist);
       if (val <= 80 && mi <= 5) return 'Within 5 miles';
       return `Within ${mi} miles`;
