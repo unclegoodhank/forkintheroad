@@ -235,22 +235,22 @@
     }
 
     .radius-slider-wrap {
-      grid-column: 1 / -1;
       display: flex;
-      align-items: center;
-      gap: 14px;
+      flex-direction: column;
+      gap: 10px;
     }
-    .radius-slider-wrap label {
+    #radiusLabel,
+    #driveTimeLabel {
+      display: block;
+      text-align: right;
       font-size: 11px;
       font-weight: 600;
       letter-spacing: 0.7px;
       text-transform: uppercase;
       color: #6b6560;
-      white-space: nowrap;
-      min-width: 120px;
     }
     @media (prefers-color-scheme: dark) {
-      .radius-slider-wrap label { color: #8a8a85; }
+      #radiusLabel, #driveTimeLabel { color: #8a8a85; }
     }
     #radiusFilter {
       flex: 1;
@@ -528,6 +528,108 @@
     .copy-btn { background: none; border: none; padding: 4px; cursor: pointer; min-width: 24px; min-height: 24px; }
     .copy-btn:focus-visible { outline: 2px solid #006f84; outline-offset: 2px; }
 
+    /* ── Location error ── */
+    #locationError {
+      font-size: 12px;
+      color: #b04030;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    /* ── Filter layout helpers ── */
+    #searchFilter { flex: 0 0 100%; }
+
+    .filter-top-row {
+      flex: 0 0 100%;
+      display: flex;
+      gap: 12px;
+    }
+    .filter-top-row .segmented { flex: 1; }
+
+    .filter-visited-row { flex: 0 0 100%; }
+
+    .radius-slider-wrap { flex: 0 0 100%; }
+    .filter-mode-segmented { align-self: flex-start; }
+
+    #sliderDistance,
+    #sliderDriveTime {
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
+    #sliderDistance { display: flex; }
+    #sliderDriveTime { display: none; }
+
+    /* ── Results header row ── */
+    .results-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.5rem;
+    }
+    #resultsCount { margin: 0; }
+
+    /* ── OSRM status ── */
+    #osrmStatus {
+      font-size: 11px;
+      color: #22c55e;
+      margin: 0;
+    }
+    #osrmDots {
+      display: inline-block;
+      width: 1.5em;
+      text-align: left;
+    }
+
+    /* ── Card inner layout ── */
+    .card-location {
+      font-size: 12px;
+      color: #6b6560;
+      margin-bottom: 0.35rem;
+    }
+    @media (prefers-color-scheme: dark) { .card-location { color: #8a8a85; } }
+
+    .card-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+    }
+    .card-meta-row .tag { font-size: 12px; }
+
+    .card-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 0.5rem;
+    }
+
+    /* ── OSRM real-data dot ── */
+    .osrm-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+
+    /* ── Empty state paragraphs ── */
+    .empty-state-heading { font-size: 16px; margin-bottom: 8px; }
+    .empty-state-sub { font-size: 14px; }
+
+    /* ── Footer extras ── */
+    .site-footer__copy--spaced-sm { margin-top: 0.4rem; }
+    .site-footer__copy--spaced-md { margin-top: 0.75rem; }
+    .site-footer__link {
+      color: #9a9080;
+      text-decoration: underline;
+    }
+
     /* ── Footer ── */
     .site-footer {
       background: #000;
@@ -694,7 +796,7 @@
         <div id="currentLocationDisplay" class="current-location" style="display:none;">
           <strong><span id="locName"></span></strong>
         </div>
-        <div id="locationError" style="display:none;font-size:12px;color:#b04030;margin-top:6px;line-height:1.5;"></div>
+        <div id="locationError" style="display:none;"></div>
         <input type="hidden" id="lat" value="37.7749">
         <input type="hidden" id="lng" value="-122.4194">
       </div>
@@ -702,10 +804,9 @@
       <div class="filters" role="group" aria-label="Search and filters">
         <input type="text" id="searchFilter"
                aria-label="Search by name, cuisine, or note"
-               placeholder="Search by name, cuisine, or note…"
-               style="flex:0 0 100%;">
-        <div class="filter-top-row" style="flex:0 0 100%;display:flex;gap:12px;">
-          <div class="segmented" role="group" aria-label="Filter by category" style="flex:1;">
+               placeholder="Search by name, cuisine, or note…">
+        <div class="filter-top-row">
+          <div class="segmented" role="group" aria-label="Filter by category">
             <label><input type="radio" name="categoryFilter" value="" checked>All</label>
             <label><input type="radio" name="categoryFilter" value="food">Food &amp; Drink</label>
           </div>
@@ -713,30 +814,30 @@
             <option value="">All cuisines</option>
           </select>
         </div>
-        <div class="segmented" role="group" aria-label="Filter by visited status" style="flex:0 0 100%;">
+        <div class="segmented filter-visited-row" role="group" aria-label="Filter by visited status">
           <label><input type="radio" name="visitedFilter" value="" checked>All</label>
           <label><input type="radio" name="visitedFilter" value="unvisited">Not visited</label>
           <label><input type="radio" name="visitedFilter" value="visited">Visited</label>
         </div>
-        <div class="radius-slider-wrap" style="flex:0 0 100%;flex-direction:column;gap:10px;">
-          <div class="segmented" role="group" aria-label="Filter mode" style="align-self:flex-start;">
+        <div class="radius-slider-wrap">
+          <div class="segmented filter-mode-segmented" role="group" aria-label="Filter mode">
             <label><input type="radio" name="sliderMode" value="distance" checked onchange="setSliderMode('distance')">Distance</label>
             <label><input type="radio" name="sliderMode" value="drivetime" onchange="setSliderMode('drivetime')">Drive Time</label>
           </div>
-          <div id="sliderDistance" style="display:flex;flex-direction:column;gap:6px;width:100%;">
-            <label for="radiusFilter" id="radiusLabel" style="display:block;text-align:right;">Within 25 miles</label>
+          <div id="sliderDistance">
+            <label for="radiusFilter" id="radiusLabel">Within 25 miles</label>
             <input type="range" id="radiusFilter" min="1" max="100" value="25" aria-labelledby="radiusLabel">
           </div>
-          <div id="sliderDriveTime" style="display:none;flex-direction:column;gap:6px;width:100%;">
-            <label for="driveTimeFilter" id="driveTimeLabel" style="display:block;text-align:right;">Within 30 min</label>
+          <div id="sliderDriveTime">
+            <label for="driveTimeFilter" id="driveTimeLabel">Within 30 min</label>
             <input type="range" id="driveTimeFilter" min="5" max="120" step="5" value="30" aria-labelledby="driveTimeLabel">
           </div>
         </div>
       </div>
       
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.5rem;">
-        <p id="resultsCount" style="margin:0;" aria-live="polite" aria-atomic="true"></p>
-        <p id="osrmStatus" style="display:none;font-size:11px;color:#22c55e;margin:0;">Calculating drive times<span id="osrmDots" style="display:inline-block;width:1.5em;text-align:left;"></span></p>
+      <div class="results-header-row">
+        <p id="resultsCount" aria-live="polite" aria-atomic="true"></p>
+        <p id="osrmStatus" style="display:none;">Calculating drive times<span id="osrmDots"></span></p>
       </div>
 
       <div id="cardContainer" tabindex="-1">
@@ -756,8 +857,8 @@
       </div>
       <div>
         <p class="site-footer__copy">Made in Oakland, California.</p>
-        <p class="site-footer__copy" style="margin-top:0.4rem;">&copy; 2026</p>
-        <p style="margin-top:0.75rem;"><a href="/new-stuff" class="site-footer__copy" style="color:#9a9080;text-decoration:underline;">Check out new stuff</a></p>
+        <p class="site-footer__copy site-footer__copy--spaced-sm">&copy; 2026</p>
+        <p class="site-footer__copy--spaced-md"><a href="/new-stuff" class="site-footer__copy site-footer__link">Check out new stuff</a></p>
       </div>
     </div>
   </footer>
@@ -909,14 +1010,14 @@
         el.className = `card${isV ? ' is-visited' : ''}`;
         el.innerHTML = `
           <div class="restaurant-name">${r.title}</div>
-          ${(r.city || r.state) ? `<div style="font-size:12px;color:#6b6560;margin-bottom:0.35rem;">${[r.city, r.state].filter(Boolean).join(', ')}</div>` : ''}
-          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+          ${(r.city || r.state) ? `<div class="card-location">${[r.city, r.state].filter(Boolean).join(', ')}</div>` : ''}
+          <div class="card-meta-row">
             <div class="distance-badge"></div>
-            ${r.cuisine ? `<span class="tag" style="font-size:12px;">${r.cuisine}</span>` : ''}
-            ${r.tags ? `<span class="tag" style="font-size:12px;">${r.tags}</span>` : ''}
+            ${r.cuisine ? `<span class="tag">${r.cuisine}</span>` : ''}
+            ${r.tags ? `<span class="tag">${r.tags}</span>` : ''}
           </div>
           ${noteText ? `<div class="note">${noteText}</div>` : ''}
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:0.5rem;">
+          <div class="card-footer-row">
             <div>${mapsLink}</div>
             <button class="visited-btn${isV ? ' is-visited' : ''}" data-id="${r.id}" onclick="toggleVisited(${r.id})">${isV ? '✓ Visited' : '○ Mark visited'}</button>
           </div>`;
@@ -1071,7 +1172,7 @@
           const mi = Math.round(r.distance * 10) / 10;
           const mins = driveMinutes(r);
           const hasReal = osrmCache.has(r.id);
-          el.querySelector('.distance-badge').innerHTML = `${hasReal ? '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:5px;vertical-align:middle;"></span>' : '~'}${mins} min · ${mi} mi`;
+          el.querySelector('.distance-badge').innerHTML = `${hasReal ? '<span class="osrm-dot"></span>' : '~'}${mins} min · ${mi} mi`;
         } else {
           el.querySelector('.distance-badge').textContent = 'Location unknown';
         }
@@ -1093,8 +1194,8 @@
           emptyEl.className = 'card empty-state-card';
           emptyEl.innerHTML = `
             <div class="empty-state">
-              <p style="font-size: 16px; margin-bottom: 8px;">No places match your filters</p>
-              <p style="font-size: 14px;">Try adjusting your preferences or location</p>
+              <p class="empty-state-heading">No places match your filters</p>
+              <p class="empty-state-sub">Try adjusting your preferences or location</p>
             </div>`;
           container.appendChild(emptyEl);
         }
