@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
   <title>Fork in the Road</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap');
 
@@ -155,6 +156,14 @@
     }
     .btn.primary:hover { background: hsl(186 100% 22%); border-color: hsl(186 100% 22%); }
 
+    #locationMap {
+      display: none;
+      height: 135px;
+      border-radius: var(--shape-md);
+      overflow: hidden;
+      margin-top: 12px;
+      border: 1px solid var(--md-outline-variant);
+    }
     .current-location {
       font-size: 12px;
       color: var(--md-on-surface-variant);
@@ -799,6 +808,7 @@
         <div id="currentLocationDisplay" class="current-location" style="display:none;">
           You're in: <span id="locName"></span>
         </div>
+        <div id="locationMap"></div>
         <div id="locationError" style="display:none;"></div>
         <input type="hidden" id="lat" value="37.7749">
         <input type="hidden" id="lng" value="-122.4194">
@@ -868,11 +878,33 @@
     </div>
   </footer>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     let restaurantData = [];
 
     const savedLocation = JSON.parse(localStorage.getItem('currentLocation') || 'null');
     let currentLocation = savedLocation || {lat: 37.7749, lng: -122.4194, name: "San Francisco"};
+    let _locMap = null, _locMarker = null;
+    function showLocationMap(lat, lng) {
+      const el = document.getElementById('locationMap');
+      el.style.display = 'block';
+      const icon = L.divIcon({
+        html: `<div style="width:14px;height:14px;background:var(--md-primary);border:2.5px solid white;border-radius:50%;box-shadow:0 1px 6px rgba(0,0,0,0.4)"></div>`,
+        iconSize: [14, 14], iconAnchor: [7, 7], className: ''
+      });
+      if (!_locMap) {
+        _locMap = L.map('locationMap', {
+          zoomControl: false, attributionControl: false,
+          dragging: false, scrollWheelZoom: false,
+          doubleClickZoom: false, touchZoom: false, keyboard: false
+        }).setView([lat, lng], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(_locMap);
+        _locMarker = L.marker([lat, lng], { icon }).addTo(_locMap);
+      } else {
+        _locMap.setView([lat, lng], 14);
+        _locMarker.setLatLng([lat, lng]);
+      }
+    }
 
     function saveLocation(loc) {
       currentLocation = loc;
@@ -958,6 +990,7 @@
           saveLocation({lat, lng, name: 'Current location'});
           document.getElementById('locationError').style.display = 'none';
           updateLocationDisplay();
+          showLocationMap(lat, lng);
           osrmCache.clear();
           applyFilters();
           fetchOSRMDriveTimes();
@@ -1290,6 +1323,7 @@
       document.getElementById('lat').value = currentLocation.lat;
       document.getElementById('lng').value = currentLocation.lng;
       updateLocationDisplay();
+      if (savedLocation) showLocationMap(savedLocation.lat, savedLocation.lng);
       populateFilters();
       renderAllCards();
       applyFilters();
