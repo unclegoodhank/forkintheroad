@@ -703,18 +703,20 @@
                aria-label="Search by name, cuisine, or note"
                placeholder="Search by name, cuisine, or note…"
                style="flex:0 0 100%;">
-        <div class="segmented" role="group" aria-label="Filter by category" style="flex:1;">
-          <label><input type="radio" name="categoryFilter" value="" checked>All</label>
-          <label><input type="radio" name="categoryFilter" value="food">Food &amp; Drink</label>
+        <div style="flex:0 0 100%;display:flex;gap:12px;">
+          <div class="segmented" role="group" aria-label="Filter by category" style="flex:1;">
+            <label><input type="radio" name="categoryFilter" value="" checked>All</label>
+            <label><input type="radio" name="categoryFilter" value="food">Food &amp; Drink</label>
+          </div>
+          <select id="cuisineFilter" aria-label="Filter by cuisine" style="flex:1;">
+            <option value="">All cuisines</option>
+          </select>
         </div>
-        <div class="segmented" role="group" aria-label="Filter by visited status" style="flex:1;">
+        <div class="segmented" role="group" aria-label="Filter by visited status" style="flex:0 0 100%;">
           <label><input type="radio" name="visitedFilter" value="" checked>All</label>
           <label><input type="radio" name="visitedFilter" value="unvisited">Not visited</label>
           <label><input type="radio" name="visitedFilter" value="visited">Visited</label>
         </div>
-        <select id="cuisineFilter" aria-label="Filter by cuisine" style="display:none;flex:1;">
-          <option value="">All cuisines</option>
-        </select>
         <div class="radius-slider-wrap" style="flex:0 0 100%;flex-direction:column;gap:10px;">
           <div class="segmented" role="group" aria-label="Filter mode" style="align-self:flex-start;">
             <label><input type="radio" name="sliderMode" value="distance" checked onchange="setSliderMode('distance')">Distance</label>
@@ -1132,12 +1134,7 @@
 
     document.getElementById('searchFilter').addEventListener('input', applyFilters);
     document.getElementById('cuisineFilter').addEventListener('change', applyFilters);
-    document.querySelectorAll('input[name="categoryFilter"]').forEach(el => el.addEventListener('change', () => {
-      const isFood = el.value === 'food' && el.checked;
-      document.getElementById('cuisineFilter').style.display = isFood ? '' : 'none';
-      if (!isFood) { document.getElementById('cuisineFilter').value = ''; }
-      applyFilters();
-    }));
+    document.querySelectorAll('input[name="categoryFilter"]').forEach(el => el.addEventListener('change', applyFilters));
     function updateSliderFill() {
       const el = document.getElementById('radiusFilter');
       const pct = (el.value - el.min) / (el.max - el.min) * 100;
