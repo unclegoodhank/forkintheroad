@@ -490,6 +490,7 @@
     .cuisine-wrap {
       display: grid;
       grid-template-rows: 0fr;
+      overflow: hidden;
       opacity: 0;
       margin-top: -12px;
       transition: grid-template-rows 0.35s ease, opacity 0.25s ease, margin-top 0.35s ease;
@@ -499,7 +500,7 @@
       opacity: 1;
       margin-top: 0;
     }
-    .cuisine-wrap > select { min-height: 0; overflow: hidden; }
+    .cuisine-wrap > select { min-height: 0; }
 
     .filter-visited-row { flex: 0 0 100%; }
 
