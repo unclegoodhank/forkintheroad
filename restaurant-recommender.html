@@ -920,13 +920,17 @@
     const osrmCache = new Map(); // restaurantId → minutes (actual road time)
 
     function driveMinutes(r) {
-      if (osrmCache.has(r.id)) return osrmCache.get(r.id);
-      // Fallback estimate while OSRM loads
       if (r.distance == null) return null;
-      const h = new Date().getHours(), m = new Date().getMinutes();
-      const t = h * 60 + m;
-      const rush = (t >= 6*60 && t < 10*60) || (t >= 14*60 && t < 18*60+45);
-      return Math.round(r.distance / (rush ? 15 : 15) * 60);
+      let mins;
+      if (osrmCache.has(r.id)) {
+        mins = osrmCache.get(r.id);
+      } else {
+        const h = new Date().getHours(), m = new Date().getMinutes();
+        const t = h * 60 + m;
+        const rush = (t >= 6*60 && t < 10*60) || (t >= 14*60 && t < 18*60+45);
+        mins = Math.round(r.distance / (rush ? 12 : 15) * 60);
+      }
+      return Math.max(5, mins);
     }
 
     async function fetchOSRMDriveTimes() {
