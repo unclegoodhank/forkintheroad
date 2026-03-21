@@ -729,6 +729,7 @@
       </div>
       
       <p id="resultsCount" aria-live="polite" aria-atomic="true"></p>
+      <p id="osrmStatus" style="display:none;font-size:11px;color:#22c55e;margin-bottom:0.5rem;">Calculating drive times<span id="osrmDots"></span></p>
 
       <div id="cardContainer" tabindex="-1">
         <div class="card loading">
@@ -933,28 +934,71 @@
       return Math.max(5, Math.round(mins * 1.15));
     }
 
+    function validRouteSecs(secs, distMi) {
+      if (secs == null || secs <= 0) return false;
+      return (distMi / (secs / 3600)) <= 80; // reject if implies > 80 mph
+    }
+
     async function fetchOSRMDriveTimes() {
+      const statusEl = document.getElementById('osrmStatus');
+      const dotsEl = document.getElementById('osrmDots');
+      statusEl.style.display = 'block';
+      let dotCount = 0;
+      const dotTimer = setInterval(() => {
+        dotCount = (dotCount % 3) + 1;
+        dotsEl.textContent = '.'.repeat(dotCount);
+      }, 500);
+
       const { lat: uLat, lng: uLng } = currentLocation;
       const withCoords = restaurantData.filter(r => r.lat != null && r.lng != null);
-      const chunkSize = 99;
+      const chunkSize = 50; // smaller chunks to stay within both APIs' limits
       for (let i = 0; i < withCoords.length; i += chunkSize) {
         const chunk = withCoords.slice(i, i + chunkSize);
-        const coords = [`${uLng},${uLat}`, ...chunk.map(r => `${r.lng},${r.lat}`)].join(';');
-        try {
-          const res = await fetch(`https://router.project-osrm.org/table/v1/driving/${coords}?sources=0&annotations=duration`);
-          const data = await res.json();
-          if (data.code === 'Ok' && data.durations?.[0]) {
-            chunk.forEach((r, j) => {
-              const secs = data.durations[0][j + 1];
-              if (secs != null) osrmCache.set(r.id, Math.max(1, Math.round(secs / 60)));
-            });
-            applyFilters(); // re-render with real times as each chunk arrives
+
+        // Fetch OSRM and Valhalla in parallel
+        const osrmCoords = [`${uLng},${uLat}`, ...chunk.map(r => `${r.lng},${r.lat}`)].join(';');
+        const [osrmRes, valhallaRes] = await Promise.allSettled([
+          fetch(`https://router.project-osrm.org/table/v1/driving/${osrmCoords}?sources=0&annotations=duration`)
+            .then(r => r.json()),
+          fetch('https://valhalla1.openstreetmap.de/sources_to_targets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sources: [{ lon: uLng, lat: uLat }],
+              targets: chunk.map(r => ({ lon: r.lng, lat: r.lat })),
+              costing: 'auto'
+            })
+          }).then(r => r.json())
+        ]);
+
+        chunk.forEach((r, j) => {
+          const distMi = calculateDistance(uLat, uLng, r.lat, r.lng);
+          const candidates = [];
+
+          // OSRM result
+          if (osrmRes.status === 'fulfilled') {
+            const secs = osrmRes.value?.durations?.[0]?.[j + 1];
+            if (validRouteSecs(secs, distMi)) candidates.push(Math.round(secs / 60));
           }
-        } catch (e) {
-          console.warn('OSRM chunk failed:', e);
-        }
-        if (i + chunkSize < withCoords.length) await new Promise(r => setTimeout(r, 150));
+
+          // Valhalla result
+          if (valhallaRes.status === 'fulfilled') {
+            const secs = valhallaRes.value?.sources_to_targets?.[0]?.[j]?.time;
+            if (validRouteSecs(secs, distMi)) candidates.push(Math.round(secs / 60));
+          }
+
+          // Take the higher of the two (more conservative)
+          if (candidates.length > 0) {
+            osrmCache.set(r.id, Math.max(1, Math.max(...candidates)));
+          }
+        });
+
+        applyFilters();
+        if (i + chunkSize < withCoords.length) await new Promise(r => setTimeout(r, 200));
       }
+
+      clearInterval(dotTimer);
+      statusEl.style.display = 'none';
     }
 
     function setSliderMode(mode) {
