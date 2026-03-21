@@ -130,12 +130,6 @@ app.post('/api/admin/import-csv', (req, res) => {
   const csvPath = path.join(__dirname, 'Want-to-go.csv');
   if (!fs.existsSync(csvPath)) return res.status(404).json({ error: 'CSV not found' });
 
-  const rows = db.require ? [] : (() => {
-    const Database = require('better-sqlite3');
-    return [];
-  })();
-
-  // Re-use db module's parseCSV logic inline
   const text = fs.readFileSync(csvPath, 'utf-8');
   const lines = text.split(/\r?\n/);
   const headers = splitCSVLine(lines[0]);
@@ -147,20 +141,24 @@ app.post('/api/admin/import-csv', (req, res) => {
     return row;
   }).filter(Boolean);
 
-  const existingTitles = new Set(
-    db.prepare('SELECT title FROM restaurants').all().map(r => r.title.toLowerCase())
+  const existingByTitle = new Map(
+    db.prepare('SELECT id, title FROM restaurants').all().map(r => [r.title.toLowerCase(), r.id])
   );
 
   const insert = db.prepare(
     `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited, city, state)
      VALUES (@title, @note, @url, @tags, @cuisine, @lat, @lng, @visited, @city, @state)`
   );
+  const update = db.prepare(
+    `UPDATE restaurants SET note=@note, url=@url, tags=@tags, cuisine=@cuisine,
+     lat=@lat, lng=@lng, city=@city, state=@state WHERE id=@id`
+  );
 
-  let added = 0;
+  let added = 0, updated = 0;
   db.transaction(rows => {
     rows.forEach(r => {
-      if (!r.Title || existingTitles.has(r.Title.toLowerCase())) return;
-      insert.run({
+      if (!r.Title) return;
+      const data = {
         title:   r.Title   || '',
         note:    r.Note    || r.Comment || '',
         url:     r.URL     || '',
@@ -171,12 +169,19 @@ app.post('/api/admin/import-csv', (req, res) => {
         visited: (r.Visited || '').trim().toLowerCase() === 'yes' ? 1 : 0,
         city:    r.City  || '',
         state:   r.State || '',
-      });
-      added++;
+      };
+      const existingId = existingByTitle.get(r.Title.toLowerCase());
+      if (existingId) {
+        update.run({ ...data, id: existingId });
+        updated++;
+      } else {
+        insert.run(data);
+        added++;
+      }
     });
   })(csvRows);
 
-  res.json({ ok: true, added });
+  res.json({ ok: true, added, updated });
 });
 
 function splitCSVLine(line) {
