@@ -162,10 +162,9 @@
     }
 
     .filters {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      column-gap: 8px;
-      row-gap: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
       margin-bottom: 1.25rem;
       background: white;
       border: 1px solid #f9f3e7;
@@ -179,7 +178,7 @@
     .filters > * { min-width: 0; }
 
     .filters select {
-      width: 100%;
+      width: auto;
       padding: 9px 32px 9px 10px;
       border: 1px solid #f9f3e7;
       background: white;
@@ -644,7 +643,7 @@
       .radius-slider-wrap label { min-width: 0; }
       .visited-btn { white-space: normal; }
 
-      .filters { grid-template-columns: 1fr; row-gap: 28px; }
+      .filters { gap: 12px; }
       .filters select { padding-top: 13px; padding-bottom: 13px; font-size: 15px; }
       .segmented label { padding: 13px 6px; font-size: 12px; }
       #searchFilter { padding: 13px 10px; font-size: 15px; }
@@ -703,20 +702,20 @@
         <input type="text" id="searchFilter"
                aria-label="Search by name, cuisine, or note"
                placeholder="Search by name, cuisine, or note…"
-               style="grid-column:1/-1;">
-        <select id="cuisineFilter" aria-label="Filter by cuisine" style="visibility:hidden;">
-          <option value="">All cuisines</option>
-        </select>
+               style="flex:0 0 100%;">
+        <div class="segmented" role="group" aria-label="Filter by category">
+          <label><input type="radio" name="categoryFilter" value="" checked>All</label>
+          <label><input type="radio" name="categoryFilter" value="food">Food &amp; Drink</label>
+        </div>
         <div class="segmented" role="group" aria-label="Filter by visited status">
           <label><input type="radio" name="visitedFilter" value="" checked>All</label>
           <label><input type="radio" name="visitedFilter" value="unvisited">Not visited</label>
           <label><input type="radio" name="visitedFilter" value="visited">Visited</label>
         </div>
-        <div class="segmented" role="group" aria-label="Filter by category">
-          <label><input type="radio" name="categoryFilter" value="" checked>All</label>
-          <label><input type="radio" name="categoryFilter" value="food">Food &amp; Drink</label>
-        </div>
-        <div class="radius-slider-wrap" style="flex-direction:column;gap:10px;">
+        <select id="cuisineFilter" aria-label="Filter by cuisine" style="display:none;">
+          <option value="">All cuisines</option>
+        </select>
+        <div class="radius-slider-wrap" style="flex:0 0 100%;flex-direction:column;gap:10px;">
           <div class="segmented" role="group" aria-label="Filter mode" style="align-self:flex-start;">
             <label><input type="radio" name="sliderMode" value="distance" checked onchange="setSliderMode('distance')">Distance</label>
             <label><input type="radio" name="sliderMode" value="drivetime" onchange="setSliderMode('drivetime')">Drive Time</label>
@@ -1135,7 +1134,7 @@
     document.getElementById('cuisineFilter').addEventListener('change', applyFilters);
     document.querySelectorAll('input[name="categoryFilter"]').forEach(el => el.addEventListener('change', () => {
       const isFood = el.value === 'food' && el.checked;
-      document.getElementById('cuisineFilter').style.visibility = isFood ? 'visible' : 'hidden';
+      document.getElementById('cuisineFilter').style.display = isFood ? '' : 'none';
       if (!isFood) { document.getElementById('cuisineFilter').value = ''; }
       applyFilters();
     }));
