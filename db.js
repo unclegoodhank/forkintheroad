@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const dbPath = process.env.DB_PATH || path.join(__dirname, 'restaurants.db');
+if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath); // TEMP: force reseed
 const db = new Database(dbPath);
 
 db.exec(`
