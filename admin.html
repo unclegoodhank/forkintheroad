@@ -209,7 +209,7 @@
         <div style="position:relative;">
           <input id="f-lookup-url" type="text" placeholder="Paste a Google Maps link…"
             style="width:100%;padding:8px 32px 8px 10px;border:1px solid #f9f3e7;background:#fcf9f3;font-family:inherit;font-size:13px;color:#1c1810;"
-            onpaste="scheduleLookup(0)" oninput="scheduleLookup(600)">
+            onpaste="onLookupPaste()" oninput="scheduleLookup(600)">
           <span id="lookup-spinner" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:13px;color:#006f84;">⏳</span>
         </div>
         <div id="lookup-status" style="font-size:12px;min-height:16px;color:#6b6560;"></div>
@@ -290,6 +290,21 @@
     lookupTimer = setTimeout(lookup, delay);
   }
 
+  function onLookupPaste() {
+    // Extract name instantly from URL without waiting for server
+    setTimeout(() => {
+      const url = document.getElementById('f-lookup-url').value.trim();
+      const m = url.match(/\/maps\/place\/([^/@?#]+)/);
+      const quickName = m && !m[1].startsWith('data')
+        ? decodeURIComponent(m[1].replace(/\+/g, ' ')) : '';
+      if (quickName) {
+        document.getElementById('f-title').value = quickName;
+        document.getElementById('f-title').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      scheduleLookup(0);
+    }, 50);
+  }
+
   function openAdd() {
     clearTimeout(lookupTimer);
     editingId = null;
@@ -346,14 +361,15 @@
         statusEl.textContent = '✗ ' + data.error;
         return;
       }
-      document.getElementById('f-title').value   = data.title ?? '';
-      document.getElementById('f-url').value     = data.url   ?? url;
-      document.getElementById('f-lat').value     = data.lat   ?? '';
-      document.getElementById('f-lng').value     = data.lng   ?? '';
+      if (data.title) document.getElementById('f-title').value = data.title;
+      document.getElementById('f-url').value = data.url ?? url;
+      document.getElementById('f-lat').value = data.lat ?? '';
+      document.getElementById('f-lng').value = data.lng ?? '';
       statusEl.style.color = data.lat ? '#006f84' : '#b04030';
       statusEl.textContent = data.lat
         ? `✓ ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}`
         : '⚠ Location not found — enter coordinates manually';
+      document.getElementById('f-title').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } catch (e) {
       statusEl.style.color = '#b04030';
       statusEl.textContent = '✗ ' + e.message;
