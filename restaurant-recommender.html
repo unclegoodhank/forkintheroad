@@ -779,7 +779,7 @@
             <label><input type="radio" name="categoryFilter" value="" checked>All</label>
             <label><input type="radio" name="categoryFilter" value="food">Food &amp; Drink</label>
           </div>
-          <div class="cuisine-wrap">
+          <div class="cuisine-wrap" inert>
             <select id="cuisineFilter" aria-label="Filter by cuisine">
               <option value="">All cuisines</option>
             </select>
@@ -1213,6 +1213,7 @@
     document.querySelectorAll('input[name="categoryFilter"]').forEach(el => el.addEventListener('change', () => {
       const isFood = document.querySelector('input[name="categoryFilter"]:checked').value === 'food';
       const wrap = document.querySelector('.cuisine-wrap');
+      wrap.inert = !isFood;
       wrap.classList.toggle('visible', isFood);
       if (!isFood) document.getElementById('cuisineFilter').value = '';
       applyFilters();
