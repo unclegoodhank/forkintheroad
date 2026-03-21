@@ -174,6 +174,16 @@ app.post('/api/lookup', async (req, res) => {
       if (atMatch) { lat = parseFloat(atMatch[1]); lng = parseFloat(atMatch[2]); }
     }
 
+    // Fetch the Maps page and parse coords from the staticmap embed
+    if (lat === null && workingUrl.includes('google.com/maps')) {
+      const { body } = await httpsGet(workingUrl, {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
+      });
+      const centerMatch = body.match(/staticmap\?center=(-?\d+\.\d+)%2C(-?\d+\.\d+)/);
+      if (centerMatch) { lat = parseFloat(centerMatch[1]); lng = parseFloat(centerMatch[2]); }
+    }
+
     // Last resort: Nominatim geocoding by name
     if (lat === null && title) {
       const { body } = await httpsGet(
