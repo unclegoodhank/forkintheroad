@@ -961,9 +961,12 @@
       }, 500);
 
       const { lat: uLat, lng: uLng } = currentLocation;
-      const withCoords = restaurantData
-        .filter(r => r.lat != null && r.lng != null)
-        .sort((a, b) => calculateDistance(uLat, uLng, a.lat, a.lng) - calculateDistance(uLat, uLng, b.lat, b.lng));
+      const byDist = (a, b) => calculateDistance(uLat, uLng, a.lat, a.lng) - calculateDistance(uLat, uLng, b.lat, b.lng);
+      const visibleIds = new Set(filteredData.map(({r}) => r.id));
+      const all = restaurantData.filter(r => r.lat != null && r.lng != null);
+      const visible  = all.filter(r =>  visibleIds.has(r.id)).sort(byDist);
+      const hidden   = all.filter(r => !visibleIds.has(r.id)).sort(byDist);
+      const withCoords = [...visible, ...hidden];
       const chunkSize = 50; // smaller chunks to stay within both APIs' limits
       for (let i = 0; i < withCoords.length; i += chunkSize) {
         const chunk = withCoords.slice(i, i + chunkSize);
