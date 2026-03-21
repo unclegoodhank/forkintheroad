@@ -928,13 +928,13 @@
     
     async function reverseGeocode(lat, lng) {
       try {
-        const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
+        const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18`;
         const res = await fetch(url, {headers: {'User-Agent': 'want-to-go-app/1.0'}});
         const data = await res.json();
         const a = data.address || {};
         const city = a.city || a.town || a.village || a.suburb || a.county || '';
-        const zip = a.postcode || '';
-        return [city, zip].filter(Boolean).join(' ');
+        const state = (a['ISO3166-2-lvl4'] || '').replace('US-', '');
+        return [city, state].filter(Boolean).join(', ');
       } catch {
         return '';
       }
