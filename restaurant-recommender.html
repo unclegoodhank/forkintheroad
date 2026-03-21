@@ -8,23 +8,23 @@
     @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap');
 
     :root {
-      /* M3 Color Tokens — Teal primary */
-      --md-primary:                   hsl(186 100% 26%);
-      --md-on-primary:                hsl(0 0% 100%);
-      --md-primary-container:         hsl(185 100% 87%);
-      --md-on-primary-container:      hsl(193 100% 7%);
-      --md-surface:                   hsl(192 40% 98%);
-      --md-on-surface:                hsl(194 8% 11%);
-      --md-surface-variant:           hsl(193 14% 88%);
-      --md-on-surface-variant:        hsl(194 8% 27%);
-      --md-outline:                   hsl(194 6% 45%);
-      --md-outline-variant:           hsl(192 9% 77%);
-      --md-surface-container-lowest:  hsl(0 0% 100%);
-      --md-surface-container-low:     hsl(194 30% 96%);
-      --md-surface-container:         hsl(193 23% 94%);
-      --md-surface-container-high:    hsl(193 17% 91%);
-      --md-surface-container-highest: hsl(192 13% 88%);
-      --md-error:                     hsl(0 72% 51%);
+      /* Colors — original warm palette */
+      --md-primary:                   hsla(191, 100%, 26%, 1);
+      --md-on-primary:                hsla(0, 0%, 100%, 1);
+      --md-primary-container:         hsla(193, 53%, 93%, 1);
+      --md-on-primary-container:      hsla(36, 43%, 9%, 1);
+      --md-surface:                   hsla(42, 60%, 97%, 1);
+      --md-on-surface:                hsla(36, 43%, 9%, 1);
+      --md-surface-variant:           hsla(42, 67%, 94%, 1);
+      --md-on-surface-variant:        hsla(30, 5%, 39%, 1);
+      --md-outline:                   hsla(38, 18%, 71%, 1);
+      --md-outline-variant:           hsla(42, 67%, 94%, 1);
+      --md-surface-container-lowest:  hsla(0, 0%, 100%, 1);
+      --md-surface-container-low:     hsla(0, 0%, 100%, 1);
+      --md-surface-container:         hsla(42, 60%, 97%, 1);
+      --md-surface-container-high:    hsla(45, 19%, 92%, 1);
+      --md-surface-container-highest: hsla(45, 19%, 92%, 1);
+      --md-error:                     hsla(7, 57%, 44%, 1);
       /* M3 Shape */
       --shape-xs:   4px;
       --shape-sm:   8px;
@@ -47,7 +47,7 @@
     }
     .skip-link:focus { top: 0; outline: 2px solid var(--md-on-primary); outline-offset: 2px; }
 
-    html { overflow-x: clip; background-color: hsl(194 20% 5%); }
+    html { overflow-x: clip; background-color: hsla(0, 0%, 0%, 1); }
 
     body {
       font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -507,7 +507,7 @@
     /* ── OSRM status ── */
     #osrmStatus {
       font-size: 12px;
-      color: hsl(142 71% 35%);
+      color: hsla(142, 71%, 45%, 1);
       margin: 0;
     }
     #osrmDots {
@@ -546,7 +546,7 @@
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: hsl(142 71% 35%);
+      background: hsla(142, 71%, 45%, 1);
       margin-right: 5px;
       vertical-align: middle;
     }
@@ -559,14 +559,14 @@
     .site-footer__copy--spaced-sm { margin-top: 0.4rem; }
     .site-footer__copy--spaced-md { margin-top: 0.75rem; }
     .site-footer__link {
-      color: hsl(194 9% 60%);
+      color: hsla(37, 11%, 55%, 1);
       text-decoration: underline;
     }
 
     /* ── Footer ── */
     .site-footer {
-      background: hsl(194 20% 8%);
-      color: hsl(0 0% 100%);
+      background: hsla(0, 0%, 0%, 1);
+      color: hsla(0, 0%, 100%, 1);
       margin-top: 1.5rem;
       padding: 0 1.5rem calc(3rem + env(safe-area-inset-bottom));
     }
@@ -585,7 +585,7 @@
       font-style: italic;
       font-size: 28px;
       font-weight: 400;
-      color: hsl(0 0% 100%);
+      color: hsla(0, 0%, 100%, 1);
       margin-bottom: 0.75rem;
       letter-spacing: -0.3px;
     }
@@ -594,14 +594,14 @@
       font-weight: 500;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: hsl(194 9% 55%);
+      color: hsla(37, 11%, 55%, 1);
     }
     .site-footer__copy {
       font-size: 12px;
       font-weight: 500;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: hsl(194 9% 55%);
+      color: hsla(37, 11%, 55%, 1);
     }
 
     /* ── Hero carousel ── */
@@ -610,7 +610,7 @@
       width: 100%;
       height: clamp(87px, 17vw, 174px);
       overflow: hidden;
-      background: hsl(194 20% 10%);
+      background: hsla(60, 4%, 10%, 1);
     }
     .carousel-slide {
       position: absolute;
@@ -647,7 +647,7 @@
       font-size: clamp(31px, 6.05vw, 61.5px);
       letter-spacing: 0.02em;
       text-transform: uppercase;
-      color: var(--md-primary);
+      color: hsl(40 66% 30% / 1);
       line-height: 1;
       margin-bottom: 0.3rem;
     }
@@ -693,23 +693,22 @@
 
     @media (prefers-color-scheme: dark) {
       :root {
-        /* M3 dark scheme — teal primary */
-        --md-primary:                   hsl(185 100% 80%);
-        --md-on-primary:                hsl(193 100% 13%);
-        --md-primary-container:         hsl(186 100% 19%);
-        --md-on-primary-container:      hsl(185 100% 87%);
-        --md-surface:                   hsl(194 16% 8%);
-        --md-on-surface:                hsl(192 13% 88%);
-        --md-surface-variant:           hsl(194 8% 27%);
-        --md-on-surface-variant:        hsl(192 9% 77%);
-        --md-outline:                   hsl(194 6% 55%);
-        --md-outline-variant:           hsl(194 8% 27%);
-        --md-surface-container-lowest:  hsl(194 20% 5%);
-        --md-surface-container-low:     hsl(194 16% 11%);
-        --md-surface-container:         hsl(193 14% 14%);
-        --md-surface-container-high:    hsl(193 12% 18%);
-        --md-surface-container-highest: hsl(193 10% 22%);
-        --md-error:                     hsl(6 93% 79%);
+        --md-primary:                   hsla(190, 55%, 57%, 1);
+        --md-on-primary:                hsla(60, 5%, 8%, 1);
+        --md-primary-container:         hsla(196, 65%, 12%, 1);
+        --md-on-primary-container:      hsla(45, 15%, 88%, 1);
+        --md-surface:                   hsla(60, 5%, 8%, 1);
+        --md-on-surface:                hsla(45, 15%, 88%, 1);
+        --md-surface-variant:           hsla(60, 4%, 22%, 1);
+        --md-on-surface-variant:        hsla(60, 2%, 53%, 1);
+        --md-outline:                   hsla(60, 4%, 22%, 1);
+        --md-outline-variant:           hsla(60, 4%, 15%, 1);
+        --md-surface-container-lowest:  hsla(60, 5%, 8%, 1);
+        --md-surface-container-low:     hsla(60, 3%, 12%, 1);
+        --md-surface-container:         hsla(60, 3%, 12%, 1);
+        --md-surface-container-high:    hsla(60, 4%, 15%, 1);
+        --md-surface-container-highest: hsla(60, 4%, 22%, 1);
+        --md-error:                     hsla(7, 57%, 65%, 1);
       }
       .filters select {
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aaa' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
