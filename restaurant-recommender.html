@@ -810,8 +810,8 @@
         </div>
         <div id="locationMap"></div>
         <div id="locationError" style="display:none;"></div>
-        <input type="hidden" id="lat" value="37.7749">
-        <input type="hidden" id="lng" value="-122.4194">
+        <input type="hidden" id="lat" value="">
+        <input type="hidden" id="lng" value="">
       </div>
       
       <div class="filters" role="group" aria-label="Search and filters">
@@ -883,11 +883,8 @@
     let restaurantData = [];
 
     const savedLocation = JSON.parse(localStorage.getItem('currentLocation') || 'null');
-    // Discard saved location if it's the hardcoded SF default (never a real GPS fix)
-    const isDefaultSF = savedLocation && Math.abs(savedLocation.lat - 37.7749) < 0.001 && Math.abs(savedLocation.lng - -122.4194) < 0.001;
-    if (isDefaultSF) localStorage.removeItem('currentLocation');
-    const realSavedLocation = isDefaultSF ? null : savedLocation;
-    let currentLocation = realSavedLocation || {lat: 37.7749, lng: -122.4194, name: "San Francisco"};
+    const realSavedLocation = savedLocation;
+    let currentLocation = realSavedLocation || null;
     let _locMap = null, _locMarker = null;
     function showLocationMap(lat, lng) {
       const el = document.getElementById('locationMap');
@@ -958,8 +955,13 @@
     function updateLocationDisplay() {
       const display = document.getElementById('currentLocationDisplay');
       const locName = document.getElementById('locName');
-      if (display) display.style.display = 'block';
-      if (locName) locName.textContent = currentLocation.name;
+      if (!display) return;
+      if (currentLocation) {
+        display.style.display = 'block';
+        if (locName) locName.textContent = currentLocation.name || 'Location unknown';
+      } else {
+        display.style.display = 'none';
+      }
     }
     
     async function reverseGeocode(lat, lng) {
@@ -991,8 +993,7 @@
         return;
       }
       const btn = document.querySelector('button[onclick="useCurrentLocation()"]');
-      btn.textContent = '⏳ Locating…';
-      btn.disabled = true;
+      if (btn) { btn.textContent = '⏳ Locating…'; btn.disabled = true; }
       navigator.geolocation.getCurrentPosition(
         async pos => {
           const lat = pos.coords.latitude;
@@ -1006,8 +1007,7 @@
           osrmCache.clear();
           applyFilters();
           fetchOSRMDriveTimes();
-          btn.textContent = 'Get my location';
-          btn.disabled = false;
+          if (btn) { btn.textContent = 'Get my location'; btn.disabled = false; }
           const place = await reverseGeocode(lat, lng);
           if (place) {
             saveLocation({lat, lng, name: place});
@@ -1023,8 +1023,7 @@
           const errEl = document.getElementById('locationError');
           errEl.textContent = tips[err.code] || err.message;
           errEl.style.display = 'block';
-          btn.textContent = 'Get my location';
-          btn.disabled = false;
+          if (btn) { btn.textContent = 'Get my location'; btn.disabled = false; }
         },
         {enableHighAccuracy: true, timeout: 30000, maximumAge: 0}
       );
@@ -1113,6 +1112,7 @@
         dotsEl.textContent = '.'.repeat(dotCount);
       }, 500);
 
+      if (!currentLocation) return;
       const { lat: uLat, lng: uLng } = currentLocation;
       const byDist = (a, b) => calculateDistance(uLat, uLng, a.lat, a.lng) - calculateDistance(uLat, uLng, b.lat, b.lng);
       const visibleIds = new Set(filteredData.map(({r}) => r.id));
@@ -1188,15 +1188,15 @@
       const categoryFilter = document.getElementById('foodFilter').checked;
 
       filteredData = restaurantData.reduce((acc, r, i) => {
-        if (r.lat !== null && r.lng !== null) {
+        if (currentLocation && r.lat !== null && r.lng !== null) {
           r.distance = calculateDistance(currentLocation.lat, currentLocation.lng, r.lat, r.lng);
         } else {
           r.distance = null;
         }
         const cuisineMatch = !cuisineFilter || r.cuisine === cuisineFilter;
-        const radiusMatch = sliderMode === 'distance'
+        const radiusMatch = !currentLocation || (sliderMode === 'distance'
           ? (r.distance !== null && r.distance <= radiusFilter)
-          : (r.distance !== null && driveMinutes(r) <= driveTimeFilter);
+          : (r.distance !== null && driveMinutes(r) <= driveTimeFilter));
         const searchMatch = !searchQuery || [r.title, r.city, r.state, r.cuisine, r.note, r.tags]
           .some(f => (f || '').toLowerCase().includes(searchQuery));
         const isVisited = visited.has(r.title);
@@ -1260,9 +1260,9 @@
         if (!opt.value) return;
         const count = restaurantData.filter(r => {
           if (r.cuisine !== opt.value) return false;
-          const radiusMatch = sliderMode === 'distance'
+          const radiusMatch = !currentLocation || (sliderMode === 'distance'
             ? (r.distance !== null && r.distance <= radiusFilter)
-            : (r.distance !== null && driveMinutes(r) <= driveTimeFilter);
+            : (r.distance !== null && driveMinutes(r) <= driveTimeFilter));
           const searchMatch = !searchQuery || [r.title, r.city, r.state, r.cuisine, r.note, r.tags]
             .some(f => (f || '').toLowerCase().includes(searchQuery));
           const isVisited = visited.has(r.title);
@@ -1332,15 +1332,16 @@
       } catch(e) {
         console.error('Failed to load restaurants:', e);
       }
-      document.getElementById('lat').value = currentLocation.lat;
-      document.getElementById('lng').value = currentLocation.lng;
+      document.getElementById('lat').value = currentLocation?.lat ?? '';
+      document.getElementById('lng').value = currentLocation?.lng ?? '';
       if (realSavedLocation) {
         updateLocationDisplay();
         showLocationMap(realSavedLocation.lat, realSavedLocation.lng);
-        // Re-geocode in background to fix any stale/wrong cached name
         reverseGeocode(realSavedLocation.lat, realSavedLocation.lng).then(place => {
           if (place) { saveLocation({...realSavedLocation, name: place}); updateLocationDisplay(); }
         });
+      } else {
+        useCurrentLocation();
       }
       populateFilters();
       renderAllCards();
