@@ -260,10 +260,12 @@
       -webkit-appearance: none;
       appearance: none;
       height: 4px;
-      border-radius: 2px;
+      border-radius: 999px;
       background: linear-gradient(to right, #006f84 var(--pct, 22%), #c2baa8 var(--pct, 22%));
       outline: none;
     }
+    #radiusFilter::-webkit-slider-runnable-track { border-radius: 999px; height: 4px; }
+    #radiusFilter::-moz-range-track { border-radius: 999px; height: 4px; }
     @media (prefers-color-scheme: dark) {
       #radiusFilter {
         background: linear-gradient(to right, #006f84 var(--pct, 22%), #3a3a36 var(--pct, 22%));
@@ -273,6 +275,7 @@
       -webkit-appearance: none;
       width: 20px;
       height: 20px;
+      margin-top: -8px;
       border-radius: 50%;
       background: #006f84;
       border: 2.5px solid white;
@@ -289,6 +292,46 @@
       cursor: pointer;
     }
     #radiusFilter:focus-visible { outline: 2px solid #006f84; outline-offset: 4px; }
+
+    #driveTimeFilter {
+      flex: 1;
+      accent-color: #006f84;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(to right, #006f84 var(--pct, 20%), #c2baa8 var(--pct, 20%));
+      outline: none;
+    }
+    #driveTimeFilter::-webkit-slider-runnable-track { border-radius: 999px; height: 4px; }
+    #driveTimeFilter::-moz-range-track { border-radius: 999px; height: 4px; }
+    @media (prefers-color-scheme: dark) {
+      #driveTimeFilter {
+        background: linear-gradient(to right, #006f84 var(--pct, 20%), #3a3a36 var(--pct, 20%));
+      }
+    }
+    #driveTimeFilter::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      margin-top: -8px;
+      border-radius: 50%;
+      background: #006f84;
+      border: 2.5px solid white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.14), 0 3px 10px rgba(0,0,0,0.18), 0 0 0 0.5px rgba(0,0,0,0.06);
+      cursor: pointer;
+    }
+    #driveTimeFilter::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #006f84;
+      border: 2.5px solid white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.14), 0 3px 10px rgba(0,0,0,0.18), 0 0 0 0.5px rgba(0,0,0,0.06);
+      cursor: pointer;
+    }
+    #driveTimeFilter:focus-visible { outline: 2px solid #006f84; outline-offset: 4px; }
 
     #searchFilter {
       padding: 10px 12px;
@@ -670,17 +713,17 @@
           <label><input type="radio" name="visitedFilter" value="visited">Visited</label>
         </div>
         <div class="radius-slider-wrap" style="flex-direction:column;gap:10px;">
-          <div style="display:flex;gap:0;border:1px solid #e8e0d0;border-radius:4px;overflow:hidden;align-self:flex-start;">
-            <button id="modeDistance" onclick="setSliderMode('distance')" style="padding:5px 12px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border:none;cursor:pointer;background:#1c1810;color:#fcf9f3;">Distance</button>
-            <button id="modeDriveTime" onclick="setSliderMode('drivetime')" style="padding:5px 12px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border:none;cursor:pointer;background:transparent;color:#6b6560;">Drive Time</button>
+          <div class="segmented" role="group" aria-label="Filter mode" style="align-self:flex-start;">
+            <label><input type="radio" name="sliderMode" value="distance" checked onchange="setSliderMode('distance')">Distance</label>
+            <label><input type="radio" name="sliderMode" value="drivetime" onchange="setSliderMode('drivetime')">Drive Time</label>
           </div>
-          <div id="sliderDistance" style="display:flex;align-items:center;gap:14px;width:100%;">
-            <label for="radiusFilter" id="radiusLabel" style="white-space:nowrap;">Within 25 miles</label>
-            <input type="range" id="radiusFilter" min="1" max="100" value="25" aria-labelledby="radiusLabel" style="flex:1;">
+          <div id="sliderDistance" style="display:flex;flex-direction:column;gap:6px;width:100%;">
+            <label for="radiusFilter" id="radiusLabel" style="display:block;text-align:right;">Within 25 miles</label>
+            <input type="range" id="radiusFilter" min="1" max="100" value="25" aria-labelledby="radiusLabel">
           </div>
-          <div id="sliderDriveTime" style="display:none;align-items:center;gap:14px;width:100%;">
-            <label for="driveTimeFilter" id="driveTimeLabel" style="white-space:nowrap;">Within 30 min</label>
-            <input type="range" id="driveTimeFilter" min="5" max="120" step="5" value="30" aria-labelledby="driveTimeLabel" style="flex:1;">
+          <div id="sliderDriveTime" style="display:none;flex-direction:column;gap:6px;width:100%;">
+            <label for="driveTimeFilter" id="driveTimeLabel" style="display:block;text-align:right;">Within 30 min</label>
+            <input type="range" id="driveTimeFilter" min="5" max="120" step="5" value="30" aria-labelledby="driveTimeLabel">
           </div>
         </div>
       </div>
@@ -798,7 +841,9 @@
           saveLocation({lat, lng, name: 'Current location'});
           document.getElementById('locationError').style.display = 'none';
           updateLocationDisplay();
+          osrmCache.clear();
           applyFilters();
+          fetchOSRMDriveTimes();
           btn.textContent = 'Get my location';
           btn.disabled = false;
           const place = await reverseGeocode(lat, lng);
@@ -872,22 +917,48 @@
     }
 
     let sliderMode = 'distance';
+    const osrmCache = new Map(); // restaurantId → minutes (actual road time)
 
-    function driveMinutes(distanceMi) {
+    function driveMinutes(r) {
+      if (osrmCache.has(r.id)) return osrmCache.get(r.id);
+      // Fallback estimate while OSRM loads
+      if (r.distance == null) return null;
       const h = new Date().getHours(), m = new Date().getMinutes();
       const t = h * 60 + m;
       const rush = (t >= 6*60 && t < 10*60) || (t >= 14*60 && t < 18*60+45);
-      return Math.round(distanceMi / (rush ? 15 : 15) * 60);
+      return Math.round(r.distance / (rush ? 15 : 15) * 60);
+    }
+
+    async function fetchOSRMDriveTimes() {
+      const { lat: uLat, lng: uLng } = currentLocation;
+      const withCoords = restaurantData.filter(r => r.lat != null && r.lng != null);
+      const chunkSize = 99;
+      for (let i = 0; i < withCoords.length; i += chunkSize) {
+        const chunk = withCoords.slice(i, i + chunkSize);
+        const coords = [`${uLng},${uLat}`, ...chunk.map(r => `${r.lng},${r.lat}`)].join(';');
+        try {
+          const res = await fetch(`https://router.project-osrm.org/table/v1/driving/${coords}?sources=0&annotations=duration`);
+          const data = await res.json();
+          if (data.code === 'Ok' && data.durations?.[0]) {
+            chunk.forEach((r, j) => {
+              const secs = data.durations[0][j + 1];
+              if (secs != null) osrmCache.set(r.id, Math.max(1, Math.round(secs / 60)));
+            });
+            applyFilters(); // re-render with real times as each chunk arrives
+          }
+        } catch (e) {
+          console.warn('OSRM chunk failed:', e);
+        }
+        if (i + chunkSize < withCoords.length) await new Promise(r => setTimeout(r, 150));
+      }
     }
 
     function setSliderMode(mode) {
       sliderMode = mode;
       document.getElementById('sliderDistance').style.display  = mode === 'distance'  ? 'flex' : 'none';
       document.getElementById('sliderDriveTime').style.display = mode === 'drivetime' ? 'flex' : 'none';
-      document.getElementById('modeDistance').style.background  = mode === 'distance'  ? '#1c1810' : 'transparent';
-      document.getElementById('modeDistance').style.color       = mode === 'distance'  ? '#fcf9f3' : '#6b6560';
-      document.getElementById('modeDriveTime').style.background = mode === 'drivetime' ? '#1c1810' : 'transparent';
-      document.getElementById('modeDriveTime').style.color      = mode === 'drivetime' ? '#fcf9f3' : '#6b6560';
+      if (mode === 'drivetime') updateDriveTimeFill();
+      document.querySelector(`input[name="sliderMode"][value="${mode}"]`).checked = true;
       applyFilters();
     }
 
@@ -907,7 +978,7 @@
         const cuisineMatch = !cuisineFilter || r.cuisine === cuisineFilter;
         const radiusMatch = sliderMode === 'distance'
           ? (r.distance !== null && r.distance <= radiusFilter)
-          : (r.distance !== null && driveMinutes(r.distance) <= driveTimeFilter);
+          : (r.distance !== null && driveMinutes(r) <= driveTimeFilter);
         const searchMatch = !searchQuery || [r.title, r.city, r.state, r.cuisine, r.note, r.tags]
           .some(f => (f || '').toLowerCase().includes(searchQuery));
         const isVisited = visited.has(r.title);
@@ -931,8 +1002,9 @@
         if (!el) return;
         if (r.distance !== null) {
           const mi = Math.round(r.distance * 10) / 10;
-          const mins = driveMinutes(r.distance);
-          el.querySelector('.distance-badge').textContent = `${mi} mi · ~${mins} min`;
+          const mins = driveMinutes(r);
+          const prefix = osrmCache.has(r.id) ? '' : '~';
+          el.querySelector('.distance-badge').textContent = `${mi} mi · ${prefix}${mins} min`;
         } else {
           el.querySelector('.distance-badge').textContent = 'Location unknown';
         }
@@ -971,7 +1043,7 @@
           if (r.cuisine !== opt.value) return false;
           const radiusMatch = sliderMode === 'distance'
             ? (r.distance !== null && r.distance <= radiusFilter)
-            : (r.distance !== null && driveMinutes(r.distance) <= driveTimeFilter);
+            : (r.distance !== null && driveMinutes(r) <= driveTimeFilter);
           const searchMatch = !searchQuery || [r.title, r.city, r.state, r.cuisine, r.note, r.tags]
             .some(f => (f || '').toLowerCase().includes(searchQuery));
           const isVisited = visited.has(r.title);
@@ -1010,9 +1082,15 @@
       updateSliderFill();
       applyFilters();
     });
+    function updateDriveTimeFill() {
+      const el = document.getElementById('driveTimeFilter');
+      const pct = (el.value - el.min) / (el.max - el.min) * 100;
+      el.style.setProperty('--pct', pct + '%');
+    }
     document.getElementById('driveTimeFilter').addEventListener('input', () => {
       const val = parseInt(document.getElementById('driveTimeFilter').value);
       document.getElementById('driveTimeLabel').textContent = val < 5 ? 'Under 5 min' : val >= 120 ? 'Up to 2 hrs' : `Within ${val} min`;
+      updateDriveTimeFill();
       applyFilters();
     });
     updateSliderFill();
@@ -1033,6 +1111,7 @@
       populateFilters();
       renderAllCards();
       applyFilters();
+      fetchOSRMDriveTimes();
     })();
 
     // ── Prevent pinch-to-zoom on iOS (ignores user-scalable=no since iOS 10) ──
