@@ -283,7 +283,8 @@
       !q || [r.title, r.cuisine, r.note, r.tags].some(f => (f||'').toLowerCase().includes(q))
     );
     rows.sort((a, b) => {
-      const av = a[sortKey] ?? '', bv = b[sortKey] ?? '';
+      const av = sortKey === 'type' ? (isFoodDrink(a.type) ? 0 : 1) : (a[sortKey] ?? '');
+      const bv = sortKey === 'type' ? (isFoodDrink(b.type) ? 0 : 1) : (b[sortKey] ?? '');
       return av < bv ? -sortDir : av > bv ? sortDir : 0;
     });
     document.getElementById('rowCount').textContent = `${rows.length} places`;
