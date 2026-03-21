@@ -177,6 +177,7 @@
 <div class="toolbar">
   <input type="text" id="search" placeholder="Search by name, cuisine, note…" oninput="renderTable()">
   <span id="rowCount"></span>
+  <button class="btn primary" onclick="openAdd()">+ Add Place</button>
 </div>
 
 <div style="overflow-x:auto;">
@@ -199,7 +200,23 @@
 <div class="modal-backdrop" id="modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
-    <h2>Edit Place</h2>
+    <h2 id="modal-title">Edit Place</h2>
+
+    <!-- Lookup section (add mode only) -->
+    <div id="lookup-section" style="display:none;margin-bottom:1.25rem;">
+      <div class="form-group full" style="display:flex;flex-direction:column;gap:4px;">
+        <label style="font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#6b6560;">Google Maps Link</label>
+        <div style="display:flex;gap:8px;">
+          <input id="f-lookup-url" type="text" placeholder="Paste Google Maps link…"
+            style="flex:1;padding:8px 10px;border:1px solid #f9f3e7;background:#fcf9f3;font-family:inherit;font-size:13px;color:#1c1810;"
+            onpaste="setTimeout(lookup, 50)">
+          <button class="btn primary" onclick="lookup()" id="lookup-btn">Look up</button>
+        </div>
+        <div id="lookup-status" style="font-size:12px;color:#6b6560;min-height:16px;"></div>
+      </div>
+      <hr style="border:none;border-top:1px solid #f0e8d8;margin:0.75rem 0 1rem;">
+    </div>
+
     <div class="form-grid">
       <div class="form-group full"><label>Name</label><input id="f-title" type="text"></div>
       <div class="form-group"><label>Cuisine / Category</label><input id="f-cuisine" type="text"></div>
@@ -224,7 +241,7 @@
   let restaurants = [];
   let sortKey = 'title';
   let sortDir = 1;
-  let editingId = null;
+  let editingId = null; // null = add mode, number = edit mode
 
   async function load() {
     restaurants = await fetch('/api/restaurants').then(r => r.json());
@@ -266,6 +283,17 @@
     return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  function openAdd() {
+    editingId = null;
+    ['f-title','f-cuisine','f-tags','f-note','f-url','f-lat','f-lng','f-lookup-url'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-visited').checked = false;
+    document.getElementById('lookup-status').textContent = '';
+    document.getElementById('modal-title').textContent = 'Add Place';
+    document.getElementById('lookup-section').style.display = '';
+    document.getElementById('modal').classList.add('open');
+    document.getElementById('f-lookup-url').focus();
+  }
+
   function openEdit(id) {
     const r = restaurants.find(x => x.id === id);
     if (!r) return;
@@ -278,6 +306,8 @@
     document.getElementById('f-lat').value     = r.lat     ?? '';
     document.getElementById('f-lng').value     = r.lng     ?? '';
     document.getElementById('f-visited').checked = !!r.visited;
+    document.getElementById('modal-title').textContent = 'Edit Place';
+    document.getElementById('lookup-section').style.display = 'none';
     document.getElementById('modal').classList.add('open');
     document.getElementById('f-title').focus();
   }
@@ -285,6 +315,37 @@
   function closeModal() {
     document.getElementById('modal').classList.remove('open');
     editingId = null;
+  }
+
+  async function lookup() {
+    const url = document.getElementById('f-lookup-url').value.trim();
+    if (!url) return;
+    const statusEl = document.getElementById('lookup-status');
+    const btn = document.getElementById('lookup-btn');
+    statusEl.textContent = 'Looking up…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/lookup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      });
+      const data = await res.json();
+      if (data.error) { statusEl.textContent = '✗ ' + data.error; return; }
+      document.getElementById('f-title').value   = data.title ?? '';
+      document.getElementById('f-url').value     = data.url   ?? url;
+      document.getElementById('f-lat').value     = data.lat   ?? '';
+      document.getElementById('f-lng').value     = data.lng   ?? '';
+      statusEl.style.color = data.lat ? '#006f84' : '#b04030';
+      statusEl.textContent = data.lat
+        ? `✓ Found — ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}`
+        : '⚠ Location not found — enter coordinates manually';
+      document.getElementById('f-title').focus();
+    } catch (e) {
+      statusEl.textContent = '✗ ' + e.message;
+    } finally {
+      btn.disabled = false;
+    }
   }
 
   async function save() {
@@ -298,13 +359,24 @@
       lng:     document.getElementById('f-lng').value,
       visited: document.getElementById('f-visited').checked,
     };
-    await fetch(`/api/restaurants/${editingId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const r = restaurants.find(x => x.id === editingId);
-    Object.assign(r, body, { lat: body.lat !== '' ? parseFloat(body.lat) : null, lng: body.lng !== '' ? parseFloat(body.lng) : null, visited: body.visited ? 1 : 0 });
+    const parsed = { ...body, lat: body.lat !== '' ? parseFloat(body.lat) : null, lng: body.lng !== '' ? parseFloat(body.lng) : null, visited: body.visited ? 1 : 0 };
+
+    if (editingId === null) {
+      const res = await fetch('/api/restaurants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      restaurants.push({ ...parsed, id: data.id });
+    } else {
+      await fetch(`/api/restaurants/${editingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      Object.assign(restaurants.find(x => x.id === editingId), parsed);
+    }
     closeModal();
     renderTable();
   }

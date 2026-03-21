@@ -111,6 +111,69 @@ app.delete('/api/restaurants/:id', (req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/api/restaurants', (req, res) => {
+  const { title, note, url, tags, cuisine, lat, lng, visited } = req.body;
+  const result = db.prepare(
+    `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+  ).run(
+    title, note || '', url || '', tags || '', cuisine || '',
+    lat !== '' && lat != null ? parseFloat(lat) : null,
+    lng !== '' && lng != null ? parseFloat(lng) : null,
+    visited ? 1 : 0
+  );
+  res.json({ ok: true, id: result.lastInsertRowid });
+});
+
+app.post('/api/lookup', async (req, res) => {
+  const { url } = req.body;
+  if (!url || typeof url !== 'string') return res.status(400).json({ error: 'URL required' });
+
+  try {
+    let workingUrl = url.trim();
+
+    // Follow redirects for short links (maps.app.goo.gl, goo.gl, etc.)
+    if (/goo\.gl|maps\.app/i.test(workingUrl)) {
+      const r = await fetch(workingUrl, {
+        redirect: 'follow',
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible)' },
+      });
+      workingUrl = r.url;
+    }
+
+    // Extract place name from URL path
+    const nameMatch = workingUrl.match(/\/maps\/place\/([^/@?]+)/);
+    const title = nameMatch ? decodeURIComponent(nameMatch[1].replace(/\+/g, ' ')) : '';
+
+    // Prefer precise coords embedded in data param: !3d<lat>!4d<lng>
+    let lat = null, lng = null;
+    const preciseMatch = workingUrl.match(/!3d(-?\d+\.\d+).*?!4d(-?\d+\.\d+)/);
+    if (preciseMatch) {
+      lat = parseFloat(preciseMatch[1]);
+      lng = parseFloat(preciseMatch[2]);
+    }
+
+    // Fall back to @lat,lng,zoom in URL
+    if (lat === null) {
+      const atMatch = workingUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if (atMatch) { lat = parseFloat(atMatch[1]); lng = parseFloat(atMatch[2]); }
+    }
+
+    // Last resort: Nominatim geocoding by name
+    if (lat === null && title) {
+      const nomRes = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(title)}&format=json&limit=1`,
+        { headers: { 'User-Agent': 'fork-in-the-road-app/1.0' } }
+      );
+      const nomData = await nomRes.json();
+      if (nomData[0]) { lat = parseFloat(nomData[0].lat); lng = parseFloat(nomData[0].lon); }
+    }
+
+    res.json({ title, url: workingUrl, lat, lng });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── Start ──────────────────────────────────────────────────────────────────
 // Locally: use HTTPS if certs exist. On Railway: plain HTTP (they handle SSL).
 const SSL_KEY  = path.join(__dirname, 'key.pem');
