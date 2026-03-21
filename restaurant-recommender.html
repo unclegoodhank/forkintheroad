@@ -953,7 +953,9 @@
       }, 500);
 
       const { lat: uLat, lng: uLng } = currentLocation;
-      const withCoords = restaurantData.filter(r => r.lat != null && r.lng != null);
+      const withCoords = restaurantData
+        .filter(r => r.lat != null && r.lng != null)
+        .sort((a, b) => calculateDistance(uLat, uLng, a.lat, a.lng) - calculateDistance(uLat, uLng, b.lat, b.lng));
       const chunkSize = 50; // smaller chunks to stay within both APIs' limits
       for (let i = 0; i < withCoords.length; i += chunkSize) {
         const chunk = withCoords.slice(i, i + chunkSize);
