@@ -959,18 +959,26 @@
     }
     
     async function reverseGeocode(lat, lng) {
+      // Try BigDataCloud first — more accurate US zip codes, no API key needed
       try {
-        const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18`;
-        const res = await fetch(url, {headers: {'User-Agent': 'want-to-go-app/1.0'}});
+        const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+        const d = await res.json();
+        const city = d.city || d.locality || '';
+        const state = (d.principalSubdivisionCode || '').replace('US-', '');
+        const zip = d.postcode || '';
+        if (city) return [[city, state].filter(Boolean).join(', '), zip].filter(Boolean).join(' ');
+      } catch {}
+      // Fallback: Nominatim
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18`, {headers: {'User-Agent': 'want-to-go-app/1.0'}});
         const data = await res.json();
         const a = data.address || {};
         const city = a.city || a.town || a.village || a.suburb || a.county || '';
         const state = (a['ISO3166-2-lvl4'] || '').replace('US-', '');
         const zip = a.postcode || '';
         return [[city, state].filter(Boolean).join(', '), zip].filter(Boolean).join(' ');
-      } catch {
-        return '';
-      }
+      } catch {}
+      return '';
     }
 
     function useCurrentLocation() {
@@ -1323,7 +1331,13 @@
       document.getElementById('lat').value = currentLocation.lat;
       document.getElementById('lng').value = currentLocation.lng;
       updateLocationDisplay();
-      if (savedLocation) showLocationMap(savedLocation.lat, savedLocation.lng);
+      if (savedLocation) {
+        showLocationMap(savedLocation.lat, savedLocation.lng);
+        // Re-geocode in background to fix any stale/wrong cached name
+        reverseGeocode(savedLocation.lat, savedLocation.lng).then(place => {
+          if (place) { saveLocation({...savedLocation, name: place}); updateLocationDisplay(); }
+        });
+      }
       populateFilters();
       renderAllCards();
       applyFilters();
