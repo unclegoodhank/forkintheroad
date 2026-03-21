@@ -883,7 +883,11 @@
     let restaurantData = [];
 
     const savedLocation = JSON.parse(localStorage.getItem('currentLocation') || 'null');
-    let currentLocation = savedLocation || {lat: 37.7749, lng: -122.4194, name: "San Francisco"};
+    // Discard saved location if it's the hardcoded SF default (never a real GPS fix)
+    const isDefaultSF = savedLocation && Math.abs(savedLocation.lat - 37.7749) < 0.001 && Math.abs(savedLocation.lng - -122.4194) < 0.001;
+    if (isDefaultSF) localStorage.removeItem('currentLocation');
+    const realSavedLocation = isDefaultSF ? null : savedLocation;
+    let currentLocation = realSavedLocation || {lat: 37.7749, lng: -122.4194, name: "San Francisco"};
     let _locMap = null, _locMarker = null;
     function showLocationMap(lat, lng) {
       const el = document.getElementById('locationMap');
@@ -1330,12 +1334,12 @@
       }
       document.getElementById('lat').value = currentLocation.lat;
       document.getElementById('lng').value = currentLocation.lng;
-      updateLocationDisplay();
-      if (savedLocation) {
-        showLocationMap(savedLocation.lat, savedLocation.lng);
+      if (realSavedLocation) {
+        updateLocationDisplay();
+        showLocationMap(realSavedLocation.lat, realSavedLocation.lng);
         // Re-geocode in background to fix any stale/wrong cached name
-        reverseGeocode(savedLocation.lat, savedLocation.lng).then(place => {
-          if (place) { saveLocation({...savedLocation, name: place}); updateLocationDisplay(); }
+        reverseGeocode(realSavedLocation.lat, realSavedLocation.lng).then(place => {
+          if (place) { saveLocation({...realSavedLocation, name: place}); updateLocationDisplay(); }
         });
       }
       populateFilters();
