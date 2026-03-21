@@ -703,16 +703,16 @@
                aria-label="Search by name, cuisine, or note"
                placeholder="Search by name, cuisine, or note…"
                style="flex:0 0 100%;">
-        <div class="segmented" role="group" aria-label="Filter by category">
+        <div class="segmented" role="group" aria-label="Filter by category" style="flex:1;">
           <label><input type="radio" name="categoryFilter" value="" checked>All</label>
           <label><input type="radio" name="categoryFilter" value="food">Food &amp; Drink</label>
         </div>
-        <div class="segmented" role="group" aria-label="Filter by visited status">
+        <div class="segmented" role="group" aria-label="Filter by visited status" style="flex:1;">
           <label><input type="radio" name="visitedFilter" value="" checked>All</label>
           <label><input type="radio" name="visitedFilter" value="unvisited">Not visited</label>
           <label><input type="radio" name="visitedFilter" value="visited">Visited</label>
         </div>
-        <select id="cuisineFilter" aria-label="Filter by cuisine" style="display:none;">
+        <select id="cuisineFilter" aria-label="Filter by cuisine" style="display:none;flex:1;">
           <option value="">All cuisines</option>
         </select>
         <div class="radius-slider-wrap" style="flex:0 0 100%;flex-direction:column;gap:10px;">
