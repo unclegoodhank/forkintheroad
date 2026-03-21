@@ -722,7 +722,7 @@
 </head>
 <body>
   <!-- 2.4.1 Skip navigation -->
-  <div class="build-stamp">build </div>
+  <div class="build-stamp">build 13:59:19</div>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
   <div class="site-masthead">
@@ -782,7 +782,7 @@
         <div class="radius-slider-wrap">
           <div id="sliderDistance">
             <label for="radiusFilter" id="radiusLabel">Within 25 miles</label>
-            <input type="range" id="radiusFilter" min="1" max="100" value="25" aria-labelledby="radiusLabel">
+            <input type="range" id="radiusFilter" min="0" max="100" value="29" aria-labelledby="radiusLabel">
           </div>
         </div>
       </div>
@@ -1031,7 +1031,7 @@
 
     function applyFilters() {
       const cuisineFilter = document.getElementById('cuisineFilter').value;
-      const radiusFilter = parseFloat(document.getElementById('radiusFilter').value);
+      const radiusFilter = sliderToDistance(parseFloat(document.getElementById('radiusFilter').value));
       const searchQuery = (document.getElementById('searchFilter').value || '').toLowerCase().trim();
       const visitedFilter = (document.querySelector('input[name="visitedFilter"]:checked') || {value: ''}).value;
       const categoryFilter = document.getElementById('foodFilter').checked;
@@ -1141,14 +1141,40 @@
       if (!isFood) document.getElementById('cuisineFilter').value = '';
       applyFilters();
     });
+    function sliderToDistance(val) {
+      if (val <= 80) return 5 + (val / 80) * 55; // 5–60 miles continuous
+      if (val <= 83) return 100;
+      if (val <= 87) return 200;
+      if (val <= 91) return 300;
+      if (val <= 95) return 400;
+      if (val < 100) return 500;
+      return Infinity; // Unlimited
+    }
+    function snapSlider(val) {
+      if (val <= 80) return val;
+      // Snap points: 82=100mi, 86=200mi, 90=300mi, 94=400mi, 98=500mi, 100=Unlimited
+      const snaps = [82, 86, 90, 94, 98, 100];
+      return snaps.reduce((closest, s) => Math.abs(s - val) < Math.abs(closest - val) ? s : closest);
+    }
+    function sliderLabel(val) {
+      const dist = sliderToDistance(val);
+      if (dist === Infinity) return 'Unlimited';
+      const mi = Math.round(dist);
+      if (val <= 80 && mi <= 5) return 'Within 5 miles';
+      return `Within ${mi} miles`;
+    }
     function updateSliderFill() {
       const el = document.getElementById('radiusFilter');
       const pct = (el.value - el.min) / (el.max - el.min) * 100;
       el.style.setProperty('--pct', pct + '%');
     }
     document.getElementById('radiusFilter').addEventListener('input', () => {
-      const val = parseInt(document.getElementById('radiusFilter').value);
-      document.getElementById('radiusLabel').textContent = val === 1 ? 'Within <1 mile' : `Within ${val} miles`;
+      let val = parseInt(document.getElementById('radiusFilter').value);
+      if (val > 80) {
+        val = snapSlider(val);
+        document.getElementById('radiusFilter').value = val;
+      }
+      document.getElementById('radiusLabel').textContent = sliderLabel(val);
       updateSliderFill();
       applyFilters();
     });
