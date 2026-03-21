@@ -132,8 +132,8 @@
       padding: 10px 24px;
       border: 1px solid var(--md-outline);
       border-radius: var(--shape-full);
-      background: transparent;
-      color: var(--md-primary);
+      background: var(--md-surface-container-lowest);
+      color: var(--md-on-surface);
       font-family: inherit;
       font-size: 14px;
       font-weight: 500;
@@ -141,7 +141,7 @@
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
     }
-    .btn:hover { background: hsl(186 100% 26% / 0.08); }
+    .btn:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface-variant); }
     .btn.primary {
       background: var(--md-primary);
       color: var(--md-on-primary);
@@ -335,7 +335,7 @@
       min-height: 32px;
       flex: none;
     }
-    .visited-btn:hover { border-color: var(--md-primary); color: var(--md-primary); background: hsl(186 100% 26% / 0.08); }
+    .visited-btn:hover { border-color: var(--md-primary); color: var(--md-primary); background: var(--md-primary-container); }
     .visited-btn.is-visited { background: var(--md-primary); border-color: var(--md-primary); color: var(--md-on-primary); }
     .card.is-visited { opacity: 0.65; border-left: 3px solid var(--md-primary); }
     #cardContainer {
@@ -412,8 +412,8 @@
       padding: 10px 16px;
       border: 1px solid var(--md-outline);
       border-radius: var(--shape-full);
-      background: transparent;
-      color: var(--md-primary);
+      background: var(--md-surface-container-lowest);
+      color: var(--md-on-surface);
       font-family: inherit;
       font-size: 14px;
       font-weight: 500;
@@ -421,7 +421,7 @@
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s;
     }
-    button:hover { background: hsl(186 100% 26% / 0.08); }
+    button:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface-variant); }
     button:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 2px; }
     button:active { transform: scale(0.99); }
     button.primary {
