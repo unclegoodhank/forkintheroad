@@ -645,6 +645,7 @@
 
       .filters { gap: 12px; }
       .filters select { padding-top: 13px; padding-bottom: 13px; font-size: 15px; }
+      .filter-top-row { flex-direction: column; }
       .segmented label { padding: 13px 6px; font-size: 12px; }
       #searchFilter { padding: 13px 10px; font-size: 15px; }
 
@@ -703,7 +704,7 @@
                aria-label="Search by name, cuisine, or note"
                placeholder="Search by name, cuisine, or note…"
                style="flex:0 0 100%;">
-        <div style="flex:0 0 100%;display:flex;gap:12px;">
+        <div class="filter-top-row" style="flex:0 0 100%;display:flex;gap:12px;">
           <div class="segmented" role="group" aria-label="Filter by category" style="flex:1;">
             <label><input type="radio" name="categoryFilter" value="" checked>All</label>
             <label><input type="radio" name="categoryFilter" value="food">Food &amp; Drink</label>
