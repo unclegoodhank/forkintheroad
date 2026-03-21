@@ -704,7 +704,7 @@
                aria-label="Search by name, cuisine, or note"
                placeholder="Search by name, cuisine, or note…"
                style="grid-column:1/-1;">
-        <select id="cuisineFilter" aria-label="Filter by cuisine">
+        <select id="cuisineFilter" aria-label="Filter by cuisine" style="display:none;">
           <option value="">All cuisines</option>
         </select>
         <div class="segmented" role="group" aria-label="Filter by visited status">
@@ -1133,7 +1133,12 @@
 
     document.getElementById('searchFilter').addEventListener('input', applyFilters);
     document.getElementById('cuisineFilter').addEventListener('change', applyFilters);
-    document.querySelectorAll('input[name="categoryFilter"]').forEach(el => el.addEventListener('change', applyFilters));
+    document.querySelectorAll('input[name="categoryFilter"]').forEach(el => el.addEventListener('change', () => {
+      const isFood = el.value === 'food' && el.checked;
+      document.getElementById('cuisineFilter').style.display = isFood ? '' : 'none';
+      if (!isFood) { document.getElementById('cuisineFilter').value = ''; }
+      applyFilters();
+    }));
     function updateSliderFill() {
       const el = document.getElementById('radiusFilter');
       const pct = (el.value - el.min) / (el.max - el.min) * 100;
