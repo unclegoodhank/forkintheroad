@@ -158,7 +158,7 @@ app.post('/api/lookup', async (req, res) => {
 
     // Extract place name from URL path
     const nameMatch = workingUrl.match(/\/maps\/place\/([^/@?]+)/);
-    const title = nameMatch ? decodeURIComponent(nameMatch[1].replace(/\+/g, ' ')) : '';
+    let title = nameMatch ? decodeURIComponent(nameMatch[1].replace(/\+/g, ' ')) : '';
 
     // Prefer precise coords embedded in data param: !3d<lat>!4d<lng>
     let lat = null, lng = null;
@@ -174,14 +174,20 @@ app.post('/api/lookup', async (req, res) => {
       if (atMatch) { lat = parseFloat(atMatch[1]); lng = parseFloat(atMatch[2]); }
     }
 
-    // Fetch the Maps page and parse coords from the staticmap embed
-    if (lat === null && workingUrl.includes('google.com/maps')) {
+    // Fetch the Maps page — extract coords and canonical name from HTML
+    if ((lat === null || !title) && workingUrl.includes('google.com/maps')) {
       const { body } = await httpsGet(workingUrl, {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept-Language': 'en-US,en;q=0.9',
       });
-      const centerMatch = body.match(/staticmap\?center=(-?\d+\.\d+)%2C(-?\d+\.\d+)/);
-      if (centerMatch) { lat = parseFloat(centerMatch[1]); lng = parseFloat(centerMatch[2]); }
+      if (lat === null) {
+        const centerMatch = body.match(/staticmap\?center=(-?\d+\.\d+)%2C(-?\d+\.\d+)/);
+        if (centerMatch) { lat = parseFloat(centerMatch[1]); lng = parseFloat(centerMatch[2]); }
+      }
+      if (!title) {
+        const nameMatch2 = body.match(/0x[0-9a-f]+:0x[0-9a-f]+","([^"]+)"\]\]\]/);
+        if (nameMatch2) title = nameMatch2[1];
+      }
     }
 
     // Last resort: Nominatim geocoding by name
