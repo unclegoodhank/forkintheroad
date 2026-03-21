@@ -114,6 +114,7 @@
       margin-bottom: 6px;
     }
     input[type="number"] {
+      -webkit-appearance: none;
       padding: 9px 12px;
       border: 1px solid var(--md-outline);
       border-radius: var(--shape-xs);
@@ -141,6 +142,8 @@
       font-weight: 500;
       letter-spacing: 0.1px;
       cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
       transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
     }
     .btn:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface-variant); }
@@ -153,15 +156,9 @@
     .btn.primary:hover { background: hsl(186 100% 22%); border-color: hsl(186 100% 22%); }
 
     .current-location {
-      background: var(--md-primary-container);
-      border-radius: var(--shape-xs);
-      padding: 9px 15px;
-      font-size: 15px;
-      color: var(--md-on-primary-container);
-      display: flex;
-      align-items: center;
+      font-size: 12px;
+      color: var(--md-on-surface-variant);
     }
-    .current-location strong { color: var(--md-on-primary-container); font-weight: 500; }
 
     .filters {
       display: flex;
@@ -186,6 +183,7 @@
       font-family: inherit;
       font-size: 15px;
       cursor: pointer;
+      -webkit-appearance: none;
       appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
@@ -310,6 +308,7 @@
     #driveTimeFilter:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 6px; }
 
     #searchFilter {
+      -webkit-appearance: none;
       height: var(--ctrl-height);
       padding: 0 18px;
       border: 1px solid var(--md-outline);
@@ -425,6 +424,8 @@
       font-weight: 500;
       letter-spacing: 0.1px;
       cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
       transition: background 0.15s, border-color 0.15s;
     }
     button:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface-variant); }
@@ -752,7 +753,7 @@
           <button class="btn" onclick="useCurrentLocation()">Get my location</button>
         </div>
         <div id="currentLocationDisplay" class="current-location" style="display:none;">
-          <strong><span id="locName"></span></strong>
+          You're in: <span id="locName"></span>
         </div>
         <div id="locationError" style="display:none;"></div>
         <input type="hidden" id="lat" value="37.7749">
