@@ -520,6 +520,8 @@
     .radius-slider-wrap { flex: 0 0 100%; margin-top: 12px; }
 
     #sliderDistance { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+    .slider-ticks { position: relative; margin: 0 10.5px; height: 6px; }
+    .slider-tick { position: absolute; width: 1.5px; height: 5px; background: var(--md-outline); top: 0; transform: translateX(-50%); border-radius: 1px; }
 
     /* ── Results header row ── */
     .results-header-row {
@@ -722,7 +724,7 @@
 </head>
 <body>
   <!-- 2.4.1 Skip navigation -->
-  <div class="build-stamp">build 14:05:40</div>
+  <div class="build-stamp">build 14:10:03</div>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
   <div class="site-masthead">
@@ -783,6 +785,19 @@
           <div id="sliderDistance">
             <label for="radiusFilter" id="radiusLabel">Within 25 miles</label>
             <input type="range" id="radiusFilter" min="0" max="100" value="29" aria-labelledby="radiusLabel">
+            <div class="slider-ticks" aria-hidden="true">
+              <span class="slider-tick" style="left:7.27%"></span>
+              <span class="slider-tick" style="left:21.82%"></span>
+              <span class="slider-tick" style="left:36.36%"></span>
+              <span class="slider-tick" style="left:50.91%"></span>
+              <span class="slider-tick" style="left:65.45%"></span>
+              <span class="slider-tick" style="left:80%"></span>
+              <span class="slider-tick" style="left:82%"></span>
+              <span class="slider-tick" style="left:86%"></span>
+              <span class="slider-tick" style="left:90%"></span>
+              <span class="slider-tick" style="left:94%"></span>
+              <span class="slider-tick" style="left:98%"></span>
+            </div>
           </div>
         </div>
       </div>
