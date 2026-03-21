@@ -482,22 +482,56 @@
       flex: 0 0 100%;
       display: flex;
       flex-direction: column;
+    }
+    .food-toggle {
+      display: flex;
+      align-items: center;
       gap: 12px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--md-on-surface-variant);
+      user-select: none;
+      padding: 9px 0;
+      min-height: var(--ctrl-height);
+    }
+    .food-toggle input[type="checkbox"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--md-outline);
+      border-radius: var(--shape-sm);
+      background: var(--md-surface-container-lowest);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+      position: relative;
+    }
+    .food-toggle input[type="checkbox"]:checked {
+      background: var(--md-primary);
+      border-color: var(--md-primary);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolyline points='2.5,8.5 6.5,12.5 13.5,4' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 14px 14px;
+    }
+    .food-toggle:hover input[type="checkbox"]:not(:checked) {
+      border-color: var(--md-on-surface-variant);
     }
     .cuisine-wrap {
-      display: grid;
-      grid-template-rows: 0fr;
       overflow: hidden;
+      max-height: 0;
       opacity: 0;
-      margin-top: -12px;
-      transition: grid-template-rows 0.35s ease, opacity 0.25s ease, margin-top 0.35s ease;
+      margin-top: 0;
+      transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
     }
     .cuisine-wrap.visible {
-      grid-template-rows: 1fr;
+      max-height: calc(var(--ctrl-height) + 6px);
       opacity: 1;
-      margin-top: 0;
+      margin-top: 9px;
+      padding: 3px;
     }
-    .cuisine-wrap > select { min-height: 0; }
 
     .filter-visited-row { flex: 0 0 100%; }
 
@@ -775,13 +809,13 @@
                aria-label="Search by name, cuisine, or note"
                placeholder="Search by name, cuisine, or note…">
         <div class="filter-top-row">
-          <div class="segmented" role="group" aria-label="Filter by category">
-            <label><input type="radio" name="categoryFilter" value="" checked>All</label>
-            <label><input type="radio" name="categoryFilter" value="food">Food &amp; Drink</label>
-          </div>
+          <label class="food-toggle">
+            <input type="checkbox" id="foodFilter">
+            <span>Food &amp; Drink only</span>
+          </label>
           <div class="cuisine-wrap" inert>
             <select id="cuisineFilter" aria-label="Filter by cuisine">
-              <option value="">All cuisines</option>
+              <option value="">All food &amp; drink</option>
             </select>
           </div>
         </div>
@@ -1105,7 +1139,7 @@
       const driveTimeFilter = parseInt(document.getElementById('driveTimeFilter').value);
       const searchQuery = (document.getElementById('searchFilter').value || '').toLowerCase().trim();
       const visitedFilter = (document.querySelector('input[name="visitedFilter"]:checked') || {value: ''}).value;
-      const categoryFilter = (document.querySelector('input[name="categoryFilter"]:checked') || {value: ''}).value;
+      const categoryFilter = document.getElementById('foodFilter').checked;
 
       filteredData = restaurantData.reduce((acc, r, i) => {
         if (r.lat !== null && r.lng !== null) {
@@ -1123,7 +1157,7 @@
         const visitedMatch = !visitedFilter
           || (visitedFilter === 'visited' && isVisited)
           || (visitedFilter === 'unvisited' && !isVisited);
-        const categoryMatch = !categoryFilter || FOOD_DRINK_TYPES.has(r.type);
+        const categoryMatch = !categoryFilter || FOOD_DRINK_TYPES.has(r.type); // categoryFilter is boolean
         if (cuisineMatch && radiusMatch && searchMatch && visitedMatch && categoryMatch) acc.push({r, i});
         return acc;
       }, []);
@@ -1210,14 +1244,14 @@
 
     document.getElementById('searchFilter').addEventListener('input', applyFilters);
     document.getElementById('cuisineFilter').addEventListener('change', applyFilters);
-    document.querySelectorAll('input[name="categoryFilter"]').forEach(el => el.addEventListener('change', () => {
-      const isFood = document.querySelector('input[name="categoryFilter"]:checked').value === 'food';
+    document.getElementById('foodFilter').addEventListener('change', () => {
+      const isFood = document.getElementById('foodFilter').checked;
       const wrap = document.querySelector('.cuisine-wrap');
       wrap.inert = !isFood;
       wrap.classList.toggle('visible', isFood);
       if (!isFood) document.getElementById('cuisineFilter').value = '';
       applyFilters();
-    }));
+    });
     function updateSliderFill() {
       const el = document.getElementById('radiusFilter');
       const pct = (el.value - el.min) / (el.max - el.min) * 100;
