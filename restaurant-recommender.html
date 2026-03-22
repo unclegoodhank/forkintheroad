@@ -78,6 +78,8 @@
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      -webkit-text-size-adjust: none;
+      text-size-adjust: none;
       -webkit-text-stroke: 1px rgba(0, 0, 0, 0.1);
       overflow-x: hidden;
     }
@@ -382,6 +384,7 @@
       font-family: 'Fraunces', Georgia, serif;
       font-size: 1.312rem;
       font-weight: 400;
+      line-height: 1.8rem;
       letter-spacing: -0.2px;
       margin-bottom: 0;
       color: var(--md-on-surface);
@@ -479,7 +482,7 @@
       gap: 10px;
       padding: 18px 0 6px;
     }
-    .pagination:empty { display: none; }
+
     .pagination-info {
       font-size: 0.8125rem;
       color: var(--md-on-surface-variant);
@@ -508,10 +511,29 @@
       display: flex;
       align-items: center;
       gap: 5px;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      touch-action: manipulation;
+      user-select: none;
+      outline: none;
     }
-    .pagination-btn:last-child { border-right: none; }
-    .pagination-btn:hover:not(:disabled) { background: hsl(30 5% 83% / 0.5); }
     .pagination-btn:disabled { opacity: 0.35; cursor: default; }
+    .pagination-btn:first-child { border-radius: var(--shape-lg) 0 0 var(--shape-lg); }
+    .pagination-btn:last-child  { border-right: none; border-radius: 0 var(--shape-lg) var(--shape-lg) 0; }
+    .prev-btn::before { content: '←'; }
+    .next-btn::after  { content: '→'; }
+    .pagination-btn:hover { background: transparent; }
+    .pagination-btn.is-pressed { background: hsl(30 5% 83% / 0.5); transition: none; }
+    .pagination-btn.was-pressed { animation: pagination-release 0.25s ease-out forwards; }
+    .pagination-btn:active { transform: none; }
+    .pagination-btn:focus-visible { box-shadow: none; }
+    @media (hover: hover) {
+      .pagination-btn:hover:not(:disabled) { background: hsl(30 5% 83% / 0.5); }
+      .pagination-btn:focus-visible { box-shadow: var(--focus-glow) inset; }
+    }
+    @keyframes pagination-release {
+      from { background: hsl(30 5% 83% / 0.5); }
+      to   { background: transparent; }
+    }
     @keyframes count-flash {
       0%   { color: var(--color-accent); }
       100% { color: var(--md-on-surface-variant); }
@@ -1015,7 +1037,7 @@
 </head>
 <body>
   <!-- 2.4.1 Skip navigation -->
-  <time class="build-stamp" datetime="13:05:53">build 15:08:58</time>
+  <time class="build-stamp" datetime="15:50:36">build 15:52:30</time>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
   <header class="site-masthead">
@@ -1123,14 +1145,26 @@
 
       <div class="results-row">
         <p id="resultsCount" aria-live="polite" aria-atomic="true"></p>
-        <nav id="pagination-top" class="pagination" aria-label="Page navigation"></nav>
+        <nav id="pagination-top" class="pagination" aria-label="Page navigation" hidden>
+          <span class="pagination-info" aria-live="polite"></span>
+          <div class="pagination-btns">
+            <button class="pagination-btn prev-btn">Prev</button>
+            <button class="pagination-btn next-btn">Next</button>
+          </div>
+        </nav>
       </div>
       <ul id="cardContainer" tabindex="-1">
         <li class="card loading">
           <div class="loading-pulse"></div>
         </li>
       </ul>
-      <nav id="pagination-bottom" class="pagination" aria-label="Page navigation"></nav>
+      <nav id="pagination-bottom" class="pagination" aria-label="Page navigation" hidden>
+        <span class="pagination-info" aria-live="polite"></span>
+        <div class="pagination-btns">
+          <button class="pagination-btn prev-btn">Prev</button>
+          <button class="pagination-btn next-btn">Next</button>
+        </div>
+      </nav>
   </main>
 
   <footer class="site-footer">
@@ -1523,32 +1557,13 @@
         el.style.order = inFilter ? sortOrder.get(i) : 0;
       });
 
-      // Render pagination navs (top + bottom)
-      [document.getElementById('pagination-top'), document.getElementById('pagination-bottom')].forEach(nav => {
-        nav.innerHTML = '';
-        if (totalPages > 1) {
-          const info = document.createElement('span');
-          info.className = 'pagination-info';
-          info.textContent = `Page ${currentPage} of ${totalPages}`;
-
-          const btns = document.createElement('div');
-          btns.className = 'pagination-btns';
-
-          const prev = document.createElement('button');
-          prev.className = 'pagination-btn';
-          prev.innerHTML = '<span>←</span><span>Prev</span>';
-          prev.disabled = currentPage === 1;
-          prev.onclick = () => { currentPage--; applyFilters(); };
-
-          const next = document.createElement('button');
-          next.className = 'pagination-btn';
-          next.innerHTML = '<span>Next</span><span>→</span>';
-          next.disabled = currentPage === totalPages;
-          next.onclick = () => { currentPage++; applyFilters(); };
-
-          btns.append(prev, next);
-          nav.append(info, btns);
-        }
+      // Update pagination navs (top + bottom) — buttons are persistent in HTML
+      const showPagination = totalPages > 1;
+      paginationNavs.forEach(({ nav, info, prev, next }) => {
+        nav.hidden = !showPagination;
+        info.textContent = `Page ${currentPage} of ${totalPages}`;
+        prev.disabled = currentPage === 1;
+        next.disabled = currentPage === totalPages;
       });
 
       // Empty state
@@ -1602,6 +1617,37 @@
     }
     
     
+
+    // Cache pagination nav refs for applyFilters()
+    const paginationNavs = Array.from(document.querySelectorAll('.pagination')).map(nav => ({
+      nav,
+      info: nav.querySelector('.pagination-info'),
+      prev: nav.querySelector('.prev-btn'),
+      next: nav.querySelector('.next-btn'),
+    }));
+
+    // Press animation — shared by touch and mouse
+    function pressStart(btn) {
+      btn.classList.remove('was-pressed');
+      btn.classList.add('is-pressed');
+    }
+    function pressEnd(btn) {
+      btn.classList.remove('is-pressed');
+      btn.classList.add('was-pressed');
+      btn.addEventListener('animationend', () => btn.classList.remove('was-pressed'), { once: true });
+    }
+
+    paginationNavs.forEach(({ prev, next }) => {
+      [prev, next].forEach(btn => {
+        btn.addEventListener('touchstart',  () => pressStart(btn), { passive: true });
+        btn.addEventListener('touchend',    () => pressEnd(btn));
+        btn.addEventListener('touchcancel', () => btn.classList.remove('is-pressed', 'was-pressed'));
+        btn.addEventListener('mousedown',   () => pressStart(btn));
+        btn.addEventListener('mouseup',     () => pressEnd(btn));
+      });
+      prev.addEventListener('click', () => { currentPage--; requestAnimationFrame(applyFilters); });
+      next.addEventListener('click', () => { currentPage++; requestAnimationFrame(applyFilters); });
+    });
 
     document.getElementById('addedFilter').addEventListener('change', () => { currentPage = 1; applyFilters(); });
     document.getElementById('sortOrder').addEventListener('change', () => { currentPage = 1; applyFilters(); });
@@ -1704,10 +1750,20 @@
       applyFilters();
     })();
 
-    // ── Prevent pinch-to-zoom on iOS (ignores user-scalable=no since iOS 10) ──
-    document.addEventListener('touchmove', function(e) {
-      if (e.touches.length > 1) e.preventDefault();
-    }, { passive: false });
+    // ── iOS Safari: prevent pinch-to-zoom and double-tap zoom ──
+    if (/iP(ad|hone|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent) && !/CriOS|FxiOS/.test(navigator.userAgent)) {
+      document.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 1) e.preventDefault();
+      }, { passive: false });
+      let lastTap = 0;
+      document.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTap < 300 && !e.target.closest('button, a, input, select, textarea, label')) {
+          e.preventDefault();
+        }
+        lastTap = now;
+      }, { passive: false });
+    }
 
     // ── Hero carousel ──
     (function () {
