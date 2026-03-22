@@ -43,6 +43,12 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    fieldset { border: none; min-width: 0; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0;
+      margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
 
     .build-stamp {
       font-family: ui-monospace, 'SF Mono', Menlo, monospace;
@@ -64,14 +70,18 @@
 
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--md-surface);
+      background-color: var(--md-surface);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
       color: var(--md-on-surface);
       font-size: 0.9375rem;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-text-stroke: 1px rgba(0, 0, 0, 0.1);
       overflow-x: hidden;
     }
-    .container {
+    #recommender {
       max-width: 760px;
       margin: 0 auto;
       padding: 48px 24px 30px;
@@ -101,13 +111,13 @@
       border-radius: var(--shape-lg);
       padding: 21px 24px;
       margin-bottom: 21px;
+      position: relative;
     }
     .location-section h3 {
       font-size: 0.75rem;
       font-weight: 400;
       color: var(--md-on-surface-variant);
       margin-bottom: 18px;
-      text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .location-input {
@@ -121,7 +131,6 @@
       font-size: 0.75rem;
       font-weight: 400;
       letter-spacing: 0.5px;
-      text-transform: uppercase;
       color: var(--md-on-surface-variant);
       margin-bottom: 6px;
     }
@@ -139,10 +148,28 @@
       outline: none; box-shadow: var(--focus-glow); border-color: var(--color-warm-text);
     }
 
-    .button-group { display: flex; gap: 12px; margin-bottom: 15px; }
+    .location-label {
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--md-on-surface-variant);
+      letter-spacing: 0.5px;
+    }
+    .btn-sm {
+      height: 28px;
+      padding: 0 11px;
+      border: 1px solid var(--color-subtle);
+      border-radius: var(--shape-xs);
+      background: var(--btn-gradient);
+      color: var(--color-warm-text);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      filter: var(--shadow-subtle);
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-sm:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface-variant); }
 
     .btn {
-      flex: 1;
       height: var(--ctrl-height);
       padding: 0 24px;
       border: 1px solid var(--color-subtle);
@@ -166,17 +193,20 @@
     .btn.primary:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface); }
 
     .hidden { display: none !important; }
-    #locationMap {
+    #locationMapFigure {
+      margin: 10px 0 0;
       height: 135px;
       border-radius: var(--shape-xs);
       overflow: hidden;
-      margin-top: 10px;
       /* border: 1px solid var(--md-outline-variant); */
     }
-    #locName { transition: opacity 0.35s ease; }
+    #locationMap { height: 100%; }
+    #locName { transition: opacity 0.252s ease; }
     #locName.fading { opacity: 0; }
     #mapToggle {
-      margin-left: auto;
+      position: absolute;
+      top: 21px;
+      right: 24px;
       font-size: 0.75rem;
       color: var(--color-warm-text);
       text-underline-offset: 3px;
@@ -184,9 +214,7 @@
     .current-location {
       font-size: 0.75rem;
       color: var(--md-on-surface-variant);
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
+      margin-bottom: 8px;
     }
 
     .filters {
@@ -325,6 +353,7 @@
       display: flex;
       flex-direction: column;
       gap: 9px;
+      list-style: none;
     }
     .card {
       background: var(--md-surface-container-lowest);
@@ -354,7 +383,7 @@
       font-size: 1.312rem;
       font-weight: 400;
       letter-spacing: -0.2px;
-      margin-bottom: 9px;
+      margin-bottom: 0;
       color: var(--md-on-surface);
     }
     .distance-badge {
@@ -390,7 +419,6 @@
     }
     .buttons { display: flex; gap: 9px; }
     button {
-      flex: 1;
       height: var(--ctrl-height);
       padding: 0 18px;
       border: 1px solid var(--color-subtle);
@@ -431,14 +459,59 @@
       text-decoration: underline;
       text-underline-offset: 3px;
     }
+    .results-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 12px 0 6px;
+    }
     #resultsCount {
       font-size: 0.75rem;
       font-weight: 400;
       letter-spacing: 0.5px;
-      text-transform: uppercase;
       color: var(--md-on-surface-variant);
-      padding: 12px 0 6px;
     }
+    #pagination-top { padding: 0; }
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 18px 0 6px;
+    }
+    .pagination:empty { display: none; }
+    .pagination-info {
+      font-size: 0.8125rem;
+      color: var(--md-on-surface-variant);
+    }
+    .pagination-btns {
+      display: flex;
+      border: 1px solid var(--color-subtle);
+      border-radius: var(--shape-lg);
+      overflow: hidden;
+      background: var(--btn-gradient);
+      filter: var(--shadow-subtle);
+    }
+    .pagination-btn {
+      height: 36px;
+      padding: 0 14px;
+      border: none;
+      border-right: 1px solid var(--color-subtle);
+      border-radius: 0;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.875rem;
+      line-height: 1;
+      color: var(--color-warm-text);
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .pagination-btn:last-child { border-right: none; }
+    .pagination-btn:hover:not(:disabled) { background: hsl(30 5% 83% / 0.5); }
+    .pagination-btn:disabled { opacity: 0.35; cursor: default; }
     @keyframes count-flash {
       0%   { color: var(--color-accent); }
       100% { color: var(--md-on-surface-variant); }
@@ -463,8 +536,16 @@
     #searchFilter { width: 100%; }
     #searchFilter + button { display: none; } /* overridden by JS */
 
-    .filter-search-wrap { flex: 0 0 100%; }
-    .filter-category-wrap { flex: 0 0 100%; }
+    .filter-search-wrap { flex: 0 0 100%; position: relative; }
+    .filter-category-wrap { flex: 0 0 100%; display: flex; flex-direction: column; gap: 6px; }
+    .filter-row-pair { display: flex; gap: 9px; flex: 0 0 100%; padding: 3px 0 0; }
+    .filter-col { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .filter-col select { width: 100%; }
+    #searchClear {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--md-on-surface-variant); line-height: 0; padding: 4px;
+    }
     .filter-visited-row { flex: 0 0 100%; }
 
     @media (min-width: 481px) {
@@ -481,16 +562,11 @@
     .slider-endpoints { display: flex; justify-content: space-between; /* margin: 0 15px; */ font-size: 0.6875rem; color: var(--md-on-surface-variant); letter-spacing: 0.02em; }
 
     /* ── Results header row ── */
-    .results-header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      /* margin-bottom: 9px; */
-    }
     #resultsCount { margin: 0; }
 
 
     /* ── Card inner layout ── */
+    .card-name-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .card-header-row {
       display: flex;
       align-items: flex-start;
@@ -519,16 +595,21 @@
       font-size: 0.75rem;
       color: var(--md-on-surface-variant);
     }
-    .loc-sep {
+    .loc-city { font-style: normal; }
+    .distance-badge:empty { display: none; }
+    /* separator before maps link via CSS — no DOM element needed */
+    .maps-link::before {
+      content: '·';
+      display: inline-block;
       color: var(--md-outline-variant);
       font-size: 0.6875rem;
+      margin-right: 4px;
+      text-decoration: none;
     }
-    .distance-badge:empty { display: none; }
-    .loc-sep { color: var(--md-outline-variant); font-size: 0.6875rem; }
-    /* hide · before maps when distance is empty AND no city exists */
-    .distance-badge:empty + .loc-sep { display: none; }
-    /* override: if a city span exists, always show the · before maps */
-    .loc-city ~ .loc-sep { display: inline; }
+    /* hide · when distance is empty and no city exists */
+    .distance-badge:empty + .maps-link::before { content: none; }
+    /* always show · when a city is present */
+    .loc-city ~ .maps-link::before { content: '·'; }
     /* separator between city and distance badge */
     .loc-city + .distance-badge:not(:empty)::before {
       content: '·';
@@ -558,7 +639,6 @@
       font-weight: 600;
       color: hsl(135 76% 40% / 1);
       letter-spacing: 0;
-      text-transform: capitalize;
     }
     .visited-badge-star { font-size: 0.7rem; }
     @keyframes loc-pulse {
@@ -619,6 +699,7 @@
 
     #cardEditModal {
       display: none; position: fixed; inset: 0; z-index: 1000;
+      width: 100%; height: 100%; margin: 0; border: none;
       background: hsl(0 0% 0% / 0.45);
       align-items: center; justify-content: center;
       padding: 24px;
@@ -653,7 +734,7 @@
     .edit-field { display: flex; flex-direction: column; gap: 5px; }
     .edit-field label {
       font-size: 0.6875rem; font-weight: 400; letter-spacing: 0.06em;
-      text-transform: uppercase; color: var(--md-on-surface-variant);
+      color: var(--md-on-surface-variant);
     }
     .edit-field input, .edit-field select, .edit-field textarea {
       font-family: inherit; font-size: 0.9375rem;
@@ -667,7 +748,24 @@
     .edit-field input:focus, .edit-field select:focus, .edit-field textarea:focus {
       outline: none; box-shadow: var(--focus-glow); border-color: var(--color-warm-text);
     }
+    .edit-field select {
+      -webkit-appearance: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), var(--btn-gradient);
+      background-repeat: no-repeat, no-repeat;
+      background-position: right 12px center, top left;
+      padding-right: 33px;
+      color: var(--color-warm-text);
+      filter: var(--shadow-subtle);
+      cursor: pointer;
+    }
     .edit-field textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+    .edit-field-visited { flex-direction: row; align-items: center; gap: 8px; }
+    #ce-visited { width: 20px; height: 20px; accent-color: var(--md-surface-container-high); cursor: pointer; }
+    .ce-visited-label {
+      letter-spacing: 0; font-size: 1rem;
+      cursor: pointer; color: var(--md-on-primary-container);
+      position: relative; top: -1px;
+    }
     .url-input-wrap { position: relative; }
     .url-input-wrap input { padding-right: 34px; }
     .url-visit-btn {
@@ -697,7 +795,9 @@
 
     /* ── Footer ── */
     .site-footer {
-      background: hsla(0, 0%, 0%, 1);
+      background-color: hsla(0, 0%, 0%, 1);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
       color: hsla(0, 0%, 100%, 1);
       margin-top: 24px;
       padding: 0 24px calc(48px + env(safe-area-inset-bottom));
@@ -725,14 +825,43 @@
       font-size: 0.75rem;
       font-weight: 400;
       letter-spacing: 0.1em;
-      text-transform: uppercase;
       color: hsla(37, 11%, 62%, 1);
+    }
+    .text-resizer {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .text-resizer__label {
+      font-size: 0.75rem;
+      letter-spacing: 0.02em;
+      color: hsla(0, 0%, 100%, 0.4);
+      white-space: nowrap;
+    }
+    .text-resizer .segmented {
+      filter: none;
+      background: hsla(0, 0%, 100%, 0.06);
+      border-color: hsla(0, 0%, 100%, 0.15);
+    }
+    .text-resizer .segmented label {
+      color: hsla(0, 0%, 100%, 0.5);
+      border-color: hsla(0, 0%, 100%, 0.15);
+      font-size: 0.8125rem;
+      padding: 0 14px;
+    }
+    .text-resizer .segmented label:has(input:checked) {
+      background: hsla(0, 0%, 100%, 0.15);
+      color: hsla(0, 0%, 100%, 0.9);
+    }
+    .text-resizer .segmented label:hover:not(:has(input:checked)) {
+      background: hsla(0, 0%, 100%, 0.1);
     }
     .site-footer__copy {
       font-size: 0.75rem;
       font-weight: 400;
       letter-spacing: 0.1em;
-      text-transform: uppercase;
       color: hsla(37, 11%, 62%, 1);
     }
 
@@ -756,7 +885,9 @@
     }
     .carousel-slide.active { opacity: 1; }
     .site-masthead {
-      background: var(--md-surface);
+      background-color: var(--md-surface);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
       border-bottom: 1px solid var(--md-outline-variant);
     }
     .site-masthead__inner {
@@ -776,7 +907,7 @@
       object-fit: contain;
       display: block;
     }
-    .site-masthead__inner > div {
+    .site-masthead__inner > hgroup {
       grid-area: text;
       display: grid;
       grid-template-rows: auto auto;
@@ -798,7 +929,6 @@
       font-size: 0.75rem;
       font-weight: 400;
       letter-spacing: 0.15em;
-      text-transform: uppercase;
       color: hsl(30 5% 71% / 1);
     }
     @media (prefers-reduced-motion: reduce) {
@@ -807,13 +937,15 @@
 
     /* ── Mobile (375px+) ── */
     @media (max-width: 480px) {
-      .container { padding: 21px 18px 24px; }
+      #recommender { padding: 21px 18px 24px; }
 
       .site-masthead__inner { padding: 15px 18px 15px 20px; gap: 12px; }
       .site-masthead__icon { width: 13.4vw; height: 13.4vw; }
       .site-masthead h1 { font-size: 9.8vw; }
       .site-masthead p { letter-spacing: 0.06em; font-size: 2.52vw; margin-top: -3px; }
       .radius-slider-wrap label { min-width: 0; }
+      #radiusFilter::-webkit-slider-thumb { width: 35px; height: 35px; }
+      #radiusFilter::-moz-range-thumb { width: 35px; height: 35px; }
 
       .filters { gap: 12px; }
       .filters select { font-size: 0.9375rem; }
@@ -883,80 +1015,78 @@
 </head>
 <body>
   <!-- 2.4.1 Skip navigation -->
-  <div class="build-stamp">build 02:12:03</div>
+  <time class="build-stamp" datetime="13:05:53">build 15:08:58</time>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
-  <div class="site-masthead">
+  <header class="site-masthead">
     <div class="site-masthead__inner">
       <img src="images/Fork Icon Illustration.png" alt="" aria-hidden="true" class="site-masthead__icon">
-      <div>
+      <hgroup>
         <h1>Fork in the road</h1>
         <p>Your personal travel guide</p>
-      </div>
+      </hgroup>
     </div>
-  </div>
+  </header>
 
-  <div id="heroCarousel" role="region" aria-label="Photo carousel">
+  <section id="heroCarousel" aria-label="Photo carousel">
     <img src="images/1.jpg" class="carousel-slide active" alt="" aria-hidden="true">
     <img src="images/2.jpg" class="carousel-slide" alt="" aria-hidden="true">
     <img src="images/3.jpg" class="carousel-slide" alt="" aria-hidden="true">
     <img src="images/4.jpg" class="carousel-slide" alt="" aria-hidden="true">
     <img src="images/5.jpg" class="carousel-slide" alt="" aria-hidden="true">
     <img src="images/6.jpg" class="carousel-slide" alt="" aria-hidden="true">
-  </div>
+  </section>
 
-  <div class="container">
-
-    <div id="recommender">
-      <div class="location-section">
-<div class="button-group">
-          <button class="btn" onclick="useCurrentLocation()">Update location</button>
-        </div>
-        <div id="currentLocationDisplay" class="current-location hidden">
-          You're in:&nbsp;<span id="locName"></span>
-          <a href="#" id="mapToggle" class="hidden" onclick="toggleLocationMap(event)">Show map</a>
-        </div>
-        <div id="locationMap" class="hidden"></div>
-        <div id="locationError" class="hidden"></div>
+  <main id="recommender">
+      <section class="location-section">
+        <a href="#" id="mapToggle" class="hidden" onclick="toggleLocationMap(event)">Show map</a>
+        <p id="currentLocationDisplay" class="current-location">
+          <span class="location-label">Your location<span id="locName"></span></span>
+        </p>
+        <button class="btn-sm" onclick="useCurrentLocation()">Update location</button>
+        <figure id="locationMapFigure" class="hidden">
+          <div id="locationMap"></div>
+        </figure>
+        <p id="locationError" class="hidden"></p>
         <input type="hidden" id="lat" value="">
         <input type="hidden" id="lng" value="">
-      </div>
+      </section>
       
-      <div class="filters" role="group" aria-label="Search and filters">
-        <div class="filter-search-wrap" style="position:relative;">
+      <form class="filters" aria-label="Search and filters" onsubmit="event.preventDefault()">
+        <div class="filter-search-wrap">
           <input type="text" id="searchFilter"
                  aria-label="Filter by name, cuisine, or note"
                  placeholder="Filter by name, cuisine, or note…">
-          <button id="searchClear" type="button" aria-label="Clear search" class="hidden"
-                  style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--md-on-surface-variant);line-height:0;padding:4px;">
+          <button id="searchClear" type="button" aria-label="Clear search" class="hidden">
             <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><line x1="6.5" y1="6.5" x2="13.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="13.5" y1="6.5" x2="6.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
         </div>
-        <div class="filter-category-wrap" style="display:flex;flex-direction:column;gap:6px;">
+        <div class="filter-category-wrap">
           <select id="categoryFilter">
             <option value="">All categories</option>
             <option value="__food">All food &amp; drink</option>
           </select>
         </div>
-        <div class="segmented filter-visited-row" role="group" aria-label="Filter by visited status">
+        <fieldset class="segmented filter-visited-row">
+          <legend class="sr-only">Filter by visited status</legend>
           <label><input type="radio" name="visitedFilter" value="" checked>All</label>
           <label><input type="radio" name="visitedFilter" value="unvisited">Not visited</label>
           <label><input type="radio" name="visitedFilter" value="visited">Visited</label>
-        </div>
-        <div style="display:flex;gap:9px;flex:0 0 100%;padding:3px 0 0 0;">
-          <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+        </fieldset>
+        <div class="filter-row-pair">
+          <div class="filter-col">
             <label for="addedFilter" class="filter-label">Item added</label>
-            <select id="addedFilter" style="width:100%;">
-              <option value="">Any time</option>
+            <select id="addedFilter">
+              <option value="">Any date</option>
               <option value="7">This week</option>
               <option value="30">This month</option>
               <option value="90">Last 3 months</option>
               <option value="365">This year</option>
             </select>
           </div>
-          <div style="display:flex;flex-direction:column;gap:4px;flex:1;">
+          <div class="filter-col">
             <label for="sortOrder" class="filter-label">Sort by</label>
-            <select id="sortOrder" style="width:100%;">
+            <select id="sortOrder">
               <option value="distance">Distance</option>
               <option value="newest">Newest</option>
               <option value="oldest">Oldest</option>
@@ -988,32 +1118,42 @@
             </div>
           </div>
         </div>
-      </div>
-      
+      </form>
 
-            <div class="results-header-row">
+
+      <div class="results-row">
         <p id="resultsCount" aria-live="polite" aria-atomic="true"></p>
+        <nav id="pagination-top" class="pagination" aria-label="Page navigation"></nav>
       </div>
-
-      <div id="cardContainer" tabindex="-1">
-        <div class="card loading">
+      <ul id="cardContainer" tabindex="-1">
+        <li class="card loading">
           <div class="loading-pulse"></div>
-        </div>
-      </div>
-    </div>
-    
-  </div>
+        </li>
+      </ul>
+      <nav id="pagination-bottom" class="pagination" aria-label="Page navigation"></nav>
+  </main>
 
   <footer class="site-footer">
     <div class="site-footer__inner">
       <div>
         <span class="site-footer__name">Fork in the road</span>
         <p class="site-footer__tagline">Find places by distance from your location</p>
+        <div class="text-resizer">
+          <span class="text-resizer__label">Text size</span>
+          <fieldset class="segmented">
+            <legend class="sr-only">Text size</legend>
+            <label><input type="radio" name="textSize" value="small"> Small</label>
+            <label><input type="radio" name="textSize" value="medium" checked> Medium</label>
+            <label><input type="radio" name="textSize" value="large"> Large</label>
+          </fieldset>
+        </div>
       </div>
       <div>
         <p class="site-footer__copy">Made in Oakland, California.</p>
-        <p class="site-footer__copy site-footer__copy--spaced-sm">&copy; 2026</p>
-        <p class="site-footer__copy--spaced-md"><a href="/new-stuff" class="site-footer__copy site-footer__link">Check out new stuff</a></p>
+        <p class="site-footer__copy site-footer__copy--spaced-sm"><time datetime="2026">&copy; 2026</time></p>
+        <nav aria-label="Site links">
+          <a href="/new-stuff" class="site-footer__copy site-footer__link">Check out new stuff</a>
+        </nav>
       </div>
     </div>
   </footer>
@@ -1035,7 +1175,7 @@
     function toggleLocationMap(e) {
       e.preventDefault();
       _mapVisible = !_mapVisible;
-      const el = document.getElementById('locationMap');
+      const el = document.getElementById('locationMapFigure');
       const toggle = document.getElementById('mapToggle');
       el.classList.toggle('hidden', !_mapVisible);
       toggle.textContent = _mapVisible ? 'Hide map' : 'Show map';
@@ -1043,7 +1183,7 @@
     }
 
     function showLocationMap(lat, lng) {
-      const el = document.getElementById('locationMap');
+      const el = document.getElementById('locationMapFigure');
       const wasVisible = _mapVisible;
       const mapToggle = document.getElementById('mapToggle');
       mapToggle.classList.remove('hidden');
@@ -1078,6 +1218,8 @@
       localStorage.setItem('currentLocation', JSON.stringify(loc));
     }
     let filteredData = [];
+    const perPage = 10;
+    let currentPage = 1;
     const FOOD_DRINK_TYPES = new Set(['Restaurant','Bar','Café / Coffee','Bakery','Ice Cream / Dessert','Brewery','Winery']);
     const cardElements = new Map();
     const visited = new Set();
@@ -1122,15 +1264,14 @@
       const display = document.getElementById('currentLocationDisplay');
       const locName = document.getElementById('locName');
       if (!display) return;
-      display.classList.remove('hidden');
       if (!detecting && locName) {
         locName.classList.add('fading');
         setTimeout(() => {
-          locName.textContent = currentLocation?.name || 'Detecting…';
+          locName.textContent = currentLocation?.name ? `: ${currentLocation.name}` : '';
           locName.classList.remove('fading');
-        }, 350);
+        }, 252);
       } else if (locName) {
-        locName.textContent = 'Detecting…';
+        locName.textContent = ': Detecting…';
       }
     }
     
@@ -1251,7 +1392,7 @@
 
       // Populate ce-cuisine select in Edit modal with same options (no counts)
       const ceSelect = document.getElementById('ce-cuisine');
-      ceSelect.innerHTML = '<option value=""></option>';
+      ceSelect.innerHTML = '<option value="">None</option>';
       if (foodCuisines.length) {
         const g = document.createElement('optgroup');
         g.label = 'Food & drink';
@@ -1279,33 +1420,35 @@
           ? `<a href="${r.url}" target="_blank" rel="noopener" aria-label="Open ${r.title} in Maps" class="maps-link">Open in Maps ↗</a>`
           : '';
 
-        const el = document.createElement('div');
+        const el = document.createElement('li');
         el.className = `card${isV ? ' is-visited' : ''}`;
         const cityState = [r.city, r.state ? normalizeState(r.state) : ''].filter(Boolean).join(', ');
 
         el.innerHTML = `
+          <article>
           <div class="card-header-row">
-            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-              <div class="restaurant-name" style="margin-bottom:0;">${r.title}</div>
-              ${isV ? `<div class="visited-badge"><span class="visited-badge-star">✦</span> Visited${r.visited_at ? ' · ' + new Date(r.visited_at + 'T12:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'}) : ''}</div>` : ''}
+            <div class="card-name-row">
+              <h2 class="restaurant-name">${r.title}</h2>
+              ${isV ? `<span class="visited-badge"><span class="visited-badge-star">✦</span> Visited${r.visited_at ? ` · <time datetime="${r.visited_at}">${new Date(r.visited_at + 'T12:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'})}</time>` : ''}</span>` : ''}
             </div>
             <div class="card-tags">
               ${r.cuisine ? `<span class="tag">${r.cuisine}</span>` : ''}
               ${r.tags ? `<span class="tag">${r.tags}</span>` : ''}
             </div>
           </div>
-          ${noteText ? `<div class="note">${noteText}</div>` : ''}
+          ${noteText ? `<p class="note">${noteText}</p>` : ''}
           <div class="card-info-row">
             <div class="card-location-row">
-              ${cityState ? `<span class="loc-city">${cityState}</span>` : ''}
-              <span class="distance-badge"></span>
-              ${mapsLink ? `<span class="loc-sep">·</span>${mapsLink}` : ''}
+              ${cityState ? `<address class="loc-city">${cityState}</address>` : ''}
+              <output class="distance-badge"></output>
+              ${mapsLink}
             </div>
             <button class="card-edit-btn" onclick="openCardEdit(${r.id})" aria-label="Edit ${r.title}">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12.5 2.5a1.414 1.414 0 0 1 2 2L5.5 13.5l-3 .5.5-3L12.5 2.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
           </div>
-          ${r.added_at ? `<div class="card-added-date">Added ${new Date(r.added_at + 'Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>` : ''}`;
+          ${r.added_at ? `<time class="card-added-date" datetime="${r.added_at}">Added ${new Date(r.added_at + 'Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</time>` : ''}
+          </article>`;
 
         container.appendChild(el);
         cardElements.set(i, el);
@@ -1355,6 +1498,13 @@
       // Build sort-order map: data index → position in sorted results
       const sortOrder = new Map(filteredData.map(({i}, pos) => [i, pos]));
 
+      // Pagination slice
+      const totalPages = perPage === 0 ? 1 : Math.ceil(filteredData.length / perPage);
+      currentPage = Math.min(currentPage, totalPages || 1);
+      const start = perPage === 0 ? 0 : (currentPage - 1) * perPage;
+      const end = perPage === 0 ? filteredData.length : start + perPage;
+      const pageSet = new Set(filteredData.slice(start, end).map(({i}) => i));
+
       // Update each card declaratively — no DOM moves, no flicker
       restaurantData.forEach((r, i) => {
         const el = cardElements.get(i);
@@ -1367,9 +1517,38 @@
         }
         const isV = visited.has(r.title);
         el.classList.toggle('is-visited', isV);
-        const visible = sortOrder.has(i);
+        const inFilter = sortOrder.has(i);
+        const visible = inFilter && pageSet.has(i);
         el.hidden = !visible;
-        el.style.order = visible ? sortOrder.get(i) : 0;
+        el.style.order = inFilter ? sortOrder.get(i) : 0;
+      });
+
+      // Render pagination navs (top + bottom)
+      [document.getElementById('pagination-top'), document.getElementById('pagination-bottom')].forEach(nav => {
+        nav.innerHTML = '';
+        if (totalPages > 1) {
+          const info = document.createElement('span');
+          info.className = 'pagination-info';
+          info.textContent = `Page ${currentPage} of ${totalPages}`;
+
+          const btns = document.createElement('div');
+          btns.className = 'pagination-btns';
+
+          const prev = document.createElement('button');
+          prev.className = 'pagination-btn';
+          prev.innerHTML = '<span>←</span><span>Prev</span>';
+          prev.disabled = currentPage === 1;
+          prev.onclick = () => { currentPage--; applyFilters(); };
+
+          const next = document.createElement('button');
+          next.className = 'pagination-btn';
+          next.innerHTML = '<span>Next</span><span>→</span>';
+          next.disabled = currentPage === totalPages;
+          next.onclick = () => { currentPage++; applyFilters(); };
+
+          btns.append(prev, next);
+          nav.append(info, btns);
+        }
       });
 
       // Empty state
@@ -1408,7 +1587,6 @@
       });
 
       // Update count
-      const total = restaurantData.length;
       const shown = filteredData.length;
       const countEl = document.getElementById('resultsCount');
       countEl.textContent = `${shown} place${shown !== 1 ? 's' : ''}`;
@@ -1425,21 +1603,23 @@
     
     
 
-    document.getElementById('addedFilter').addEventListener('change', applyFilters);
-    document.getElementById('sortOrder').addEventListener('change', applyFilters);
+    document.getElementById('addedFilter').addEventListener('change', () => { currentPage = 1; applyFilters(); });
+    document.getElementById('sortOrder').addEventListener('change', () => { currentPage = 1; applyFilters(); });
     const searchFilter = document.getElementById('searchFilter');
     const searchClear = document.getElementById('searchClear');
     searchFilter.addEventListener('input', () => {
+      currentPage = 1;
       searchClear.classList.toggle('hidden', !searchFilter.value);
       applyFilters();
     });
     searchClear.addEventListener('click', () => {
+      currentPage = 1;
       searchFilter.value = '';
       searchClear.classList.add('hidden');
       searchFilter.focus();
       applyFilters();
     });
-    document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+    document.getElementById('categoryFilter').addEventListener('change', () => { currentPage = 1; applyFilters(); });
     function sliderToDistance(val) {
       if (val <= 70) return Math.max(5, (val / 70) * 60); // 0–60 miles continuous
       // Snap points at 75=100mi, 80=200mi, 85=300mi, 90=400mi, 95=500mi, 100=Unlimited
@@ -1502,7 +1682,7 @@
       applyFilters();
     });
     updateSliderFill();
-    document.querySelectorAll('input[name="visitedFilter"]').forEach(el => el.addEventListener('change', applyFilters));
+    document.querySelectorAll('input[name="visitedFilter"]').forEach(el => el.addEventListener('change', () => { currentPage = 1; applyFilters(); }));
     
     // Initialize — fetch data from server
     (async () => {
@@ -1552,15 +1732,15 @@
       carousel.addEventListener('mouseleave', () => resetTimer());
     })();
   </script>
-  <div id="cardEditModal" role="dialog" aria-modal="true" aria-labelledby="cardEditTitle">
-    <div class="card-edit-sheet">
-      <div class="card-edit-header">
+  <dialog id="cardEditModal" aria-labelledby="cardEditTitle">
+    <form class="card-edit-sheet" onsubmit="event.preventDefault()">
+      <header class="card-edit-header">
         <h2 id="cardEditTitle">Edit place</h2>
         <div class="card-edit-nav">
           <button id="ce-prev" onclick="navigateCardEdit(-1)" title="Previous (⌥←)" aria-label="Previous">←</button>
           <button id="ce-next" onclick="navigateCardEdit(1)"  title="Next (⌥→)"     aria-label="Next">→</button>
         </div>
-      </div>
+      </header>
       <div class="edit-field">
         <label for="ce-title">Name</label>
         <input id="ce-title" type="text" autocomplete="off">
@@ -1568,7 +1748,7 @@
       <div class="edit-field-row">
         <div class="edit-field">
           <label for="ce-cuisine">Category</label>
-          <select id="ce-cuisine"><option value=""></option></select>
+          <select id="ce-cuisine"><option value="">None</option></select>
         </div>
         <div class="edit-field">
           <label for="ce-tags">Type / tag</label>
@@ -1598,16 +1778,16 @@
         <label for="ce-note">Note</label>
         <textarea id="ce-note"></textarea>
       </div>
-      <div class="edit-field" style="flex-direction:row;align-items:center;gap:8px;">
-        <input id="ce-visited" type="checkbox" style="width:20px;height:20px;accent-color:var(--md-surface-container-high);cursor:pointer;">
-        <label for="ce-visited" style="text-transform:none;letter-spacing:0;font-size:1rem;cursor:pointer;color:var(--md-on-primary-container);position:relative;top:-1px;">Visited</label>
+      <div class="edit-field edit-field-visited">
+        <input id="ce-visited" type="checkbox">
+        <label for="ce-visited" class="ce-visited-label">Visited</label>
       </div>
-      <div class="card-edit-actions">
+      <footer class="card-edit-actions">
         <button class="btn" onclick="closeCardEdit()">Cancel</button>
         <button class="btn primary" onclick="saveCardEdit()">Save</button>
-      </div>
-    </div>
-  </div>
+      </footer>
+    </form>
+  </dialog>
 
   <script>
     let _cardEditId = null;
@@ -1781,6 +1961,14 @@
       const link = document.getElementById('ce-url-link');
       link.href = this.value;
       link.classList.toggle('hidden', !this.value);
+    });
+
+    // Text resizer
+    const textSizes = { small: '14px', medium: '15px', large: '17px' };
+    document.querySelectorAll('input[name="textSize"]').forEach(el => {
+      el.addEventListener('change', () => {
+        document.documentElement.style.fontSize = textSizes[el.value];
+      });
     });
   </script>
 </body>
