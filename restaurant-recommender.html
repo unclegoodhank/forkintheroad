@@ -2,40 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="robots" content="noindex, nofollow">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
-  <title>Fork in the Road</title>
+  <title>Fork in the road</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&display=swap');
 
     :root {
       /* Colors — original warm palette */
-      --md-primary:                   hsla(191, 100%, 26%, 1);
+      --color-accent:                 hsl(75 35% 38% / 1); /* darkened 26%→21% for AAA 7:1 on white */
       --md-on-primary:                hsla(0, 0%, 100%, 1);
       --md-primary-container:         hsla(193, 53%, 93%, 1);
       --md-on-primary-container:      hsla(36, 43%, 9%, 1);
       --md-surface:                   hsla(42, 60%, 97%, 1);
-      --md-on-surface:                hsla(36, 43%, 9%, 1);
+      --md-on-surface:                hsl(233 27% 35% / 1);
       --md-surface-variant:           hsla(42, 67%, 94%, 1);
-      --md-on-surface-variant:        hsla(30, 5%, 39%, 1);
+      --md-on-surface-variant:        hsla(30, 5%, 66%, 1);
+      --color-warm-text:              hsl(36 23% 45% / 1);
+      --color-subtle:                 hsl(30 5% 83% / 1);
+      --shadow-subtle:                drop-shadow(1px 1px 3px hsla(0, 0%, 98%, 1));
+      --focus-glow:                   0 0 0 3px hsl(36 23% 45% / 0.18), 0 0 12px 4px hsl(36 23% 45% / 0.10);
       --md-outline:                   hsla(38, 18%, 71%, 1);
       --md-outline-variant:           hsla(42, 67%, 94%, 1);
+      --btn-gradient:                 linear-gradient(to bottom, hsl(0 0% 100%), hsl(42 30% 96%));
       --md-surface-container-lowest:  hsla(0, 0%, 100%, 1);
       --md-surface-container-low:     hsla(0, 0%, 100%, 1);
       --md-surface-container:         hsla(42, 60%, 97%, 1);
       --md-surface-container-high:    hsla(45, 19%, 92%, 1);
       --md-surface-container-highest: hsla(45, 19%, 92%, 1);
-      --md-error:                     hsla(7, 57%, 44%, 1);
+      --md-error:                     hsla(7, 57%, 38%, 1); /* darkened 44%→38% for AAA 7:1 on white */
       /* Shape — all multiples of 3 */
-      --shape-xs:   6px;
-      --shape-sm:   9px;
-      --shape-md:  12px;
-      --shape-lg:  18px;
-      --shape-xl:  30px;
+      --shape-xs:   8px;
+      --shape-sm:  11px;
+      --shape-md:  14px;
+      --shape-lg:  20px;
+      --shape-xl:  32px;
       --shape-full: 9999px;
       --ctrl-height: 45px;
-      /* compat alias */
-      --accent: var(--md-primary);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -49,9 +53,9 @@
     }
     .skip-link {
       position: absolute; top: -48px; left: 18px;
-      background: var(--md-primary); color: var(--md-on-primary);
+      background: var(--color-accent); color: var(--md-on-primary);
       padding: 9px 18px; border-radius: 0 0 var(--shape-xs) var(--shape-xs);
-      font-size: 0.9375rem; font-weight: 500; letter-spacing: 0.1px;
+      font-size: 0.9375rem; font-weight: 400; letter-spacing: 0.1px;
       text-decoration: none; z-index: 200; transition: top 0.15s;
     }
     .skip-link:focus { top: 0; outline: 2px solid var(--md-on-primary); outline-offset: 3px; }
@@ -59,7 +63,7 @@
     html { overflow-x: clip; background-color: hsla(0, 0%, 0%, 1); }
 
     body {
-      font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--md-surface);
       color: var(--md-on-surface);
       font-size: 0.9375rem;
@@ -79,7 +83,7 @@
       border-bottom: 1px solid var(--md-outline-variant);
     }
     .header h1 {
-      font-family: 'Playfair Display', Georgia, serif;
+      font-family: 'Fraunces', Georgia, serif;
       font-size: 2.25rem;
       font-weight: 400;
       font-style: italic;
@@ -92,15 +96,15 @@
       color: var(--md-on-surface-variant);
     }
     .location-section {
-      background: var(--md-surface-container-low);
+      background: var(--md-surface-container-lowest);
       border: 1px solid var(--md-outline-variant);
-      border-radius: var(--shape-md);
+      border-radius: var(--shape-lg);
       padding: 21px 24px;
       margin-bottom: 21px;
     }
     .location-section h3 {
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 400;
       color: var(--md-on-surface-variant);
       margin-bottom: 18px;
       text-transform: uppercase;
@@ -115,7 +119,7 @@
     .input-group { display: flex; flex-direction: column; }
     .input-group label {
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 400;
       letter-spacing: 0.5px;
       text-transform: uppercase;
       color: var(--md-on-surface-variant);
@@ -124,15 +128,15 @@
     input[type="number"] {
       -webkit-appearance: none;
       padding: 9px 12px;
-      border: 1px solid var(--md-outline);
+      border: 1px solid var(--color-subtle);
       border-radius: var(--shape-xs);
       background: var(--md-surface-container-lowest);
-      color: var(--md-on-surface);
+      color: var(--md-on-surface-variant);
       font-family: inherit;
       font-size: 0.9375rem;
     }
     input[type="number"]:focus {
-      outline: 2px solid var(--md-primary); outline-offset: 0; border-color: var(--md-primary);
+      outline: none; box-shadow: var(--focus-glow); border-color: var(--color-warm-text);
     }
 
     .button-group { display: flex; gap: 12px; margin-bottom: 15px; }
@@ -141,35 +145,33 @@
       flex: 1;
       height: var(--ctrl-height);
       padding: 0 24px;
-      border: 1px solid var(--md-outline);
-      border-radius: var(--shape-full);
-      background: var(--md-surface-container-lowest);
-      color: var(--md-on-surface);
+      border: 1px solid var(--color-subtle);
+      border-radius: var(--shape-xs);
+      background: var(--btn-gradient);
+      color: var(--color-warm-text);
       font-family: inherit;
       font-size: 0.9375rem;
-      font-weight: 500;
+      font-weight: 400;
       letter-spacing: 0.1px;
       cursor: pointer;
       -webkit-appearance: none;
       appearance: none;
+      filter: var(--shadow-subtle);
       transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
     }
     .btn:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface-variant); }
     .btn.primary {
-      background: var(--md-primary);
-      color: var(--md-on-primary);
-      border-color: var(--md-primary);
-      box-shadow: 0 1px 2px hsl(0 0% 0% / 0.3), 0 1px 3px 1px hsl(0 0% 0% / 0.15);
+      border-color: var(--md-on-surface-variant);
     }
-    .btn.primary:hover { background: hsl(186 100% 22%); border-color: hsl(186 100% 22%); }
+    .btn.primary:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface); }
 
     #locationMap {
       display: none;
       height: 135px;
-      border-radius: var(--shape-md);
+      border-radius: var(--shape-xs);
       overflow: hidden;
-      margin-top: 12px;
-      border: 1px solid var(--md-outline-variant);
+      margin-top: 4px;
+      /* border: 1px solid var(--md-outline-variant); */
     }
     .current-location {
       font-size: 0.75rem;
@@ -181,9 +183,9 @@
       flex-wrap: wrap;
       gap: 18px;
       margin-bottom: 21px;
-      background: var(--md-surface-container-low);
+      background: var(--md-surface-container-lowest);
       border: 1px solid var(--md-outline-variant);
-      border-radius: var(--shape-md);
+      border-radius: var(--shape-lg);
       padding: 18px;
     }
     .filters > * { min-width: 0; }
@@ -192,28 +194,29 @@
       width: 100%;
       height: var(--ctrl-height);
       padding: 0 33px 0 12px;
-      border: 1px solid var(--md-outline);
-      border-radius: var(--shape-full);
-      background: var(--md-surface-container-lowest);
-      color: var(--md-on-surface);
+      border: 1px solid var(--color-subtle);
+      border-radius: var(--shape-xs);
+      color: var(--color-warm-text);
       font-family: inherit;
-      font-size: 0.9375rem;
+      font-size: 1rem;
       cursor: pointer;
+      filter: var(--shadow-subtle);
       -webkit-appearance: none;
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), var(--btn-gradient);
+      background-repeat: no-repeat, no-repeat;
+      background-position: right 12px center, top left;
     }
-    .filters select:focus { outline: 2px solid var(--md-primary); outline-offset: 0; border-color: var(--md-primary); }
+    .filters select:focus { outline: none; box-shadow: var(--focus-glow); border-color: var(--color-subtle); }
 
     .segmented {
       display: flex;
       height: var(--ctrl-height);
-      border: 1px solid var(--md-outline);
-      border-radius: var(--shape-full);
+      border: 1px solid var(--color-subtle);
+      border-radius: var(--shape-xs);
       overflow: hidden;
-      background: transparent;
+      background: var(--btn-gradient);
+      filter: var(--shadow-subtle);
     }
     .segmented label {
       flex: 1;
@@ -221,45 +224,47 @@
       align-items: center;
       justify-content: center;
       font-family: inherit;
-      font-size: 0.9375rem;
-      font-weight: 500;
+      font-size: 1rem;
+      font-weight: 400;
       letter-spacing: 0.1px;
       padding: 0 18px;
       cursor: pointer;
-      color: var(--md-on-surface-variant);
+      color: var(--color-warm-text);
       user-select: none;
-      border-right: 1px solid var(--md-outline);
+      border-right: 1px solid var(--color-subtle);
       transition: background 0.15s, color 0.15s;
     }
     .segmented label:last-child { border-right: none; }
     .segmented input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
-    .segmented label:has(input:checked) { background: hsl(186 100% 26% / 0.12); color: var(--md-primary); font-weight: 600; }
-    .segmented label:hover:not(:has(input:checked)) { background: hsl(186 100% 26% / 0.06); }
-    .segmented label:has(input:focus-visible) { outline: 2px solid var(--md-primary); outline-offset: -2px; }
+    .segmented label:has(input:checked) { background: hsl(30 5% 83% / 0.5); color: var(--color-warm-text); font-weight: 500; }
+    .segmented label:hover:not(:has(input:checked)) { background: hsl(30 5% 83% / 0.5); }
+    .segmented label:has(input:focus-visible) { outline: none; box-shadow: var(--focus-glow) inset; }
 
     .radius-slider-wrap {
       display: flex;
       flex-direction: column;
       gap: 12px;
+      border-radius: var(--shape-xs);
+      padding: 12px 0 3px;
+      border: none;
     }
     #radiusLabel {
       display: block;
       text-align: left;
       font-size: 1rem;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      color: var(--md-on-surface-variant);
+      font-weight: 400;
+      /* letter-spacing: 0.5px; */
+      color: var(--color-warm-text);
     }
     #radiusFilter {
       flex: 1;
-      accent-color: var(--md-primary);
+      accent-color: var(--color-accent);
       cursor: pointer;
       -webkit-appearance: none;
       appearance: none;
       height: 3px;
       border-radius: var(--shape-full);
-      background: linear-gradient(to right, hsla(191,100%,18%,1) 0%, var(--md-primary) var(--pct, 0%), var(--md-surface-variant) var(--pct, 0%));
+      background: linear-gradient(to right, var(--md-on-surface) 0%, var(--color-warm-text) var(--pct, 0%), var(--md-surface-variant) var(--pct, 0%));
     }
     #radiusFilter::-webkit-slider-runnable-track { border-radius: var(--shape-full); height: 3px; }
     #radiusFilter::-moz-range-track { border-radius: var(--shape-full); height: 3px; }
@@ -269,7 +274,7 @@
       height: 30px;
       margin-top: -13.5px;
       border-radius: 50%;
-      background: var(--md-primary);
+      background: linear-gradient(to bottom, hsl(36 20% 52%), hsl(36 20% 38%));
       border: 3px solid var(--md-surface-container-lowest);
       box-shadow: 0 1px 3px hsl(0 0% 0% / 0.14), 0 3px 9px hsl(0 0% 0% / 0.18);
       cursor: pointer;
@@ -278,63 +283,39 @@
       width: 30px;
       height: 30px;
       border-radius: 50%;
-      background: var(--md-primary);
+      background: linear-gradient(to bottom, hsl(36 20% 52%), hsl(36 20% 38%));
       border: 3px solid var(--md-surface-container-lowest);
       box-shadow: 0 1px 3px hsl(0 0% 0% / 0.14), 0 3px 9px hsl(0 0% 0% / 0.18);
       cursor: pointer;
     }
-    #radiusFilter:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 6px; }
+    #radiusFilter:focus-visible { outline: none; box-shadow: var(--focus-glow); }
 
 
     #searchFilter {
       -webkit-appearance: none;
       height: var(--ctrl-height);
       padding: 0 44px 0 18px;
-      border: 1px solid var(--md-outline);
-      border-radius: var(--shape-full);
+      border: 1px solid var(--color-subtle);
+      border-radius: var(--shape-xs);
       background: var(--md-surface-container-lowest);
       color: var(--md-on-surface);
       font-family: inherit;
       font-size: 0.9375rem;
       width: 100%;
     }
-    #searchFilter:focus { outline: 2px solid var(--md-primary); outline-offset: 0; border-color: var(--md-primary); }
-    .visited-btn {
-      -webkit-appearance: none;
-      appearance: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 12px;
-      border: none;
-      border-radius: 20px;
-      background: transparent;
-      outline: none;
-      font-family: inherit;
-      font-size: 0.875rem;
-      font-weight: 500;
-      letter-spacing: 0.1px;
-      color: var(--md-primary);
-      cursor: pointer;
-      white-space: nowrap;
-      flex: none;
-      transition: background 0.15s;
-      margin-left: auto;
-    }
-    .visited-btn:hover { background: color-mix(in srgb, var(--md-primary) 8%, transparent); }
-    .visited-btn:active { background: color-mix(in srgb, var(--md-primary) 12%, transparent); }
-    .visited-btn.is-visited { color: var(--md-primary); }
-    .card.is-visited { opacity: 0.65; border-left: 3px solid var(--md-primary); }
+    #searchFilter:focus { outline: none; box-shadow: var(--focus-glow); border-color: var(--color-subtle); }
+    #searchFilter::placeholder { color: var(--color-warm-text); opacity: 1; }
+    .card.is-visited {}
     #cardContainer {
       display: flex;
       flex-direction: column;
       gap: 9px;
     }
     .card {
-      background: var(--md-surface-container-low);
+      background: var(--md-surface-container-lowest);
       border: 1px solid var(--md-outline-variant);
-      border-radius: var(--shape-md);
-      padding: 24px 24px 12px;
+      border-radius: var(--shape-lg);
+      padding: 18px 18px 6px;
       animation: slideIn 0.25s ease-out;
     }
     @keyframes slideIn {
@@ -354,7 +335,7 @@
     }
 
     .restaurant-name {
-      font-family: 'Playfair Display', Georgia, serif;
+      font-family: 'Fraunces', Georgia, serif;
       font-size: 1.312rem;
       font-weight: 400;
       letter-spacing: -0.2px;
@@ -364,9 +345,9 @@
     .distance-badge {
       display: inline-block;
       background: transparent;
-      color: var(--md-primary);
+      color: var(--color-accent);
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 400;
       letter-spacing: 0.5px;
       margin-bottom: 0;
     }
@@ -375,21 +356,21 @@
       display: inline-flex;
       align-items: center;
       background: transparent;
-      color: var(--md-on-surface-variant);
+      color: var(--color-warm-text);
       padding: 6px 12px;
-      border: 1px solid var(--md-outline);
-      border-radius: var(--shape-sm);
-      font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 0.1px;
+      /* border: 1px solid var(--color-accent); */
+      /* border-radius: var(--shape-sm); */
+      font-size: 0.8rem;
+      font-weight: 400;
+      letter-spacing: 0;
     }
     .note {
-      background: var(--md-primary-container);
+      /* background: hsl(193 53% 94% / 1); */
       border-radius: var(--shape-xs);
-      padding: 9px 12px;
-      margin-bottom: 18px;
-      font-size: 0.9375rem;
-      color: var(--md-on-primary-container);
+      padding: 0px 0 0;
+      /* margin-bottom: 12px; */
+      font-size: 0.8rem;
+      color: var(--color-warm-text);
       font-style: italic;
     }
     .buttons { display: flex; gap: 9px; }
@@ -397,32 +378,30 @@
       flex: 1;
       height: var(--ctrl-height);
       padding: 0 18px;
-      border: 1px solid var(--md-outline);
-      border-radius: var(--shape-full);
-      background: var(--md-surface-container-lowest);
-      color: var(--md-on-surface);
+      border: 1px solid var(--color-subtle);
+      border-radius: var(--shape-xs);
+      background: var(--btn-gradient);
+      color: var(--color-warm-text);
       font-family: inherit;
       font-size: 0.9375rem;
-      font-weight: 500;
+      font-weight: 400;
       letter-spacing: 0.1px;
       cursor: pointer;
       -webkit-appearance: none;
       appearance: none;
+      filter: var(--shadow-subtle);
       transition: background 0.15s, border-color 0.15s;
     }
     button:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface-variant); }
-    button:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 3px; }
+    button:focus-visible { outline: none; box-shadow: var(--focus-glow); border-color: var(--color-subtle); }
     button:active { transform: scale(0.99); }
     button.primary {
-      background: var(--md-primary);
-      color: var(--md-on-primary);
-      border-color: var(--md-primary);
-      box-shadow: 0 1px 2px hsl(0 0% 0% / 0.3), 0 1px 3px 1px hsl(0 0% 0% / 0.15);
+      border-color: var(--md-on-surface-variant);
     }
-    button.primary:hover { background: hsl(186 100% 22%); border-color: hsl(186 100% 22%); }
+    button.primary:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface); }
 
     .no-location { text-align: center; padding: 33px 18px; color: var(--md-on-surface-variant); }
-    .distance { font-size: 0.9375rem; font-weight: 500; color: var(--md-primary); }
+    .distance { font-size: 0.9375rem; font-weight: 400; color: var(--color-accent); }
     @media (prefers-reduced-motion: reduce) {
       .card { animation: none; opacity: 1; transform: none; }
       .loading-pulse { animation: none; opacity: 0.6; }
@@ -431,26 +410,26 @@
 
     .maps-link {
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 400;
       letter-spacing: 0.1px;
-      color: var(--md-primary);
+      color: var(--color-accent);
       text-decoration: underline;
       text-underline-offset: 3px;
     }
     #resultsCount {
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 400;
       letter-spacing: 0.5px;
       text-transform: uppercase;
       color: var(--md-on-surface-variant);
       padding: 12px 0 6px;
     }
     .empty-state { text-align: center; color: var(--md-on-surface-variant); padding: 33px 0; }
-    a:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 3px; border-radius: var(--shape-xs); }
+    a:focus-visible { outline: none; box-shadow: var(--focus-glow); border-radius: var(--shape-xs); }
 
     ::placeholder { color: var(--md-on-surface-variant); opacity: 0.7; }
     .copy-btn { background: none; border: none; padding: 6px; cursor: pointer; min-width: 24px; min-height: 24px; }
-    .copy-btn:focus-visible { outline: 2px solid var(--md-primary); outline-offset: 3px; }
+    .copy-btn:focus-visible { outline: none; box-shadow: var(--focus-glow); }
 
     /* ── Location error ── */
     #locationError {
@@ -461,88 +440,81 @@
     }
 
     /* ── Filter layout helpers ── */
-    #searchFilter { flex: 0 0 100%; width: 100%; }
+    #searchFilter { width: 100%; }
     #searchFilter + button { display: none; } /* overridden by JS */
 
-    .filter-top-row {
-      flex: 0 0 100%;
-      display: flex;
-      flex-direction: column;
-    }
-    .food-toggle {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      font-size: 0.9375rem;
-      font-weight: 500;
-      color: var(--md-on-surface-variant);
-      user-select: none;
-      padding: 9px 0;
-      min-height: var(--ctrl-height);
-    }
-    .food-toggle input[type="checkbox"] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 24px;
-      height: 24px;
-      border: 2px solid var(--md-outline);
-      border-radius: var(--shape-sm);
-      background: var(--md-surface-container-lowest);
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: background 0.15s, border-color 0.15s;
-      position: relative;
-    }
-    .food-toggle input[type="checkbox"]:checked {
-      background: var(--md-primary);
-      border-color: var(--md-primary);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpolyline points='2.5,8.5 6.5,12.5 13.5,4' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 14px 14px;
-    }
-    .food-toggle:hover input[type="checkbox"]:not(:checked) {
-      border-color: var(--md-on-surface-variant);
-    }
-    .cuisine-wrap {
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      margin-top: 0;
-      transition: max-height 0.3s ease, opacity 0.25s ease, margin-top 0.3s ease;
-    }
-    .cuisine-wrap.visible {
-      max-height: calc(var(--ctrl-height) + 6px);
-      opacity: 1;
-      margin-top: 9px;
-      padding: 3px;
-    }
-
+    .filter-search-wrap { flex: 0 0 100%; }
+    .filter-category-wrap { flex: 0 0 100%; }
     .filter-visited-row { flex: 0 0 100%; }
 
-    .radius-slider-wrap { flex: 0 0 100%; margin-top: 24px; }
+    @media (min-width: 481px) {
+      .filter-search-wrap { flex: 2 1 0; align-self: flex-end; }
+      .filter-category-wrap { flex: 1 1 0; }
+    }
+
+    .radius-slider-wrap { flex: 0 0 100%; }
 
     #sliderDistance { display: flex; flex-direction: column; gap: 28px; width: 100%; }
     .slider-ticks { position: relative; margin: 0 15px; height: 10px; }
-    .slider-tick { position: absolute; width: 1.5px; height: 5px; background: var(--md-outline); top: 2.5px; transform: translateX(-50%); border-radius: 1px; }
+    .slider-tick { position: absolute; width: 1.5px; height: 5px; background: var(--md-outline); top: 2.5px; transform: translateX(-50%); border-radius: var(--shape-full); }
     .slider-tick-end { height: 10px; top: 0; }
+    .slider-endpoints { display: flex; justify-content: space-between; /* margin: 0 15px; */ font-size: 0.6875rem; color: var(--md-on-surface-variant); letter-spacing: 0.02em; }
 
     /* ── Results header row ── */
     .results-header-row {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 9px;
+      /* margin-bottom: 9px; */
     }
     #resultsCount { margin: 0; }
 
 
     /* ── Card inner layout ── */
-    .card-location {
+    .card-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .card-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .card-info-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 0px;
+    }
+    .card-location-row {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 6px;
       font-size: 0.75rem;
       color: var(--md-on-surface-variant);
-      margin-bottom: 6px;
+    }
+    .loc-sep {
+      color: var(--md-outline-variant);
+      font-size: 0.6875rem;
+    }
+    .distance-badge:empty { display: none; }
+    .loc-sep { color: var(--md-outline-variant); font-size: 0.6875rem; }
+    /* hide · before maps when distance is empty AND no city exists */
+    .distance-badge:empty + .loc-sep { display: none; }
+    /* override: if a city span exists, always show the · before maps */
+    .loc-city ~ .loc-sep { display: inline; }
+    /* separator between city and distance badge */
+    .loc-city + .distance-badge:not(:empty)::before {
+      content: '·';
+      color: var(--md-outline-variant);
+      font-size: 0.6875rem;
+      margin-right: 6px;
     }
     .card-meta-row {
       display: flex;
@@ -553,19 +525,123 @@
     }
     .card-meta-row .tag { font-size: 0.75rem; }
 
-    .card-footer-row {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 9px;
-      margin-top: 8px;
+    .card-added-date { display: none; }
+    .visited-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 1px 9px 2px 6px;
+      background: hsl(135deg 85% 33% / 10%);
+      /* border: 1px solid hsl(75 35% 38% / 0.25); */
+      border-radius: var(--shape-full);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: hsl(135 76% 40% / 1);
+      letter-spacing: 0;
+      text-transform: capitalize;
     }
-    .card-added-date {
-      font-size: 0.6875rem;
+    .visited-badge-star { font-size: 0.7rem; }
+    @keyframes badge-pop {
+      0%   { transform: scale(0.3); opacity: 0; }
+      60%  { transform: scale(1.22); opacity: 1; }
+      80%  { transform: scale(0.93); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes badge-glow-ring {
+      0%   { box-shadow: 0 0 0 0 hsl(135 76% 40% / 0.55); }
+      60%  { box-shadow: 0 0 0 10px hsl(135 76% 40% / 0); }
+      100% { box-shadow: 0 0 0 0 hsl(135 76% 40% / 0); }
+    }
+    @keyframes star-spin {
+      0%   { transform: rotate(0deg) scale(0.8); }
+      55%  { transform: rotate(210deg) scale(1.6); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+    .visited-badge.is-new {
+      animation: badge-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+                 badge-glow-ring 0.9s ease-out 0.35s forwards;
+    }
+    .visited-badge.is-new .visited-badge-star {
+      display: inline-block;
+      animation: star-spin 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    .card-edit-btn {
+      -webkit-appearance: none; appearance: none;
+      background: none; border: none;
+      padding: 10px 12px;
+      border-radius: var(--shape-full);
+      font-size: 0.875rem; font-weight: 400; font-family: inherit;
+      letter-spacing: 0.1px;
       color: var(--md-on-surface-variant);
-      opacity: 0.7;
+      cursor: pointer; white-space: nowrap; flex: none;
+      margin-left: auto;
+      transition: background 0.15s;
     }
+    .card-edit-btn:hover { background: color-mix(in srgb, var(--color-accent) 8%, transparent); }
+    .card-edit-btn:active { background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
+    .card-edit-btn:focus-visible { outline: none; box-shadow: var(--focus-glow); border-radius: var(--shape-full); }
+
+    /* ── Card edit modal ── */
+    html.edit-open,
+    body.edit-open { overflow: hidden; }
+    body.edit-open { position: fixed; width: 100%; }
+
+    #cardEditModal {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: hsl(0 0% 0% / 0.45);
+      align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    #cardEditModal.open { display: flex; }
+    .card-edit-sheet {
+      background: var(--md-surface-container-lowest);
+      border-radius: var(--shape-lg);
+      padding: 30px;
+      width: 100%; max-width: 480px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 8px 30px hsl(0 0% 0% / 0.18);
+      display: flex; flex-direction: column; gap: 18px;
+    }
+    .card-edit-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .card-edit-sheet h2 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.25rem; font-weight: 400; font-style: italic;
+      color: var(--color-warm-text); margin: 0;
+    }
+    .card-edit-nav {
+      display: flex; gap: 4px; flex-shrink: 0;
+    }
+    .card-edit-nav button {
+      width: 30px; height: 30px; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+    }
+    .card-edit-nav button:disabled { opacity: 0.3; cursor: default; }
+    .edit-field { display: flex; flex-direction: column; gap: 5px; }
+    .edit-field label {
+      font-size: 0.6875rem; font-weight: 400; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--md-on-surface-variant);
+    }
+    .edit-field input, .edit-field textarea {
+      font-family: inherit; font-size: 0.9375rem;
+      color: var(--md-on-primary-container);
+      background: var(--md-surface-container-low);
+      border: 1px solid var(--color-subtle);
+      border-radius: var(--shape-xs);
+      padding: 9px 12px; width: 100%;
+      transition: border-color 0.15s;
+    }
+    .edit-field input:focus, .edit-field textarea:focus {
+      outline: none; box-shadow: var(--focus-glow); border-color: var(--color-warm-text);
+    }
+    .edit-field textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+    .edit-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card-edit-actions {
+      display: flex; gap: 12px; justify-content: flex-end; padding-top: 6px;
+    }
+    .card-edit-actions .btn { flex: none; }
 
 
     /* ── Empty state paragraphs ── */
@@ -576,7 +652,7 @@
     .site-footer__copy--spaced-sm { margin-top: 6px; }
     .site-footer__copy--spaced-md { margin-top: 12px; }
     .site-footer__link {
-      color: hsla(37, 11%, 55%, 1);
+      color: hsla(37, 11%, 62%, 1);
       text-decoration: underline;
     }
 
@@ -598,7 +674,7 @@
     }
     .site-footer__name {
       display: block;
-      font-family: 'Playfair Display', Georgia, serif;
+      font-family: 'Fraunces', Georgia, serif;
       font-style: italic;
       font-size: 1.875rem;
       font-weight: 400;
@@ -608,17 +684,17 @@
     }
     .site-footer__tagline {
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 400;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: hsla(37, 11%, 55%, 1);
+      color: hsla(37, 11%, 62%, 1);
     }
     .site-footer__copy {
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 400;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: hsla(37, 11%, 55%, 1);
+      color: hsla(37, 11%, 62%, 1);
     }
 
     /* ── Hero carousel ── */
@@ -642,38 +718,49 @@
     .carousel-slide.active { opacity: 1; }
     .site-masthead {
       background: var(--md-surface);
-      padding: 24px 24px 21px;
       border-bottom: 1px solid var(--md-outline-variant);
-      display: flex;
+    }
+    .site-masthead__inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 24px 21px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-areas: "icon text";
       align-items: center;
-      justify-content: center;
       gap: 21px;
     }
     .site-masthead__icon {
+      grid-area: icon;
       width: clamp(48px, 8vw, 81px);
       height: clamp(48px, 8vw, 81px);
       object-fit: contain;
-      flex-shrink: 0;
       display: block;
-      align-self: center;
+    }
+    .site-masthead__inner > div {
+      grid-area: text;
+      display: grid;
+      grid-template-rows: auto auto;
+      justify-content: start;
     }
     .site-masthead h1 {
-      font-family: 'Playfair Display', Georgia, serif;
+      display: inline;
+      font-family: 'Fraunces', Georgia, serif;
       font-style: italic;
       font-weight: 400;
       font-size: clamp(2.0625rem, 6vw, 3.9375rem);
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
+      letter-spacing: -0.07rem;
       color: hsl(40 66% 30% / 1);
       line-height: 1;
       margin-bottom: 6px;
     }
     .site-masthead p {
+      display: inline;
       font-size: 0.75rem;
-      font-weight: 500;
+      font-weight: 400;
       letter-spacing: 0.15em;
       text-transform: uppercase;
-      color: var(--md-on-surface-variant);
+      color: hsl(30 5% 71% / 1);
     }
     @media (prefers-reduced-motion: reduce) {
       .carousel-slide { transition: none; }
@@ -683,10 +770,10 @@
     @media (max-width: 480px) {
       .container { padding: 21px 18px 24px; }
 
-      .site-masthead { padding: 15px 18px; gap: 12px; }
-      .site-masthead__icon { width: 36px; height: 36px; }
-      .site-masthead h1 { font-size: 1.5rem; }
-      .site-masthead p { letter-spacing: 0.06em; font-size: 0.5625rem; }
+      .site-masthead__inner { padding: 15px 18px 15px 20px; gap: 12px; }
+      .site-masthead__icon { width: 13.4vw; height: 13.4vw; }
+      .site-masthead h1 { font-size: 9.8vw; }
+      .site-masthead p { letter-spacing: 0.06em; font-size: 2.52vw; margin-top: -3px; }
       .radius-slider-wrap label { min-width: 0; }
 
       .filters { gap: 12px; }
@@ -704,6 +791,16 @@
         gap: 18px;
         padding-top: 33px;
       }
+
+      #cardEditModal { padding: 0; align-items: flex-end; background: none; }
+      .card-edit-sheet {
+        border-radius: 0;
+        max-width: 100%;
+        max-height: 100dvh;
+        height: 100dvh;
+        padding: 24px 24px calc(24px + env(safe-area-inset-bottom));
+        box-shadow: 0 -4px 24px hsl(0 0% 0% / 0.18);
+      }
     }
 
     @media (prefers-color-scheme: dark) {
@@ -718,29 +815,47 @@
         --md-on-surface-variant:        hsla(60, 2%, 53%, 1);
         --md-outline:                   hsla(60, 4%, 22%, 1);
         --md-outline-variant:           hsla(60, 4%, 15%, 1);
+        --btn-gradient:                 linear-gradient(to bottom, hsl(60 5% 10%), hsl(60 5% 7%));
         --md-surface-container-lowest:  hsla(60, 5%, 8%, 1);
         --md-surface-container-low:     hsla(60, 3%, 12%, 1);
         --md-surface-container:         hsla(60, 3%, 12%, 1);
         --md-surface-container-high:    hsla(60, 4%, 15%, 1);
         --md-surface-container-highest: hsla(60, 4%, 22%, 1);
         --md-error:                     hsla(7, 57%, 65%, 1);
+        --color-accent:                 hsl(75 40% 55% / 1);
+        --color-warm-text:              hsl(36 18% 68% / 1);
+        --color-subtle:                 hsl(30 5% 26% / 1);
+        --shadow-subtle:                drop-shadow(1px 1px 4px hsl(0 0% 0% / 0.4));
+        --focus-glow:                   0 0 0 3px hsl(36 18% 68% / 0.22), 0 0 12px 4px hsl(36 18% 68% / 0.10);
       }
       .filters select {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aaa' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aaa' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), var(--btn-gradient);
+      }
+      .site-masthead h1 { color: hsl(40 50% 78% / 1); }
+      .visited-badge {
+        background: hsl(135 60% 45% / 14%);
+        color: hsl(135 55% 60% / 1);
+      }
+      @keyframes badge-glow-ring {
+        0%   { box-shadow: 0 0 0 0 hsl(135 55% 60% / 0.5); }
+        60%  { box-shadow: 0 0 0 10px hsl(135 55% 60% / 0); }
+        100% { box-shadow: 0 0 0 0 hsl(135 55% 60% / 0); }
       }
     }
   </style>
 </head>
 <body>
   <!-- 2.4.1 Skip navigation -->
-  <div class="build-stamp">build 16:46:15</div>
+  <div class="build-stamp">build 23:31:24</div>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
   <div class="site-masthead">
-    <img src="images/Fork Icon Illustration.png" alt="" aria-hidden="true" class="site-masthead__icon">
-    <div>
-      <h1>Fork in the Road</h1>
-      <p>Edmond's personal guide on where to eat</p>
+    <div class="site-masthead__inner">
+      <img src="images/Fork Icon Illustration.png" alt="" aria-hidden="true" class="site-masthead__icon">
+      <div>
+        <h1>Fork in the road</h1>
+        <p>Your personal travel guide</p>
+      </div>
     </div>
   </div>
 
@@ -757,9 +872,8 @@
 
     <div id="recommender">
       <div class="location-section">
-        <h3>Your Location</h3>
-        <div class="button-group">
-          <button class="btn" onclick="useCurrentLocation()">Get my location</button>
+<div class="button-group">
+          <button class="btn" onclick="useCurrentLocation()">Update location</button>
         </div>
         <div id="currentLocationDisplay" class="current-location" style="display:none;">
           You're in: <span id="locName"></span>
@@ -771,25 +885,21 @@
       </div>
       
       <div class="filters" role="group" aria-label="Search and filters">
-        <div style="position:relative;width:100%;">
+        <div class="filter-search-wrap" style="position:relative;">
           <input type="text" id="searchFilter"
-                 aria-label="Search by name, cuisine, or note"
-                 placeholder="Search by name, cuisine, or note…">
+                 aria-label="Filter by name, cuisine, or note"
+                 placeholder="Filter by name, cuisine, or note…">
           <button id="searchClear" type="button" aria-label="Clear search"
                   style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--md-on-surface-variant);line-height:0;padding:4px;">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><line x1="6.5" y1="6.5" x2="13.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="13.5" y1="6.5" x2="6.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><line x1="6.5" y1="6.5" x2="13.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="13.5" y1="6.5" x2="6.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
         </div>
-        <div class="filter-top-row">
-          <label class="food-toggle">
-            <input type="checkbox" id="foodFilter">
-            <span>Food and drink only</span>
-          </label>
-          <div class="cuisine-wrap" inert>
-            <select id="cuisineFilter" aria-label="Filter by cuisine">
-              <option value="">All food &amp; drink</option>
-            </select>
-          </div>
+        <div class="filter-category-wrap" style="display:flex;flex-direction:column;gap:6px;">
+          <label for="categoryFilter" style="font-size:0.75rem;font-weight:500;color:var(--md-on-surface-variant);padding-left:4px;letter-spacing:0.02em;">Category</label>
+          <select id="categoryFilter">
+            <option value="">All places</option>
+            <option value="__food">All food &amp; drink</option>
+          </select>
         </div>
         <div class="segmented filter-visited-row" role="group" aria-label="Filter by visited status">
           <label><input type="radio" name="visitedFilter" value="" checked>All</label>
@@ -798,7 +908,7 @@
         </div>
         <div style="display:flex;gap:9px;flex:0 0 100%;">
           <select id="addedFilter" aria-label="Filter by date added" style="flex:1;">
-            <option value="">Any time</option>
+            <option value="">Added any time</option>
             <option value="7">Added this week</option>
             <option value="30">Added this month</option>
             <option value="90">Added last 3 months</option>
@@ -829,12 +939,16 @@
               <span class="slider-tick" style="left:95%"></span>
               <span class="slider-tick slider-tick-end" style="left:100%"></span>
             </div>
+            <div class="slider-endpoints" aria-hidden="true">
+              <span>Local</span>
+              <span>Distant</span>
+            </div>
           </div>
         </div>
       </div>
       
 
-      <div class="results-header-row">
+            <div class="results-header-row">
         <p id="resultsCount" aria-live="polite" aria-atomic="true"></p>
       </div>
 
@@ -850,7 +964,7 @@
   <footer class="site-footer">
     <div class="site-footer__inner">
       <div>
-        <span class="site-footer__name">Fork in the Road</span>
+        <span class="site-footer__name">Fork in the road</span>
         <p class="site-footer__tagline">Find places by distance from your location</p>
       </div>
       <div>
@@ -863,6 +977,9 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    const STATE_ABBR = {"alabama":"AL","alaska":"AK","arizona":"AZ","arkansas":"AR","california":"CA","colorado":"CO","connecticut":"CT","delaware":"DE","florida":"FL","georgia":"GA","hawaii":"HI","idaho":"ID","illinois":"IL","indiana":"IN","iowa":"IA","kansas":"KS","kentucky":"KY","louisiana":"LA","maine":"ME","maryland":"MD","massachusetts":"MA","michigan":"MI","minnesota":"MN","mississippi":"MS","missouri":"MO","montana":"MT","nebraska":"NE","nevada":"NV","new hampshire":"NH","new jersey":"NJ","new mexico":"NM","new york":"NY","north carolina":"NC","north dakota":"ND","ohio":"OH","oklahoma":"OK","oregon":"OR","pennsylvania":"PA","rhode island":"RI","south carolina":"SC","south dakota":"SD","tennessee":"TN","texas":"TX","utah":"UT","vermont":"VT","virginia":"VA","washington":"WA","west virginia":"WV","wisconsin":"WI","wyoming":"WY","district of columbia":"DC"};
+    function normalizeState(s) { return STATE_ABBR[s.toLowerCase().trim()] ?? s; }
+
     let restaurantData = [];
 
     const savedLocation = JSON.parse(localStorage.getItem('currentLocation') || 'null');
@@ -874,7 +991,7 @@
       const el = document.getElementById('locationMap');
       el.style.display = 'block';
       const icon = L.divIcon({
-        html: `<div style="width:14px;height:14px;background:var(--md-primary);border:2.5px solid white;border-radius:50%;box-shadow:0 1px 6px rgba(0,0,0,0.4)"></div>`,
+        html: `<div style="width:14px;height:14px;background:var(--color-accent);border:2.5px solid white;border-radius:50%;box-shadow:0 1px 6px rgba(0,0,0,0.4)"></div>`,
         iconSize: [14, 14], iconAnchor: [7, 7], className: ''
       });
       if (!_locMap) {
@@ -941,7 +1058,7 @@
       const locName = document.getElementById('locName');
       if (!display) return;
       display.style.display = 'block';
-      if (locName) locName.textContent = detecting ? 'Detecting…' : (currentLocation?.name || 'Unknown');
+      if (locName) locName.textContent = detecting ? 'Detecting…' : (currentLocation?.name || 'Detecting…');
     }
     
     async function zipToCity(zip) {
@@ -992,25 +1109,23 @@
         return;
       }
       const btn = document.querySelector('button[onclick="useCurrentLocation()"]');
-      if (btn) { btn.textContent = '⏳ Locating…'; btn.disabled = true; }
+      if (btn) { btn.textContent = 'Locating…'; btn.disabled = true; }
       updateLocationDisplay(true);
       navigator.geolocation.getCurrentPosition(
         async pos => {
+          if (btn) { btn.textContent = 'Update location'; btn.disabled = false; }
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
           document.getElementById('lat').value = lat.toFixed(6);
           document.getElementById('lng').value = lng.toFixed(6);
-          saveLocation({lat, lng, name: 'Current location'});
+          saveLocation({lat, lng, name: null});
           document.getElementById('locationError').style.display = 'none';
-          updateLocationDisplay();
+          updateLocationDisplay(true);
           showLocationMap(lat, lng);
           applyFilters();
-          if (btn) { btn.textContent = 'Get my location'; btn.disabled = false; }
           const place = await reverseGeocode(lat, lng);
-          if (place) {
-            saveLocation({lat, lng, name: place});
-            document.getElementById('locName').textContent = place;
-          }
+          saveLocation({lat, lng, name: place || null});
+          updateLocationDisplay();
         },
         err => {
           const tips = {
@@ -1021,24 +1136,42 @@
           const errEl = document.getElementById('locationError');
           errEl.textContent = tips[err.code] || err.message;
           errEl.style.display = 'block';
-          if (btn) { btn.textContent = 'Get my location'; btn.disabled = false; }
+          if (btn) { btn.textContent = 'Update location'; btn.disabled = false; }
         },
         {enableHighAccuracy: true, timeout: 30000, maximumAge: 0}
       );
     }
     
     function populateFilters() {
-      const cuisineSelect = document.getElementById('cuisineFilter');
+      const categorySelect = document.getElementById('categoryFilter');
       const cuisineCounts = restaurantData.reduce((acc, r) => {
         if (r.cuisine) acc[r.cuisine] = (acc[r.cuisine] || 0) + 1;
         return acc;
       }, {});
-      getCuisines().forEach(cuisine => {
+      const allCuisines = getCuisines();
+      const foodCuisineSet = new Set(restaurantData.filter(r => FOOD_DRINK_TYPES.has(r.type) && r.cuisine).map(r => r.cuisine));
+      const foodCuisines = allCuisines.filter(c => foodCuisineSet.has(c));
+      const otherCuisines = allCuisines.filter(c => !foodCuisineSet.has(c));
+
+      function makeOption(cuisine) {
         const option = document.createElement('option');
         option.value = cuisine;
         option.textContent = `${cuisine} (${cuisineCounts[cuisine]})`;
-        cuisineSelect.appendChild(option);
-      });
+        return option;
+      }
+
+      if (foodCuisines.length) {
+        const group = document.createElement('optgroup');
+        group.label = 'Food & drink';
+        foodCuisines.forEach(c => group.appendChild(makeOption(c)));
+        categorySelect.appendChild(group);
+      }
+      if (otherCuisines.length) {
+        const group = document.createElement('optgroup');
+        group.label = 'Other';
+        otherCuisines.forEach(c => group.appendChild(makeOption(c)));
+        categorySelect.appendChild(group);
+      }
     }
     
     function renderAllCards() {
@@ -1056,20 +1189,29 @@
 
         const el = document.createElement('div');
         el.className = `card${isV ? ' is-visited' : ''}`;
+        const cityState = [r.city, r.state ? normalizeState(r.state) : ''].filter(Boolean).join(', ');
+
         el.innerHTML = `
-          <div class="restaurant-name">${r.title}</div>
-          <div class="card-location">${[r.city, r.state].filter(Boolean).join(', ')}</div>
-          <div class="card-meta-row">
-            ${r.cuisine ? `<span class="tag">${r.cuisine}</span>` : ''}
-            ${r.tags ? `<span class="tag">${r.tags}</span>` : ''}
+          <div class="card-header-row">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+              <div class="restaurant-name" style="margin-bottom:0;">${r.title}</div>
+              ${isV ? `<div class="visited-badge"><span class="visited-badge-star">✦</span> Visited${r.visited_at ? ' · ' + new Date(r.visited_at + 'T12:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'}) : ''}</div>` : ''}
+            </div>
+            <div class="card-tags">
+              ${r.cuisine ? `<span class="tag">${r.cuisine}</span>` : ''}
+              ${r.tags ? `<span class="tag">${r.tags}</span>` : ''}
+            </div>
           </div>
           ${noteText ? `<div class="note">${noteText}</div>` : ''}
-          ${r.added_at ? `<div class="card-added-date" style="margin-top:21px;">Added ${new Date(r.added_at + 'Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>` : ''}
-          <div class="card-footer-row">
-            <div class="distance-badge"></div>
-            ${mapsLink}
-            <button class="visited-btn${isV ? ' is-visited' : ''}" data-id="${r.id}" onclick="toggleVisited(${r.id})">${isV ? '✓ Visited' : '○ Mark visited'}</button>
-          </div>`;
+          <div class="card-info-row">
+            <div class="card-location-row">
+              ${cityState ? `<span class="loc-city">${cityState}</span>` : ''}
+              <span class="distance-badge"></span>
+              ${mapsLink ? `<span class="loc-sep">·</span>${mapsLink}` : ''}
+            </div>
+            <button class="card-edit-btn" onclick="openCardEdit(${r.id})" aria-label="Edit ${r.title}">edit</button>
+          </div>
+          ${r.added_at ? `<div class="card-added-date">Added ${new Date(r.added_at + 'Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>` : ''}`;
 
         container.appendChild(el);
         cardElements.set(i, el);
@@ -1078,11 +1220,10 @@
 
 
     function applyFilters() {
-      const cuisineFilter = document.getElementById('cuisineFilter').value;
+      const catVal = document.getElementById('categoryFilter').value;
       const radiusFilter = sliderToDistance(parseFloat(document.getElementById('radiusFilter').value));
       const searchQuery = (document.getElementById('searchFilter').value || '').toLowerCase().trim();
       const visitedFilter = (document.querySelector('input[name="visitedFilter"]:checked') || {value: ''}).value;
-      const categoryFilter = document.getElementById('foodFilter').checked;
       const addedDays = parseInt(document.getElementById('addedFilter').value) || 0;
       const addedCutoff = addedDays ? new Date(Date.now() - addedDays * 864e5) : null;
 
@@ -1092,7 +1233,8 @@
         } else {
           r.distance = null;
         }
-        const cuisineMatch = !cuisineFilter || r.cuisine === cuisineFilter;
+        const categoryMatch = !catVal
+          || (catVal === '__food' ? FOOD_DRINK_TYPES.has(r.type) : r.cuisine === catVal);
         const radiusMatch = !currentLocation || (r.distance !== null && r.distance <= radiusFilter);
         const addedMatch = !addedCutoff || (r.added_at && new Date(r.added_at + 'Z') >= addedCutoff);
         const searchMatch = !searchQuery || [r.title, r.city, r.state, r.cuisine, r.note, r.tags]
@@ -1101,8 +1243,7 @@
         const visitedMatch = !visitedFilter
           || (visitedFilter === 'visited' && isVisited)
           || (visitedFilter === 'unvisited' && !isVisited);
-        const categoryMatch = !categoryFilter || FOOD_DRINK_TYPES.has(r.type); // categoryFilter is boolean
-        if (cuisineMatch && radiusMatch && searchMatch && visitedMatch && categoryMatch) acc.push({r, i});
+        if (categoryMatch && radiusMatch && searchMatch && visitedMatch) acc.push({r, i});
         return acc;
       }, []);
 
@@ -1132,9 +1273,6 @@
         }
         const isV = visited.has(r.title);
         el.classList.toggle('is-visited', isV);
-        const btn = el.querySelector('.visited-btn');
-        btn.classList.toggle('is-visited', isV);
-        btn.textContent = isV ? '✓ Visited' : '○ Mark visited';
         const visible = sortOrder.has(i);
         el.hidden = !visible;
         el.style.order = visible ? sortOrder.get(i) : 0;
@@ -1158,9 +1296,9 @@
         emptyEl.hidden = true;
       }
 
-      // Update cuisine counts based on all filters except cuisine
-      Array.from(document.getElementById('cuisineFilter').options).forEach(opt => {
-        if (!opt.value) return;
+      // Update cuisine counts based on all filters except category
+      Array.from(document.getElementById('categoryFilter').options).forEach(opt => {
+        if (!opt.value || opt.value === '__food') return;
         const count = restaurantData.filter(r => {
           if (r.cuisine !== opt.value) return false;
           const radiusMatch = !currentLocation || (r.distance !== null && r.distance <= radiusFilter);
@@ -1203,28 +1341,18 @@
       searchFilter.focus();
       applyFilters();
     });
-    document.getElementById('cuisineFilter').addEventListener('change', applyFilters);
-    document.getElementById('foodFilter').addEventListener('change', () => {
-      const isFood = document.getElementById('foodFilter').checked;
-      const wrap = document.querySelector('.cuisine-wrap');
-      wrap.inert = !isFood;
-      wrap.classList.toggle('visible', isFood);
-      if (!isFood) document.getElementById('cuisineFilter').value = '';
-      applyFilters();
-    });
+    document.getElementById('categoryFilter').addEventListener('change', applyFilters);
     function sliderToDistance(val) {
       if (val <= 70) return Math.max(5, (val / 70) * 60); // 0–60 miles continuous
       // Snap points at 75=100mi, 80=200mi, 85=300mi, 90=400mi, 95=500mi, 100=Unlimited
-      if (val <= 72.5) return 100;
-      if (val <= 77.5) return 200;
-      if (val <= 82.5) return 300;
-      if (val <= 87.5) return 400;
-      if (val <= 92.5) return 500;
-      if (val < 100) return 500;
+      if (val <= 77.5) return 100;
+      if (val <= 82.5) return 200;
+      if (val <= 87.5) return 300;
+      if (val <= 92.5) return 400;
+      if (val <= 97.5) return 500;
       return Infinity;
     }
     function snapSlider(val) {
-      // All tick positions: 10,20,30,40,50,60mi in left zone + 100,200,300,400,500,Unlimited in right zone
       const snaps = [0, 11.67, 23.33, 35, 46.67, 58.33, 70, 75, 80, 85, 90, 95, 100];
       return snaps.reduce((closest, s) => Math.abs(s - val) < Math.abs(closest - val) ? s : closest);
     }
@@ -1240,11 +1368,38 @@
       const pct = (el.value - el.min) / (el.max - el.min) * 100;
       el.style.setProperty('--pct', pct + '%');
     }
-    document.getElementById('radiusFilter').addEventListener('input', () => {
-      let val = parseInt(document.getElementById('radiusFilter').value);
-      val = snapSlider(val);
-      document.getElementById('radiusFilter').value = val;
+    let _sliderPointerDown = false;
+    const _radiusEl = document.getElementById('radiusFilter');
+    _radiusEl.addEventListener('pointerdown', () => { _sliderPointerDown = true; });
+    window.addEventListener('pointerup', () => {
+      if (_sliderPointerDown) {
+        _sliderPointerDown = false;
+        let val = snapSlider(parseInt(_radiusEl.value));
+        _radiusEl.value = val;
+        document.getElementById('radiusLabel').textContent = sliderLabel(val);
+        updateSliderFill();
+        applyFilters();
+      }
+    });
+    _radiusEl.addEventListener('input', () => {
+      let val = parseInt(_radiusEl.value);
+      if (_sliderPointerDown) { val = snapSlider(val); _radiusEl.value = val; }
       document.getElementById('radiusLabel').textContent = sliderLabel(val);
+      updateSliderFill();
+      applyFilters();
+    });
+    const _snaps = [0, 11.67, 23.33, 35, 46.67, 58.33, 70, 75, 80, 85, 90, 95, 100];
+    _radiusEl.addEventListener('keydown', e => {
+      const cur = parseFloat(_radiusEl.value);
+      if (!['ArrowRight','ArrowLeft','ArrowUp','ArrowDown'].includes(e.key)) return;
+      e.preventDefault();
+      const forward = e.key === 'ArrowRight' || e.key === 'ArrowUp';
+      const snappedCur = snapSlider(cur);
+      const next = forward
+        ? _snaps.find(s => s > snappedCur) ?? 100
+        : [..._snaps].reverse().find(s => s < snappedCur) ?? 0;
+      _radiusEl.value = next;
+      document.getElementById('radiusLabel').textContent = sliderLabel(next);
       updateSliderFill();
       applyFilters();
     });
@@ -1298,6 +1453,222 @@
       carousel.addEventListener('mouseenter', () => clearInterval(timer));
       carousel.addEventListener('mouseleave', () => resetTimer());
     })();
+  </script>
+  <div id="cardEditModal" role="dialog" aria-modal="true" aria-labelledby="cardEditTitle">
+    <div class="card-edit-sheet">
+      <div class="card-edit-header">
+        <h2 id="cardEditTitle">Edit place</h2>
+        <div class="card-edit-nav">
+          <button id="ce-prev" onclick="navigateCardEdit(-1)" title="Previous (⌥←)" aria-label="Previous">←</button>
+          <button id="ce-next" onclick="navigateCardEdit(1)"  title="Next (⌥→)"     aria-label="Next">→</button>
+        </div>
+      </div>
+      <div class="edit-field">
+        <label for="ce-title">Name</label>
+        <input id="ce-title" type="text" autocomplete="off">
+      </div>
+      <div class="edit-field-row">
+        <div class="edit-field">
+          <label for="ce-cuisine">Cuisine</label>
+          <input id="ce-cuisine" type="text" autocomplete="off">
+        </div>
+        <div class="edit-field">
+          <label for="ce-tags">Type / tag</label>
+          <input id="ce-tags" type="text" autocomplete="off">
+        </div>
+      </div>
+      <div class="edit-field-row">
+        <div class="edit-field">
+          <label for="ce-city">City</label>
+          <input id="ce-city" type="text" autocomplete="off">
+        </div>
+        <div class="edit-field">
+          <label for="ce-state">State</label>
+          <input id="ce-state" type="text" autocomplete="off">
+        </div>
+      </div>
+      <div class="edit-field">
+        <label for="ce-url">Google Maps URL</label>
+        <input id="ce-url" type="url" autocomplete="off">
+      </div>
+      <div class="edit-field">
+        <label for="ce-note">Note</label>
+        <textarea id="ce-note"></textarea>
+      </div>
+      <div class="edit-field" style="flex-direction:row;align-items:center;gap:8px;">
+        <input id="ce-visited" type="checkbox" style="width:16px;height:16px;accent-color:var(--color-accent);cursor:pointer;">
+        <label for="ce-visited" style="text-transform:none;letter-spacing:0;font-size:0.9375rem;cursor:pointer;color:var(--md-on-primary-container);">Visited</label>
+      </div>
+      <div class="card-edit-actions">
+        <button class="btn" onclick="closeCardEdit()">Cancel</button>
+        <button class="btn primary" onclick="saveCardEdit()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let _cardEditId = null;
+    let _cardEditIndex = -1;
+    let _scrollY = 0;
+
+    function openCardEdit(id, skipFocus) {
+      const r = restaurantData.find(x => x.id === id);
+      if (!r) return;
+      _cardEditId = id;
+      _cardEditIndex = filteredData.findIndex(({r: fr}) => fr.id === id);
+      document.getElementById('ce-title').value   = r.title   || '';
+      document.getElementById('ce-cuisine').value = r.cuisine || '';
+      document.getElementById('ce-tags').value    = r.tags    || '';
+      document.getElementById('ce-city').value    = r.city    || '';
+      document.getElementById('ce-state').value   = r.state   || '';
+      document.getElementById('ce-url').value     = r.url     || '';
+      document.getElementById('ce-note').value    = r.note || r.comment || '';
+      document.getElementById('ce-visited').checked = !!r.visited;
+      _updateCardEditNav();
+      const modal = document.getElementById('cardEditModal');
+      modal.classList.add('open');
+      _scrollY = window.scrollY;
+      document.documentElement.classList.add('edit-open');
+      document.body.classList.add('edit-open');
+      document.body.style.top = `-${_scrollY}px`;
+      if (!skipFocus) document.getElementById('ce-title').focus();
+      modal.addEventListener('keydown', _cardEditKeydown);
+    }
+
+    function _updateCardEditNav() {
+      document.getElementById('ce-prev').disabled = _cardEditIndex <= 0;
+      document.getElementById('ce-next').disabled = _cardEditIndex < 0 || _cardEditIndex >= filteredData.length - 1;
+    }
+
+    function navigateCardEdit(dir) {
+      const next = _cardEditIndex + dir;
+      if (next < 0 || next >= filteredData.length) return;
+      _cardEditIndex = next;
+      const { r } = filteredData[next];
+      openCardEdit(r.id, true);
+    }
+
+    function closeCardEdit() {
+      const modal = document.getElementById('cardEditModal');
+      modal.classList.remove('open');
+      document.documentElement.classList.remove('edit-open');
+      document.body.classList.remove('edit-open');
+      document.body.style.top = '';
+      window.scrollTo(0, _scrollY);
+      modal.removeEventListener('keydown', _cardEditKeydown);
+      _cardEditId = null;
+      _cardEditIndex = -1;
+    }
+
+    function _cardEditKeydown(e) {
+      if (e.key === 'Escape') { closeCardEdit(); return; }
+      if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        saveCardEdit();
+        return;
+      }
+      if (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+        e.preventDefault();
+        navigateCardEdit(e.key === 'ArrowRight' ? 1 : -1);
+      }
+    }
+
+    document.getElementById('cardEditModal').addEventListener('click', function(e) {
+      if (e.target === this) closeCardEdit();
+    });
+
+    function launchConfetti(el) {
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const colors = [
+        'hsl(135 76% 40%)', 'hsl(135 76% 55%)',
+        'hsl(75 35% 38%)',  'hsl(75 50% 55%)',
+        'hsl(40 66% 45%)',  'hsl(42 80% 68%)',
+        'hsl(36 23% 55%)',
+      ];
+      const count = 22;
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        const angle = (i / count) * 360 + (Math.random() - 0.5) * 28;
+        const dist  = 38 + Math.random() * 65;
+        const dx    = Math.cos(angle * Math.PI / 180) * dist;
+        const dy    = Math.sin(angle * Math.PI / 180) * dist;
+        const size  = 3 + Math.random() * 5;
+        const isRect = Math.random() > 0.5;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const dur   = 550 + Math.random() * 350;
+        const rot   = Math.random() * 360;
+        p.style.cssText = `
+          position:fixed; left:${cx}px; top:${cy}px; z-index:99999;
+          width:${isRect ? size * 1.8 : size}px; height:${size}px;
+          border-radius:${isRect ? '2px' : '50%'};
+          background:${color}; pointer-events:none;
+          transform:translate(-50%,-50%) rotate(${rot}deg);
+          opacity:1;
+          transition:transform ${dur}ms cubic-bezier(0.22,0.61,0.36,1),
+                     opacity ${dur * 0.6}ms ease ${dur * 0.4}ms;
+        `;
+        document.body.appendChild(p);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          p.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${rot + 120}deg)`;
+          p.style.opacity = '0';
+        }));
+        setTimeout(() => p.remove(), dur + 100);
+      }
+    }
+
+    async function saveCardEdit() {
+      const id = _cardEditId;
+      const r = restaurantData.find(x => x.id === id);
+      if (!r) return;
+
+      const wasVisited = !!r.visited;
+
+      const updates = {
+        title:   document.getElementById('ce-title').value.trim(),
+        cuisine: document.getElementById('ce-cuisine').value.trim(),
+        tags:    document.getElementById('ce-tags').value.trim(),
+        city:    document.getElementById('ce-city').value.trim(),
+        state:   document.getElementById('ce-state').value.trim(),
+        url:     document.getElementById('ce-url').value.trim(),
+        note:    document.getElementById('ce-note').value.trim(),
+        visited: document.getElementById('ce-visited').checked ? 1 : 0,
+        // preserve existing fields
+        lat: r.lat ?? '', lng: r.lng ?? '',
+        country: r.country || '',
+        type: r.type || '',
+      };
+
+      const nowVisited = !!updates.visited;
+      updates.visited_at = nowVisited ? (r.visited_at || new Date().toISOString().slice(0, 10)) : null;
+
+      await fetch(`/api/restaurants/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+
+      // update local data and re-render
+      Object.assign(r, updates);
+      if (updates.visited) visited.add(r.title); else visited.delete(r.title);
+      closeCardEdit();
+      renderAllCards();
+      applyFilters();
+
+      if (!wasVisited && nowVisited) {
+        const idx = restaurantData.findIndex(x => x.id === id);
+        const cardEl = cardElements.get(idx);
+        if (cardEl) {
+          const badge = cardEl.querySelector('.visited-badge');
+          if (badge) {
+            badge.classList.add('is-new');
+            launchConfetti(badge);
+          }
+        }
+      }
+    }
+
   </script>
 </body>
 </html>

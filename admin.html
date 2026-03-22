@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin — Fork in the Road</title>
+  <title>Admin — Fork in the road</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@0,400;0,500;0,600&display=swap');
 
@@ -197,7 +197,7 @@
 <body>
 
 <header>
-  <h1>Fork in the Road — Admin</h1>
+  <h1>Fork in the road — Admin</h1>
   <a href="/">← Back to app</a>
 </header>
 
@@ -220,6 +220,9 @@
         <th class="sortable" onclick="sort('lat')">Coords</th>
         <th class="sortable" onclick="sort('visited')">Visited</th>
         <th class="sortable" onclick="sort('type')">Food &amp; Drink</th>
+        <th class="sortable" onclick="sort('open_after_10pm')">10 PM</th>
+        <th class="sortable" onclick="sort('open_after_11pm')">11 PM</th>
+        <th class="sortable" onclick="sort('open_after_midnight')">Midnight</th>
         <th></th>
       </tr>
     </thead>
@@ -231,7 +234,13 @@
 <div class="modal-backdrop" id="modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
-    <h2 id="modal-title">Edit Place</h2>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;">
+      <h2 id="modal-title" style="margin:0;flex:1;">Edit Place</h2>
+      <div id="modal-nav" style="display:none;gap:4px;">
+        <button class="btn" id="btn-prev" onclick="navigateEdit(-1)" title="Previous" style="padding:0 10px;font-size:15px;">←</button>
+        <button class="btn" id="btn-next" onclick="navigateEdit(1)"  title="Next"     style="padding:0 10px;font-size:15px;">→</button>
+      </div>
+    </div>
 
     <!-- Lookup section (add mode only) -->
     <div id="lookup-section" style="display:none;margin-bottom:1.25rem;">
@@ -271,6 +280,18 @@
         <input id="f-visited" type="checkbox">
         <label for="f-visited">Visited</label>
       </div>
+      <div class="form-group checkbox">
+        <input id="f-open-10pm" type="checkbox">
+        <label for="f-open-10pm">Open after 10 PM</label>
+      </div>
+      <div class="form-group checkbox">
+        <input id="f-open-11pm" type="checkbox">
+        <label for="f-open-11pm">Open after 11 PM</label>
+      </div>
+      <div class="form-group checkbox">
+        <input id="f-open-midnight" type="checkbox">
+        <label for="f-open-midnight">Open after Midnight</label>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn" id="btn-get-missing" style="display:none;margin-right:auto;" onclick="getMissingInfo()">Get missing info</button>
@@ -288,6 +309,7 @@
   let sortKey = 'title';
   let sortDir = 1;
   let editingId = null; // null = add mode, number = edit mode
+  let renderedRows = [];
 
   const FOOD_DRINK_TYPES = new Set(['Restaurant','Bar','Café / Coffee','Bakery','Ice Cream / Dessert','Brewery','Winery']);
   function isFoodDrink(type) { return FOOD_DRINK_TYPES.has(type); }
@@ -320,6 +342,9 @@ async function load() {
       <td class="coords">${r.lat != null ? `<a href="https://www.google.com/maps?q=${r.lat},${r.lng}" target="_blank" rel="noopener" style="color:#006f84;text-decoration:none;">${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}</a>` : '—'}</td>
       <td>${r.visited ? '<span class="visited-badge">Visited</span>' : ''}</td>
       <td style="text-align:center;">${isFoodDrink(r.type) ? 'Yes' : 'No'}</td>
+      <td style="text-align:center;">${r.open_after_10pm ? '✓' : ''}</td>
+      <td style="text-align:center;">${r.open_after_11pm ? '✓' : ''}</td>
+      <td style="text-align:center;">${r.open_after_midnight ? '✓' : ''}</td>
       <td class="actions">
         <button class="btn" onclick="openEdit(${r.id})">Edit</button>
         <button class="btn danger" onclick="del(${r.id})">Delete</button>
@@ -335,21 +360,21 @@ async function load() {
 
   function renderTable() {
     const q = document.getElementById('search').value.toLowerCase().trim();
-    let rows = restaurants.filter(r =>
+    renderedRows = restaurants.filter(r =>
       !q || [r.title, r.cuisine, r.note, r.tags, r.city, r.state, r.country].some(f => (f||'').toLowerCase().includes(q))
     );
-    rows.sort((a, b) => {
+    renderedRows.sort((a, b) => {
       const av = sortKey === 'type' ? (isFoodDrink(a.type) ? 0 : 1) : (a[sortKey] ?? '');
       const bv = sortKey === 'type' ? (isFoodDrink(b.type) ? 0 : 1) : (b[sortKey] ?? '');
       return av < bv ? -sortDir : av > bv ? sortDir : 0;
     });
-    document.getElementById('rowCount').textContent = `${rows.length} places`;
+    document.getElementById('rowCount').textContent = `${renderedRows.length} places`;
 
     let html = '';
     if (sortKey === 'city') {
       // Group by country when sorted by Location
       const groups = new Map();
-      for (const r of rows) {
+      for (const r of renderedRows) {
         const key = r.country || '—';
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key).push(r);
@@ -367,7 +392,7 @@ async function load() {
         html += items.map(rowHtml).join('');
       }
     } else {
-      html = rows.map(rowHtml).join('');
+      html = renderedRows.map(rowHtml).join('');
     }
 
     document.getElementById('tbody').innerHTML = html;
@@ -416,13 +441,40 @@ async function load() {
     ['f-title','f-city','f-state','f-country','f-cuisine','f-tags','f-note','f-url','f-lat','f-lng','f-lookup-url'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-type').value = '';
     document.getElementById('f-visited').checked = false;
+    document.getElementById('f-open-10pm').checked = false;
+    document.getElementById('f-open-11pm').checked = false;
+    document.getElementById('f-open-midnight').checked = false;
     document.getElementById('lookup-status').textContent = '';
     document.getElementById('lookup-status').style.color = '#6b6560';
     document.getElementById('lookup-spinner').style.display = 'none';
     document.getElementById('modal-title').textContent = 'Add Place';
     document.getElementById('lookup-section').style.display = '';
+    document.getElementById('modal-nav').style.display = 'none';
     document.getElementById('modal').classList.add('open');
     document.getElementById('f-lookup-url').focus();
+  }
+
+  function updateNavButtons() {
+    const nav = document.getElementById('modal-nav');
+    if (editingId === null) { nav.style.display = 'none'; return; }
+    nav.style.display = 'flex';
+    nav.style.alignItems = 'center';
+    const idx = renderedRows.findIndex(x => x.id === editingId);
+    document.getElementById('btn-prev').disabled = idx <= 0;
+    document.getElementById('btn-next').disabled = idx < 0 || idx >= renderedRows.length - 1;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (editingId === null) return;
+    if (!e.altKey || !['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+    e.preventDefault();
+    navigateEdit(e.key === 'ArrowRight' ? 1 : -1);
+  });
+
+  function navigateEdit(dir) {
+    const idx = renderedRows.findIndex(x => x.id === editingId);
+    const next = renderedRows[idx + dir];
+    if (next) openEdit(next.id);
   }
 
   function openEdit(id) {
@@ -440,6 +492,9 @@ async function load() {
     document.getElementById('f-lat').value     = r.lat     ?? '';
     document.getElementById('f-lng').value     = r.lng     ?? '';
     document.getElementById('f-visited').checked = !!r.visited;
+    document.getElementById('f-open-10pm').checked = !!r.open_after_10pm;
+    document.getElementById('f-open-11pm').checked = !!r.open_after_11pm;
+    document.getElementById('f-open-midnight').checked = !!r.open_after_midnight;
     document.getElementById('f-type').value = r.type ?? '';
     document.getElementById('modal-title').textContent = 'Edit Place';
     document.getElementById('btn-get-missing').style.display = '';
@@ -447,11 +502,13 @@ async function load() {
     document.getElementById('modal').classList.add('open');
     document.getElementById('f-title').focus();
     refreshClearButtons();
+    updateNavButtons();
   }
 
   function closeModal() {
     document.getElementById('modal').classList.remove('open');
     editingId = null;
+    document.getElementById('modal-nav').style.display = 'none';
   }
 
   async function lookup() {
@@ -536,9 +593,12 @@ async function load() {
       lat:     document.getElementById('f-lat').value,
       lng:     document.getElementById('f-lng').value,
       visited: document.getElementById('f-visited').checked,
+      open_after_10pm: document.getElementById('f-open-10pm').checked,
+      open_after_11pm: document.getElementById('f-open-11pm').checked,
+      open_after_midnight: document.getElementById('f-open-midnight').checked,
       type:    document.getElementById('f-type').value,
     };
-    const parsed = { ...body, lat: body.lat !== '' ? parseFloat(body.lat) : null, lng: body.lng !== '' ? parseFloat(body.lng) : null, visited: body.visited ? 1 : 0 };
+    const parsed = { ...body, lat: body.lat !== '' ? parseFloat(body.lat) : null, lng: body.lng !== '' ? parseFloat(body.lng) : null, visited: body.visited ? 1 : 0, open_after_10pm: body.open_after_10pm ? 1 : 0, open_after_11pm: body.open_after_11pm ? 1 : 0, open_after_midnight: body.open_after_midnight ? 1 : 0 };
 
     if (editingId === null) {
       const res = await fetch('/api/restaurants', {

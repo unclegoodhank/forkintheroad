@@ -20,6 +20,7 @@ app.use(session({
 
 // ── Static assets ──────────────────────────────────────────────────────────
 app.use('/images', express.static(path.join(__dirname, 'images')));
+app.get('/robots.txt', (req, res) => res.sendFile(path.join(__dirname, 'robots.txt')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'restaurant-recommender.html')));
 
 // ── Restaurant API ─────────────────────────────────────────────────────────
@@ -31,7 +32,8 @@ app.get('/api/restaurants', (req, res) => {
 app.patch('/api/restaurants/:id/visited', (req, res) => {
   const { id } = req.params;
   const { visited } = req.body;
-  db.prepare('UPDATE restaurants SET visited = ? WHERE id = ?').run(visited ? 1 : 0, id);
+  db.prepare('UPDATE restaurants SET visited = ?, visited_at = ? WHERE id = ?')
+    .run(visited ? 1 : 0, visited ? new Date().toISOString().slice(0, 10) : null, id);
   res.json({ ok: true });
 });
 
@@ -100,9 +102,15 @@ app.get('/admin', (req, res) => {
 });
 
 app.put('/api/restaurants/:id', (req, res) => {
-  const { title, note, url, tags, cuisine, lat, lng, visited, city, state, country, type } = req.body;
-  db.prepare(`UPDATE restaurants SET title=?, note=?, url=?, tags=?, cuisine=?, lat=?, lng=?, visited=?, city=?, state=?, country=?, type=? WHERE id=?`)
-    .run(title, note, url, tags, cuisine, lat !== '' ? parseFloat(lat) : null, lng !== '' ? parseFloat(lng) : null, visited ? 1 : 0, city || '', state || '', country || '', type || '', req.params.id);
+  const { title, note, url, tags, cuisine, lat, lng, visited, visited_at, city, state, country, type, open_after_10pm, open_after_11pm, open_after_midnight } = req.body;
+  db.prepare(`UPDATE restaurants SET title=?, note=?, url=?, tags=?, cuisine=?, lat=?, lng=?, visited=?, visited_at=?, city=?, state=?, country=?, type=?, open_after_10pm=?, open_after_11pm=?, open_after_midnight=? WHERE id=?`)
+    .run(title, note, url, tags, cuisine, lat !== '' ? parseFloat(lat) : null, lng !== '' ? parseFloat(lng) : null, visited ? 1 : 0, visited_at || null, city || '', state || '', country || '', type || '', open_after_10pm ? 1 : 0, open_after_11pm ? 1 : 0, open_after_midnight ? 1 : 0, req.params.id);
+  res.json({ ok: true });
+});
+
+app.patch('/api/restaurants/:id/note', (req, res) => {
+  const { note } = req.body;
+  db.prepare('UPDATE restaurants SET note = ? WHERE id = ?').run(note ?? '', req.params.id);
   res.json({ ok: true });
 });
 
@@ -112,14 +120,15 @@ app.delete('/api/restaurants/:id', (req, res) => {
 });
 
 app.post('/api/restaurants', (req, res) => {
-  const { title, note, url, tags, cuisine, lat, lng, visited, city, state, country, type } = req.body;
+  const { title, note, url, tags, cuisine, lat, lng, visited, city, state, country, type, open_after_10pm, open_after_11pm, open_after_midnight } = req.body;
   const result = db.prepare(
-    `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited, city, state, country, type, added_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`
+    `INSERT INTO restaurants (title, note, url, tags, cuisine, lat, lng, visited, city, state, country, type, open_after_10pm, open_after_11pm, open_after_midnight, added_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`
   ).run(
     title, note || '', url || '', tags || '', cuisine || '',
     lat !== '' && lat != null ? parseFloat(lat) : null,
     lng !== '' && lng != null ? parseFloat(lng) : null,
-    visited ? 1 : 0, city || '', state || '', country || '', type || ''
+    visited ? 1 : 0, city || '', state || '', country || '', type || '',
+    open_after_10pm ? 1 : 0, open_after_11pm ? 1 : 0, open_after_midnight ? 1 : 0
   );
   res.json({ ok: true, id: result.lastInsertRowid });
 });

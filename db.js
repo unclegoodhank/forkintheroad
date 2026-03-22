@@ -24,5 +24,9 @@ try { db.exec(`ALTER TABLE restaurants ADD COLUMN state    TEXT DEFAULT ''`); } 
 try { db.exec(`ALTER TABLE restaurants ADD COLUMN type     TEXT DEFAULT ''`); } catch {}
 try { db.exec(`ALTER TABLE restaurants ADD COLUMN added_at TEXT`); } catch {}
 try { db.exec(`ALTER TABLE restaurants ADD COLUMN country TEXT DEFAULT ''`); } catch {}
+try { db.exec(`ALTER TABLE restaurants ADD COLUMN open_after_10pm  INTEGER DEFAULT 0`); } catch {}
+try { db.exec(`ALTER TABLE restaurants ADD COLUMN open_after_11pm  INTEGER DEFAULT 0`); } catch {}
+try { db.exec(`ALTER TABLE restaurants ADD COLUMN open_after_midnight INTEGER DEFAULT 0`); } catch {}
+try { db.exec(`ALTER TABLE restaurants ADD COLUMN visited_at TEXT`); } catch {}
 
 module.exports = db;
