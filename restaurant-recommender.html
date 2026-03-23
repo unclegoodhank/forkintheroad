@@ -21,25 +21,43 @@
       --md-on-surface-variant:        hsla(30, 5%, 66%, 1);
       --color-warm-text:              hsl(36 23% 45% / 1);
       --color-subtle:                 hsl(30 5% 83% / 1);
+      --color-muted-surface:          hsl(30 5% 83% / 0.5);
       --shadow-subtle:                drop-shadow(1px 1px 3px hsla(0, 0%, 98%, 1));
       --focus-glow:                   0 0 0 3px hsl(36 23% 45% / 0.18), 0 0 12px 4px hsl(36 23% 45% / 0.10);
       --md-outline:                   hsla(38, 18%, 71%, 1);
       --md-outline-variant:           hsla(42, 67%, 94%, 1);
       --btn-gradient:                 linear-gradient(to bottom, hsl(0 0% 100%), hsl(42 30% 96%));
       --md-surface-container-lowest:  hsla(0, 0%, 100%, 1);
-      --md-surface-container-low:     hsla(0, 0%, 100%, 1);
+      --md-surface-container-low:     hsla(0, 0%, 100%, 1); /* differs from lowest in dark mode */
       --md-surface-container:         hsla(42, 60%, 97%, 1);
       --md-surface-container-high:    hsla(45, 19%, 92%, 1);
       --md-surface-container-highest: hsla(45, 19%, 92%, 1);
       --md-error:                     hsla(7, 57%, 38%, 1); /* darkened 44%→38% for AAA 7:1 on white */
       /* Shape — all multiples of 3 */
       --shape-xs:   8px;
-      --shape-sm:  11px;
-      --shape-md:  14px;
       --shape-lg:  20px;
-      --shape-xl:  32px;
       --shape-full: 9999px;
       --ctrl-height: 45px;
+      /* Layout */
+      --layout-max-width:    760px;
+      --layout-gutter:        24px;
+      /* Backgrounds */
+      --color-bg:            hsla(0, 0%, 0%, 1);
+      --bg-noise-texture:    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+      /* Footer */
+      --footer-color:        hsla(0, 0%, 100%, 1);
+      --footer-muted:        hsla(37, 11%, 62%, 1);
+      /* Slider thumb */
+      --slider-thumb-bg:     linear-gradient(to bottom, hsl(36 20% 52%), hsl(36 20% 38%));
+      --slider-thumb-shadow: 0 1px 3px hsl(0 0% 0% / 0.14), 0 3px 9px hsl(0 0% 0% / 0.18);
+      /* Select chevron icon */
+      --icon-chevron-down:   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      /* Letter spacing */
+      --tracking-base:       0.00625rem;
+      --tracking-wide:       0.03125rem;
+      /* Transitions */
+      --transition:           0.15s;
+      --transition-reveal:    0.727s;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,17 +79,17 @@
       position: absolute; top: -48px; left: 18px;
       background: var(--color-accent); color: var(--md-on-primary);
       padding: 9px 18px; border-radius: 0 0 var(--shape-xs) var(--shape-xs);
-      font-size: 0.9375rem; font-weight: 400; letter-spacing: 0.1px;
+      font-size: 0.9375rem; font-weight: 400; letter-spacing: var(--tracking-base);
       text-decoration: none; z-index: 200; transition: top 0.15s;
     }
     .skip-link:focus { top: 0; outline: 2px solid var(--md-on-primary); outline-offset: 3px; }
 
-    html { overflow-x: clip; background-color: hsla(0, 0%, 0%, 1); }
+    html { overflow-x: clip; background-color: var(--color-bg); }
 
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background-color: var(--md-surface);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+      background-image: var(--bg-noise-texture);
       background-size: 200px 200px;
       color: var(--md-on-surface);
       font-size: 0.9375rem;
@@ -84,9 +102,9 @@
       overflow-x: hidden;
     }
     #recommender {
-      max-width: 760px;
+      max-width: var(--layout-max-width);
       margin: 0 auto;
-      padding: 48px 24px 30px;
+      padding: 48px var(--layout-gutter) 30px;
     }
 
     .header {
@@ -99,7 +117,7 @@
       font-size: 2.25rem;
       font-weight: 400;
       font-style: italic;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.03125rem;
       color: var(--md-on-surface);
       margin-bottom: 6px;
     }
@@ -111,16 +129,15 @@
       background: var(--md-surface-container-lowest);
       border: 1px solid var(--md-outline-variant);
       border-radius: var(--shape-lg);
-      padding: 21px 24px;
-      margin-bottom: 21px;
-      position: relative;
+      padding: 2px 24px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
     }
-    .location-section h3 {
-      font-size: 0.75rem;
-      font-weight: 400;
-      color: var(--md-on-surface-variant);
-      margin-bottom: 18px;
-      letter-spacing: 0.5px;
+    .location-section:has(#locationMapFigure.is-open) {
+      padding-bottom: 24px;
     }
     .location-input {
       display: grid;
@@ -132,12 +149,13 @@
     .input-group label {
       font-size: 0.75rem;
       font-weight: 400;
-      letter-spacing: 0.5px;
+      letter-spacing: var(--tracking-wide);
       color: var(--md-on-surface-variant);
       margin-bottom: 6px;
     }
     input[type="number"] {
       -webkit-appearance: none;
+      appearance: none;
       padding: 9px 12px;
       border: 1px solid var(--color-subtle);
       border-radius: var(--shape-xs);
@@ -153,8 +171,8 @@
     .location-label {
       font-size: 0.75rem;
       font-weight: 400;
-      color: var(--md-on-surface-variant);
-      letter-spacing: 0.5px;
+      color: var(--md-on-surface);
+      letter-spacing: var(--tracking-wide);
     }
     .btn-sm {
       height: 28px;
@@ -169,9 +187,6 @@
       filter: var(--shadow-subtle);
       transition: background 0.15s, border-color 0.15s;
     }
-    .btn-sm:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface-variant); }
-    .btn-sm.btn-icon { width: 28px; padding: 0; font-size: 1rem; line-height: 28px; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
-
     .btn {
       height: var(--ctrl-height);
       padding: 0 24px;
@@ -182,14 +197,13 @@
       font-family: inherit;
       font-size: 0.9375rem;
       font-weight: 400;
-      letter-spacing: 0.1px;
+      letter-spacing: var(--tracking-base);
       cursor: pointer;
       -webkit-appearance: none;
       appearance: none;
       filter: var(--shadow-subtle);
       transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
     }
-    .btn:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface-variant); }
     .btn.primary {
       border-color: var(--md-on-surface-variant);
     }
@@ -197,11 +211,20 @@
 
     .hidden { display: none !important; }
     #locationMapFigure {
-      margin: 10px 0 0;
-      height: 135px;
+      flex-basis: 100%;
+      height: 0;
       border-radius: var(--shape-xs);
       overflow: hidden;
-      /* border: 1px solid var(--md-outline-variant); */
+      margin: 0;
+      opacity: 0;
+      transition: height calc(var(--transition-reveal) / 2) ease,
+                  opacity calc(var(--transition-reveal) / 2) ease,
+                  margin-top calc(var(--transition-reveal) / 2) ease;
+    }
+    #locationMapFigure.is-open {
+      height: 135px;
+      opacity: 1;
+      margin-top: 10px;
     }
     #locationMap { height: 100%; }
     #locName { display: inline-block; }
@@ -213,7 +236,7 @@
       mask-size: 250% 100%;
       -webkit-mask-repeat: no-repeat;
       mask-repeat: no-repeat;
-      animation: loc-reveal 2.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+      animation: loc-reveal var(--transition-reveal) cubic-bezier(0.65, 0, 0.35, 1) forwards;
     }
     @keyframes loc-reveal {
       0%   { opacity: 0; -webkit-mask-position: right; mask-position: right; }
@@ -222,26 +245,59 @@
       100% {             -webkit-mask-position: left;  mask-position: left; }
     }
     #locName.is-detecting::after {
-      content: '.';
-      animation: detecting-dots 1.2s step-start infinite;
+      content: '';
+      animation: detecting-dots 1s step-start infinite;
     }
     @keyframes detecting-dots {
-      0%  { content: '.'; }
-      33% { content: '..'; }
-      66% { content: '...'; }
+      0%  { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
     }
     #mapToggle {
-      position: absolute;
-      top: 21px;
-      right: 24px;
+      height: auto;
       font-size: 0.75rem;
       color: var(--color-warm-text);
-      text-underline-offset: 3px;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      filter: none;
+      cursor: pointer;
     }
+    #mapToggle::before { content: 'Show map'; }
+    #mapToggle[aria-expanded="true"]::before { content: 'Hide map'; }
+    #mapToggle:hover { text-decoration: underline; text-decoration-color: var(--color-warm-text); text-underline-offset: 3px; cursor: pointer; }
     .current-location {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-size: 0.75rem;
       color: var(--md-on-surface-variant);
-      margin-bottom: 8px;
+    }
+    #updateLocationLink {
+      opacity: 0;
+      font-size: 0.75rem;
+      color: var(--color-warm-text);
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      font-weight: inherit;
+      filter: none;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+    }
+    #updateLocationLink.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #updateLocationLink:hover {
+      text-decoration: underline;
+      text-decoration-color: var(--md-on-surface-variant);
+      text-underline-offset: 3px;
     }
 
     .filters {
@@ -273,7 +329,7 @@
       filter: var(--shadow-subtle);
       -webkit-appearance: none;
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), var(--btn-gradient);
+      background-image: var(--icon-chevron-down), var(--btn-gradient);
       background-repeat: no-repeat, no-repeat;
       background-position: right 12px center, top left;
     }
@@ -296,7 +352,7 @@
       font-family: inherit;
       font-size: 1rem;
       font-weight: 400;
-      letter-spacing: 0.1px;
+      letter-spacing: var(--tracking-base);
       padding: 0 18px;
       cursor: pointer;
       color: var(--color-warm-text);
@@ -306,8 +362,8 @@
     }
     .segmented label:last-child { border-right: none; }
     .segmented input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
-    .segmented label:has(input:checked) { background: hsl(30 5% 83% / 0.5); color: var(--color-warm-text); font-weight: 500; }
-    .segmented label:hover:not(:has(input:checked)) { background: hsl(30 5% 83% / 0.5); }
+    .segmented label:has(input:checked) { background: var(--color-muted-surface); color: var(--color-warm-text); font-weight: 500; }
+    .segmented label:hover:not(:has(input:checked)) { background: var(--color-muted-surface); }
     .segmented label:has(input:focus-visible) { outline: none; box-shadow: var(--focus-glow) inset; }
 
     .radius-slider-wrap {
@@ -317,13 +373,13 @@
       border-radius: var(--shape-xs);
       padding: 12px 0 3px;
       border: none;
+      flex: 0 0 100%;
     }
     #radiusLabel {
       display: block;
       text-align: left;
       font-size: 1rem;
       font-weight: 400;
-      /* letter-spacing: 0.5px; */
       color: var(--color-warm-text);
     }
     #radiusFilter {
@@ -344,18 +400,18 @@
       height: 30px;
       margin-top: -13.5px;
       border-radius: 50%;
-      background: linear-gradient(to bottom, hsl(36 20% 52%), hsl(36 20% 38%));
+      background: var(--slider-thumb-bg);
       border: 3px solid var(--md-surface-container-lowest);
-      box-shadow: 0 1px 3px hsl(0 0% 0% / 0.14), 0 3px 9px hsl(0 0% 0% / 0.18);
+      box-shadow: var(--slider-thumb-shadow);
       cursor: pointer;
     }
     #radiusFilter::-moz-range-thumb {
       width: 30px;
       height: 30px;
       border-radius: 50%;
-      background: linear-gradient(to bottom, hsl(36 20% 52%), hsl(36 20% 38%));
+      background: var(--slider-thumb-bg);
       border: 3px solid var(--md-surface-container-lowest);
-      box-shadow: 0 1px 3px hsl(0 0% 0% / 0.14), 0 3px 9px hsl(0 0% 0% / 0.18);
+      box-shadow: var(--slider-thumb-shadow);
       cursor: pointer;
     }
     #radiusFilter:focus-visible { outline: none; box-shadow: var(--focus-glow); }
@@ -375,7 +431,6 @@
     }
     #searchFilter:focus { outline: none; box-shadow: var(--focus-glow); border-color: var(--color-subtle); }
     #searchFilter::placeholder { color: var(--color-warm-text); opacity: 1; }
-    .card.is-visited {}
     #cardContainer {
       display: flex;
       flex-direction: column;
@@ -410,7 +465,7 @@
       font-size: 1.312rem;
       font-weight: 400;
       line-height: 1.8rem;
-      letter-spacing: -0.2px;
+      letter-spacing: -0.0125rem;
       margin-bottom: 0;
       color: var(--md-on-surface);
     }
@@ -420,7 +475,7 @@
       color: var(--color-accent);
       font-size: 0.75rem;
       font-weight: 400;
-      letter-spacing: 0.5px;
+      letter-spacing: var(--tracking-wide);
       margin-bottom: 0;
     }
     .restaurant-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
@@ -430,17 +485,13 @@
       background: transparent;
       color: var(--color-warm-text);
       padding: 6px 12px;
-      /* border: 1px solid var(--color-accent); */
-      /* border-radius: var(--shape-sm); */
       font-size: 0.8rem;
       font-weight: 400;
       letter-spacing: 0;
     }
     .note {
-      /* background: hsl(193 53% 94% / 1); */
       border-radius: var(--shape-xs);
-      padding: 0px 0 0;
-      /* margin-bottom: 12px; */
+      padding: 0;
       font-size: 0.8rem;
       color: var(--color-warm-text);
       font-style: italic;
@@ -456,7 +507,7 @@
       font-family: inherit;
       font-size: 0.9375rem;
       font-weight: 400;
-      letter-spacing: 0.1px;
+      letter-spacing: var(--tracking-base);
       cursor: pointer;
       -webkit-appearance: none;
       appearance: none;
@@ -482,9 +533,10 @@
     .maps-link {
       font-size: 0.75rem;
       font-weight: 400;
-      letter-spacing: 0.1px;
+      letter-spacing: var(--tracking-base);
       color: var(--color-accent);
-      text-decoration: underline;
+      text-decoration: underline dotted;
+      text-decoration-color: var(--color-warm-text);
       text-underline-offset: 3px;
     }
     .results-row {
@@ -496,8 +548,9 @@
     #resultsCount {
       font-size: 0.75rem;
       font-weight: 400;
-      letter-spacing: 0.5px;
+      letter-spacing: var(--tracking-wide);
       color: var(--md-on-surface-variant);
+      margin: 0;
     }
     #pagination-top { padding: 0; }
     .pagination {
@@ -547,16 +600,16 @@
     .prev-btn::before { content: '←'; }
     .next-btn::after  { content: '→'; }
     .pagination-btn:hover { background: transparent; }
-    .pagination-btn.is-pressed { background: hsl(30 5% 83% / 0.5); transition: none; }
+    .pagination-btn.is-pressed { background: var(--color-muted-surface); transition: none; }
     .pagination-btn.was-pressed { animation: pagination-release 0.25s ease-out forwards; }
     .pagination-btn:active { transform: none; }
     .pagination-btn:focus-visible { box-shadow: none; }
     @media (hover: hover) {
-      .pagination-btn:hover:not(:disabled) { background: hsl(30 5% 83% / 0.5); }
+      .pagination-btn:hover:not(:disabled) { background: var(--color-muted-surface); }
       .pagination-btn:focus-visible { box-shadow: var(--focus-glow) inset; }
     }
     @keyframes pagination-release {
-      from { background: hsl(30 5% 83% / 0.5); }
+      from { background: var(--color-muted-surface); }
       to   { background: transparent; }
     }
     @keyframes count-flash {
@@ -568,11 +621,12 @@
     a:focus-visible { outline: none; box-shadow: var(--focus-glow); border-radius: var(--shape-xs); }
 
     ::placeholder { color: var(--md-on-surface-variant); opacity: 0.7; }
-    .copy-btn { background: none; border: none; padding: 6px; cursor: pointer; min-width: 24px; min-height: 24px; }
+    .copy-btn { display: inline-flex; align-items: center; justify-content: center; background: none; border: none; padding: 6px; cursor: pointer; min-width: 24px; min-height: 24px; }
     .copy-btn:focus-visible { outline: none; box-shadow: var(--focus-glow); }
 
     /* ── Location error ── */
     #locationError {
+      flex-basis: 100%;
       font-size: 0.75rem;
       color: var(--md-error);
       margin-top: 6px;
@@ -580,18 +634,18 @@
     }
 
     /* ── Filter layout helpers ── */
-    #searchFilter { width: 100%; }
-
     .filter-search-wrap { flex: 0 0 100%; position: relative; }
     .filter-category-wrap { flex: 0 0 100%; display: flex; flex-direction: column; gap: 6px; }
     .filter-row-pair { display: flex; gap: 9px; flex: 0 0 100%; padding: 3px 0 0; }
     .filter-col { display: flex; flex-direction: column; gap: 4px; flex: 1; }
     .filter-col select { width: 100%; }
     #searchClear {
+      display: none;
       position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
       background: none; border: none; cursor: pointer;
       color: var(--md-on-surface-variant); line-height: 0; padding: 4px;
     }
+    #searchFilter:not(:placeholder-shown) + #searchClear { display: flex; }
     .filter-visited-row { flex: 0 0 100%; }
 
     @media (min-width: 481px) {
@@ -599,17 +653,11 @@
       .filter-category-wrap { flex: 1 1 0; }
     }
 
-    .radius-slider-wrap { flex: 0 0 100%; }
-
     #sliderDistance { display: flex; flex-direction: column; gap: 28px; width: 100%; }
     .slider-ticks { position: relative; margin: 0 15px; height: 10px; }
     .slider-tick { position: absolute; width: 1.5px; height: 5px; background: var(--md-outline); top: 2.5px; transform: translateX(-50%); border-radius: var(--shape-full); }
     .slider-tick-end { height: 10px; top: 0; }
-    .slider-endpoints { display: flex; justify-content: space-between; /* margin: 0 15px; */ font-size: 0.6875rem; color: var(--md-on-surface-variant); letter-spacing: 0.02em; }
-
-    /* ── Results header row ── */
-    #resultsCount { margin: 0; }
-
+    .slider-endpoints { display: flex; justify-content: space-between; font-size: 0.6875rem; color: var(--md-on-surface-variant); letter-spacing: 0.02em; }
 
     /* ── Card inner layout ── */
     .card-name-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -631,7 +679,7 @@
       align-items: baseline;
       justify-content: space-between;
       gap: 12px;
-      margin-top: 0px;
+      margin-top: 0;
     }
     .card-location-row {
       display: flex;
@@ -644,18 +692,16 @@
     .loc-city { font-style: normal; }
     .distance-badge:empty { display: none; }
     /* separator before maps link via CSS — no DOM element needed */
-    .maps-link::before {
-      content: '·';
-      display: inline-block;
+    .maps-sep {
+      display: none;
       color: var(--md-outline-variant);
       font-size: 0.6875rem;
       margin-right: 4px;
-      text-decoration: none;
     }
-    /* hide · when distance is empty and no city exists */
-    .distance-badge:empty + .maps-link::before { content: none; }
-    /* always show · when a city is present */
-    .loc-city ~ .maps-link::before { content: '·'; }
+    /* show · when distance is present */
+    .distance-badge:not(:empty) ~ .maps-sep { display: inline; }
+    /* show · when city is present */
+    .loc-city ~ .maps-sep { display: inline; }
     /* separator between city and distance badge */
     .loc-city + .distance-badge:not(:empty)::before {
       content: '·';
@@ -679,7 +725,6 @@
       gap: 4px;
       padding: 1px 9px 2px 6px;
       background: hsl(135deg 85% 33% / 10%);
-      /* border: 1px solid hsl(75 35% 38% / 0.25); */
       border-radius: var(--shape-full);
       font-size: 0.7rem;
       font-weight: 600;
@@ -688,8 +733,8 @@
     }
     .visited-badge-star { font-size: 0.7rem; }
     @keyframes loc-pulse {
-      0%, 100% { box-shadow: 0 0 0 0 hsl(0 80% 50% / 0.5); }
-      50%       { box-shadow: 0 0 0 8px hsl(0 80% 50% / 0); }
+      0%   { box-shadow: 0 0 0 0   hsl(0 80% 50% / 0.5); }
+      100% { box-shadow: 0 0 0 8px hsl(0 80% 50% / 0); }
     }
     .loc-pin {
       width: 14px; height: 14px;
@@ -733,24 +778,19 @@
       margin-left: auto;
       transition: background 0.15s, color 0.15s;
     }
-    .card-edit-btn:hover { color: var(--color-warm-text); }
-    .card-edit-btn:hover { background: color-mix(in srgb, var(--color-accent) 8%, transparent); }
+    .card-edit-btn:hover { color: var(--color-warm-text); background: color-mix(in srgb, var(--color-accent) 8%, transparent); }
     .card-edit-btn:active { background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
     .card-edit-btn:focus-visible { outline: none; box-shadow: var(--focus-glow); border-radius: var(--shape-full); }
 
     /* ── Card edit modal ── */
-    html.edit-open,
-    body.edit-open { overflow: hidden; }
-    body.edit-open { position: fixed; width: 100%; }
-
     #cardEditModal {
-      display: none; position: fixed; inset: 0; z-index: 1000;
-      width: 100%; height: 100%; margin: 0; border: none;
-      background: hsl(0 0% 0% / 0.45);
+      display: none; border: none; background: transparent;
+      width: 100dvw; max-width: 100dvw; height: 100dvh; max-height: 100dvh;
+      margin: 0; padding: 24px;
       align-items: center; justify-content: center;
-      padding: 24px;
     }
-    #cardEditModal.open { display: flex; }
+    #cardEditModal[open] { display: flex; }
+    #cardEditModal::backdrop { background: hsl(0 0% 0% / 0.45); }
     .card-edit-sheet {
       background: var(--md-surface-container-lowest);
       border-radius: var(--shape-lg);
@@ -796,7 +836,7 @@
     }
     .edit-field select {
       -webkit-appearance: none; appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), var(--btn-gradient);
+      background-image: var(--icon-chevron-down), var(--btn-gradient);
       background-repeat: no-repeat, no-repeat;
       background-position: right 12px center, top left;
       padding-right: 33px;
@@ -815,10 +855,12 @@
     .url-input-wrap { position: relative; }
     .url-input-wrap input { padding-right: 34px; }
     .url-visit-btn {
+      display: none;
       position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-      display: flex; align-items: center; color: var(--color-warm-text);
+      align-items: center; color: var(--color-warm-text);
       opacity: 0.6; transition: opacity 0.15s;
     }
+    .url-visit-btn[href]:not([href=""]) { display: flex; }
     .url-visit-btn:hover { opacity: 1; }
     .edit-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .card-edit-actions {
@@ -835,23 +877,23 @@
     .site-footer__copy--spaced-sm { margin-top: 6px; }
     .site-footer__copy--spaced-md { margin-top: 12px; }
     .site-footer__link {
-      color: hsla(37, 11%, 62%, 1);
+      color: var(--footer-muted);
       text-decoration: underline;
     }
 
     /* ── Footer ── */
     .site-footer {
-      background-color: hsla(0, 0%, 0%, 1);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+      background-color: var(--color-bg);
+      background-image: var(--bg-noise-texture);
       background-size: 200px 200px;
-      color: hsla(0, 0%, 100%, 1);
+      color: var(--footer-color);
       margin-top: 24px;
-      padding: 0 24px calc(48px + env(safe-area-inset-bottom));
+      padding-bottom: calc(48px + env(safe-area-inset-bottom));
     }
     .site-footer__inner {
-      max-width: 760px;
+      max-width: var(--layout-max-width);
       margin: 0 auto;
-      padding-top: 48px;
+      padding: 48px var(--layout-gutter) 0;
       display: grid;
       grid-template-columns: 1fr auto;
       align-items: end;
@@ -863,15 +905,15 @@
       font-style: italic;
       font-size: 1.875rem;
       font-weight: 400;
-      color: hsla(0, 0%, 100%, 1);
+      color: var(--footer-color);
       margin-bottom: 12px;
-      letter-spacing: -0.3px;
+      letter-spacing: -0.01875rem;
     }
     .site-footer__tagline {
       font-size: 0.75rem;
       font-weight: 400;
       letter-spacing: 0.1em;
-      color: hsla(37, 11%, 62%, 1);
+      color: var(--footer-muted);
     }
     .text-resizer {
       margin-top: 24px;
@@ -908,7 +950,7 @@
       font-size: 0.75rem;
       font-weight: 400;
       letter-spacing: 0.1em;
-      color: hsla(37, 11%, 62%, 1);
+      color: var(--footer-muted);
     }
 
     /* ── Hero carousel ── */
@@ -932,14 +974,14 @@
     .carousel-slide.active { opacity: 1; }
     .site-masthead {
       background-color: var(--md-surface);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+      background-image: var(--bg-noise-texture);
       background-size: 200px 200px;
       border-bottom: 1px solid var(--md-outline-variant);
     }
     .site-masthead__inner {
-      max-width: 760px;
+      max-width: var(--layout-max-width);
       margin: 0 auto;
-      padding: 24px 24px 21px;
+      padding: 24px var(--layout-gutter) 21px;
       display: grid;
       grid-template-columns: auto 1fr;
       grid-template-areas: "icon text";
@@ -955,9 +997,9 @@
     }
     .site-masthead__inner > hgroup {
       grid-area: text;
-      display: grid;
-      grid-template-rows: auto auto;
-      justify-content: start;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
     }
     .site-masthead h1 {
       display: inline;
@@ -983,7 +1025,8 @@
 
     /* ── Mobile (375px+) ── */
     @media (max-width: 480px) {
-      #recommender { padding: 21px 18px 24px; }
+      :root { --layout-gutter: 18px; }
+      #recommender { padding: 21px var(--layout-gutter) 24px; }
 
       .site-masthead__inner { padding: 15px 18px 15px 20px; gap: 12px; }
       .site-masthead__icon { width: 13.4vw; height: 13.4vw; }
@@ -999,14 +1042,14 @@
 
       .location-section { padding: 18px; }
 
-      .site-footer { padding: 0 18px calc(33px + env(safe-area-inset-bottom)); }
+      .site-footer { padding-bottom: calc(33px + env(safe-area-inset-bottom)); }
       .site-footer__inner {
         grid-template-columns: 1fr;
         gap: 18px;
-        padding-top: 33px;
+        padding: 33px var(--layout-gutter) 0;
       }
 
-      #cardEditModal { padding: 0; align-items: flex-end; background: none; }
+      #cardEditModal { padding: 0; align-items: flex-end; }
       .card-edit-sheet {
         border-radius: 0;
         max-width: 100%;
@@ -1019,7 +1062,6 @@
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --md-primary:                   hsla(190, 55%, 57%, 1);
         --md-on-primary:                hsla(60, 5%, 8%, 1);
         --md-primary-container:         hsla(196, 65%, 12%, 1);
         --md-on-primary-container:      hsla(45, 15%, 88%, 1);
@@ -1041,9 +1083,7 @@
         --color-subtle:                 hsl(30 5% 26% / 1);
         --shadow-subtle:                drop-shadow(1px 1px 4px hsl(0 0% 0% / 0.4));
         --focus-glow:                   0 0 0 3px hsl(36 18% 68% / 0.22), 0 0 12px 4px hsl(36 18% 68% / 0.10);
-      }
-      .filters select {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aaa' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"), var(--btn-gradient);
+        --icon-chevron-down:            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aaa' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       }
       .site-masthead h1 { color: hsl(40 50% 78% / 1); }
       .maps-link { color: var(--color-warm-text); }
@@ -1060,8 +1100,10 @@
   </style>
 </head>
 <body>
+
+
   <!-- 2.4.1 Skip navigation -->
-  <time class="build-stamp" datetime="16:45:58">build 17:18:10</time>
+  <time class="build-stamp" datetime="21:44:52">build 00:17:21</time>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
   <header class="site-masthead">
@@ -1085,12 +1127,11 @@
 
   <main id="recommender">
       <section class="location-section">
-        <a href="#" id="mapToggle" class="hidden" onclick="toggleLocationMap(event)">Show map</a>
         <p id="currentLocationDisplay" class="current-location">
-          <span class="location-label">You&#x2019;re in<span id="locName"></span></span>
+          <span class="location-label">You&#x2019;re in<span id="locName"></span></span><button id="updateLocationLink" type="button" onclick="useCurrentLocation()"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right:3px;vertical-align:-1px"><circle cx="6" cy="6" r="3.5" stroke="currentColor" stroke-width="1.25"/><circle cx="6" cy="6" r="0.75" fill="currentColor"/><line x1="6" y1="1" x2="6" y2="2.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><line x1="6" y1="9.5" x2="6" y2="11" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><line x1="1" y1="6" x2="2.5" y2="6" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><line x1="9.5" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>Update</button>
         </p>
-        <button class="btn-sm btn-icon" onclick="useCurrentLocation()" aria-label="Update location">⌖</button>
-        <figure id="locationMapFigure" class="hidden">
+        <button id="mapToggle" class="hidden" aria-expanded="false" aria-controls="locationMapFigure"></button>
+        <figure id="locationMapFigure">
           <div id="locationMap"></div>
         </figure>
         <p id="locationError" class="hidden"></p>
@@ -1102,8 +1143,8 @@
         <div class="filter-search-wrap">
           <input type="text" id="searchFilter"
                  aria-label="Filter by name, cuisine, or note"
-                 placeholder="Filter by name, cuisine, or note…">
-          <button id="searchClear" type="button" aria-label="Clear search" class="hidden">
+                 placeholder="Enter a name, cuisine, or note">
+          <button id="searchClear" type="button" aria-label="Clear search">
             <svg aria-hidden="true" focusable="false" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/><line x1="6.5" y1="6.5" x2="13.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="13.5" y1="6.5" x2="6.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
         </div>
@@ -1191,7 +1232,7 @@
       </nav>
   </main>
 
-  <footer class="site-footer">
+<footer class="site-footer">
     <div class="site-footer__inner">
       <div>
         <span class="site-footer__name">Fork in the road</span>
@@ -1218,26 +1259,32 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    // ── Data & constants ──────────────────────────────────────────────────────
     const STATE_ABBR = {"alabama":"AL","alaska":"AK","arizona":"AZ","arkansas":"AR","california":"CA","colorado":"CO","connecticut":"CT","delaware":"DE","florida":"FL","georgia":"GA","hawaii":"HI","idaho":"ID","illinois":"IL","indiana":"IN","iowa":"IA","kansas":"KS","kentucky":"KY","louisiana":"LA","maine":"ME","maryland":"MD","massachusetts":"MA","michigan":"MI","minnesota":"MN","mississippi":"MS","missouri":"MO","montana":"MT","nebraska":"NE","nevada":"NV","new hampshire":"NH","new jersey":"NJ","new mexico":"NM","new york":"NY","north carolina":"NC","north dakota":"ND","ohio":"OH","oklahoma":"OK","oregon":"OR","pennsylvania":"PA","rhode island":"RI","south carolina":"SC","south dakota":"SD","tennessee":"TN","texas":"TX","utah":"UT","vermont":"VT","virginia":"VA","washington":"WA","west virginia":"WV","wisconsin":"WI","wyoming":"WY","district of columbia":"DC"};
     function normalizeState(s) { return STATE_ABBR[s.toLowerCase().trim()] ?? s; }
 
     let restaurantData = [];
-
     const savedLocation = JSON.parse(localStorage.getItem('currentLocation') || 'null');
-    // Keep coords for distance calc but never show stale name — always re-detect
     const realSavedLocation = savedLocation ? {...savedLocation, name: null} : null;
     let currentLocation = realSavedLocation || null;
+    let filteredData = [];
+    const perPage = 10;
+    let currentPage = 1;
+    const FOOD_DRINK_TYPES = new Set(['Restaurant','Bar','Café / Coffee','Bakery','Ice Cream / Dessert','Brewery','Winery']);
+    const cardElements = new Map();
+    const visited = new Set();
+
+    // ── Location map ──────────────────────────────────────────────────────────
     let _locMap = null, _locMarker = null;
     let _mapVisible = false;
 
-    function toggleLocationMap(e) {
-      e.preventDefault();
+    function toggleLocationMap() {
       _mapVisible = !_mapVisible;
       const el = document.getElementById('locationMapFigure');
       const toggle = document.getElementById('mapToggle');
-      el.classList.toggle('hidden', !_mapVisible);
-      toggle.textContent = _mapVisible ? 'Hide map' : 'Show map';
-      if (_mapVisible && _locMap) _locMap.invalidateSize();
+      el.classList.toggle('is-open', _mapVisible);
+      toggle.setAttribute('aria-expanded', _mapVisible);
+      if (_mapVisible && _locMap) el.addEventListener('transitionend', () => _locMap.invalidateSize(), { once: true });
     }
 
     function showLocationMap(lat, lng) {
@@ -1245,10 +1292,7 @@
       const wasVisible = _mapVisible;
       const mapToggle = document.getElementById('mapToggle');
       mapToggle.classList.remove('hidden');
-      const icon = L.divIcon({
-        html: `<div class="loc-pin"></div>`,
-        iconSize: [14, 14], iconAnchor: [7, 7], className: ''
-      });
+      const icon = L.divIcon({ html: `<div class="loc-pin"></div>`, iconSize: [14, 14], iconAnchor: [7, 7], className: '' });
       if (!_locMap) {
         _locMap = L.map('locationMap', {
           zoomControl: false, attributionControl: false,
@@ -1262,80 +1306,46 @@
         _locMarker.setLatLng([lat, lng]);
       }
       if (!wasVisible) {
-        el.classList.add('hidden');
+        el.classList.remove('is-open');
         _mapVisible = false;
-        mapToggle.textContent = 'Show map';
+        mapToggle.setAttribute('aria-expanded', 'false');
       } else {
-        el.classList.remove('hidden');
-        _locMap.invalidateSize();
+        el.classList.add('is-open');
+        el.addEventListener('transitionend', () => _locMap.invalidateSize(), { once: true });
       }
     }
 
+    // ── Location storage ──────────────────────────────────────────────────────
     function saveLocation(loc) {
       currentLocation = loc;
       localStorage.setItem('currentLocation', JSON.stringify(loc));
     }
-    let filteredData = [];
-    const perPage = 10;
-    let currentPage = 1;
-    const FOOD_DRINK_TYPES = new Set(['Restaurant','Bar','Café / Coffee','Bakery','Ice Cream / Dessert','Brewery','Winery']);
-    const cardElements = new Map();
-    const visited = new Set();
 
-    async function toggleVisited(id) {
-      const r = restaurantData.find(x => x.id === id);
-      if (!r) return;
-      const nowVisited = !visited.has(r.title);
-      if (nowVisited) visited.add(r.title); else visited.delete(r.title);
-      r.visited = nowVisited ? 1 : 0;
-
-      document.querySelectorAll(`.visited-btn[data-id="${id}"]`).forEach(btn => {
-        btn.classList.toggle('is-visited', nowVisited);
-        btn.textContent = nowVisited ? '✓ Visited' : '○ Mark visited';
-        const card = btn.closest('.card');
-        if (card) card.classList.toggle('is-visited', nowVisited);
-      });
-
-      await fetch(`/api/restaurants/${id}/visited`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ visited: nowVisited })
-      });
-    }    
-    function getCuisines() {
-      const cuisines = new Set(restaurantData.map(r => r.cuisine).filter(c => c));
-      return Array.from(cuisines).sort();
-    }
-    
-    function calculateDistance(lat1, lng1, lat2, lng2) {
-      const R = 3959; // Earth's radius in miles
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLng = (lng2 - lng1) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLng/2) * Math.sin(dLng/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
-    }
-    
+    // ── Location display ──────────────────────────────────────────────────────
     function updateLocationDisplay(detecting = false) {
-      const display = document.getElementById('currentLocationDisplay');
       const locName = document.getElementById('locName');
-      if (!display) return;
+      const updateLink = document.getElementById('updateLocationLink');
+      if (!document.getElementById('currentLocationDisplay')) return;
       if (!detecting && locName) {
+        const updateLinkEl = document.getElementById('updateLocationLink');
+        if (updateLinkEl) updateLinkEl.style.visibility = '';
         locName.classList.add('fading');
         locName.classList.remove('revealing', 'is-detecting');
+        if (updateLink) updateLink.classList.remove('visible');
         setTimeout(() => {
           locName.textContent = currentLocation?.name ? `\u00a0${currentLocation.name}` : '';
           locName.classList.remove('fading');
           locName.classList.add('revealing');
+          if (updateLink) setTimeout(() => updateLink.classList.add('visible'), 1000);
         }, 150);
       } else if (locName) {
         locName.textContent = '';
         locName.classList.add('is-detecting');
+        if (updateLink) updateLink.classList.remove('visible');
       }
     }
-    
+
+    // ── Geocoding ─────────────────────────────────────────────────────────────
     async function zipToCity(zip) {
       try {
         const res = await fetch(`https://api.zippopotam.us/us/${zip}`);
@@ -1348,7 +1358,6 @@
     }
 
     async function reverseGeocode(lat, lng) {
-      // Try BigDataCloud first — get zip, then derive city from zip for accuracy
       try {
         const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
         const d = await res.json();
@@ -1361,7 +1370,6 @@
         const state = (d.principalSubdivisionCode || '').replace('US-', '');
         if (city) return [[city, state].filter(Boolean).join(', '), zip].filter(Boolean).join(' ');
       } catch {}
-      // Fallback: Nominatim
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18`, {headers: {'User-Agent': 'want-to-go-app/1.0'}});
         const data = await res.json();
@@ -1378,213 +1386,243 @@
       return '';
     }
 
+    // ── Geolocation ───────────────────────────────────────────────────────────
+    function showLocationError(code, message) {
+      const tips = {
+        1: 'Location access was denied. Allow it in your browser settings, then try again.',
+        2: 'Location unavailable. Enable Location Services for this browser in System Settings → Privacy & Security → Location Services.',
+        3: 'Timed out. Enable Location Services for this browser in System Settings → Privacy & Security → Location Services.',
+      };
+      const errEl = document.getElementById('locationError');
+      errEl.textContent = tips[code] || message;
+      errEl.classList.remove('hidden');
+    }
+
+    async function handleGeolocationSuccess(pos) {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      document.getElementById('lat').value = lat.toFixed(6);
+      document.getElementById('lng').value = lng.toFixed(6);
+      saveLocation({ lat, lng, name: null });
+      document.getElementById('locationError').classList.add('hidden');
+      updateLocationDisplay(true);
+      const detectingShownAt = Date.now();
+      showLocationMap(lat, lng);
+      applyFilters();
+      const place = await reverseGeocode(lat, lng);
+      saveLocation({ lat, lng, name: place || null });
+      const elapsed = Date.now() - detectingShownAt;
+      if (elapsed < 1000) await new Promise(r => setTimeout(r, 1000 - elapsed));
+      updateLocationDisplay();
+    }
+
     function useCurrentLocation() {
-      if (!navigator.geolocation) {
-        alert('Geolocation is not supported by your browser.');
-        return;
-      }
-      const btn = document.querySelector('button[onclick="useCurrentLocation()"]');
-      if (btn) { btn.textContent = '…'; btn.disabled = true; }
+      if (!navigator.geolocation) { alert('Geolocation is not supported by your browser.'); return; }
+      document.getElementById('updateLocationLink').style.visibility = 'hidden';
       updateLocationDisplay(true);
       navigator.geolocation.getCurrentPosition(
-        async pos => {
-          if (btn) { btn.textContent = '⌖'; btn.disabled = false; }
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          document.getElementById('lat').value = lat.toFixed(6);
-          document.getElementById('lng').value = lng.toFixed(6);
-          saveLocation({lat, lng, name: null});
-          document.getElementById('locationError').classList.add('hidden');
-          updateLocationDisplay(true);
-          const detectingShownAt = Date.now();
-          showLocationMap(lat, lng);
-          applyFilters();
-          const place = await reverseGeocode(lat, lng);
-          saveLocation({lat, lng, name: place || null});
-          const elapsed = Date.now() - detectingShownAt;
-          if (elapsed < 1000) await new Promise(r => setTimeout(r, 1000 - elapsed));
-          updateLocationDisplay();
-        },
-        err => {
-          const tips = {
-            1: 'Location access was denied. Allow it in your browser settings, then try again.',
-            2: 'Location unavailable. Enable Location Services for this browser in System Settings → Privacy & Security → Location Services.',
-            3: 'Timed out. Enable Location Services for this browser in System Settings → Privacy & Security → Location Services.',
-          };
-          const errEl = document.getElementById('locationError');
-          errEl.textContent = tips[err.code] || err.message;
-          errEl.classList.remove('hidden');
-          if (btn) { btn.textContent = '⌖'; btn.disabled = false; }
-        },
-        {enableHighAccuracy: true, timeout: 30000, maximumAge: 0}
+        handleGeolocationSuccess,
+        err => showLocationError(err.code, err.message),
+        { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
       );
     }
-    
-    function populateFilters() {
-      const categorySelect = document.getElementById('categoryFilter');
+
+    // ── Visited ───────────────────────────────────────────────────────────────
+    function updateVisitedUI(id, nowVisited) {
+      document.querySelectorAll(`.visited-btn[data-id="${id}"]`).forEach(btn => {
+        btn.classList.toggle('is-visited', nowVisited);
+        btn.textContent = nowVisited ? '✓ Visited' : '○ Mark visited';
+        const card = btn.closest('.card');
+        if (card) card.classList.toggle('is-visited', nowVisited);
+      });
+    }
+
+    async function toggleVisited(id) {
+      const r = restaurantData.find(x => x.id === id);
+      if (!r) return;
+      const nowVisited = !visited.has(r.title);
+      if (nowVisited) visited.add(r.title); else visited.delete(r.title);
+      r.visited = nowVisited ? 1 : 0;
+      updateVisitedUI(id, nowVisited);
+      await fetch(`/api/restaurants/${id}/visited`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ visited: nowVisited })
+      });
+    }
+
+    // ── Cuisine helpers ───────────────────────────────────────────────────────
+    function getCuisines() {
+      return Array.from(new Set(restaurantData.map(r => r.cuisine).filter(c => c))).sort();
+    }
+
+    function getCuisineGroups() {
       const cuisineCounts = restaurantData.reduce((acc, r) => {
         if (r.cuisine) acc[r.cuisine] = (acc[r.cuisine] || 0) + 1;
         return acc;
       }, {});
       const allCuisines = getCuisines();
       const foodCuisineSet = new Set(restaurantData.filter(r => FOOD_DRINK_TYPES.has(r.type) && r.cuisine).map(r => r.cuisine));
-      const foodCuisines = allCuisines.filter(c => foodCuisineSet.has(c));
-      const otherCuisines = allCuisines.filter(c => !foodCuisineSet.has(c));
+      return {
+        cuisineCounts,
+        foodCuisines: allCuisines.filter(c => foodCuisineSet.has(c)),
+        otherCuisines: allCuisines.filter(c => !foodCuisineSet.has(c)),
+      };
+    }
 
-      function makeOption(cuisine) {
-        const option = document.createElement('option');
-        option.value = cuisine;
-        option.textContent = `${cuisine} (${cuisineCounts[cuisine]})`;
-        return option;
-      }
-
-      if (foodCuisines.length) {
-        const group = document.createElement('optgroup');
-        group.label = 'Food & drink';
-        foodCuisines.forEach(c => group.appendChild(makeOption(c)));
-        categorySelect.appendChild(group);
-      }
-      if (otherCuisines.length) {
-        const group = document.createElement('optgroup');
-        group.label = 'Other';
-        otherCuisines.forEach(c => group.appendChild(makeOption(c)));
-        categorySelect.appendChild(group);
-      }
-
-      // Populate ce-cuisine select in Edit modal with same options (no counts)
-      const ceSelect = document.getElementById('ce-cuisine');
-      ceSelect.innerHTML = '<option value="">None</option>';
+    function populateCuisineSelect(selectEl, foodCuisines, otherCuisines, showCounts, cuisineCounts) {
+      const makeOption = c => {
+        const o = document.createElement('option');
+        o.value = c;
+        o.textContent = showCounts ? `${c} (${cuisineCounts[c]})` : c;
+        return o;
+      };
       if (foodCuisines.length) {
         const g = document.createElement('optgroup');
         g.label = 'Food & drink';
-        foodCuisines.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; g.appendChild(o); });
-        ceSelect.appendChild(g);
+        foodCuisines.forEach(c => g.appendChild(makeOption(c)));
+        selectEl.appendChild(g);
       }
       if (otherCuisines.length) {
         const g = document.createElement('optgroup');
         g.label = 'Other';
-        otherCuisines.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; g.appendChild(o); });
-        ceSelect.appendChild(g);
+        otherCuisines.forEach(c => g.appendChild(makeOption(c)));
+        selectEl.appendChild(g);
       }
     }
-    
+
+    function populateFilters() {
+      const { cuisineCounts, foodCuisines, otherCuisines } = getCuisineGroups();
+      populateCuisineSelect(document.getElementById('categoryFilter'), foodCuisines, otherCuisines, true, cuisineCounts);
+      const ceSelect = document.getElementById('ce-cuisine');
+      ceSelect.innerHTML = '<option value="">None</option>';
+      populateCuisineSelect(ceSelect, foodCuisines, otherCuisines, false, cuisineCounts);
+    }
+
+    // ── Distance ──────────────────────────────────────────────────────────────
+    function calculateDistance(lat1, lng1, lat2, lng2) {
+      const R = 3959;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    // ── Card rendering ────────────────────────────────────────────────────────
+    function buildCardHTML(r, isV) {
+      const noteText = r.note || r.comment || '';
+      const cityState = [r.city, r.state ? normalizeState(r.state) : ''].filter(Boolean).join(', ');
+      const mapsLink = r.url
+        ? `<span class="maps-sep" aria-hidden="true">·</span><a href="${r.url}" target="_blank" rel="noopener" aria-label="Open ${r.title} in Maps" class="maps-link">Open in Maps ↗</a>`
+        : '';
+      return `
+        <article>
+        <div class="card-header-row">
+          <div class="card-name-row">
+            <h2 class="restaurant-name">${r.title}</h2>
+            ${isV ? `<span class="visited-badge"><span class="visited-badge-star">✦</span> Visited${r.visited_at ? ` · <time datetime="${r.visited_at}">${new Date(r.visited_at + 'T12:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'})}</time>` : ''}</span>` : ''}
+          </div>
+          <div class="card-tags">
+            ${r.cuisine ? `<span class="tag">${r.cuisine}</span>` : ''}
+            ${r.tags ? `<span class="tag">${r.tags}</span>` : ''}
+          </div>
+        </div>
+        ${noteText ? `<p class="note">${noteText}</p>` : ''}
+        <div class="card-info-row">
+          <div class="card-location-row">
+            ${cityState ? `<address class="loc-city">${cityState}</address>` : ''}
+            <output class="distance-badge"></output>
+            ${mapsLink}
+          </div>
+          <button class="card-edit-btn" onclick="openCardEdit(${r.id})" aria-label="Edit ${r.title}">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12.5 2.5a1.414 1.414 0 0 1 2 2L5.5 13.5l-3 .5.5-3L12.5 2.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        ${r.added_at ? `<time class="card-added-date" datetime="${r.added_at}">Added ${new Date(r.added_at + 'Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</time>` : ''}
+        </article>`;
+    }
+
     function renderAllCards() {
       const container = document.getElementById('cardContainer');
       container.innerHTML = '';
       cardElements.clear();
-
       restaurantData.forEach((r, i) => {
         const isV = visited.has(r.title);
-        const titleAttr = r.title.replace(/"/g, '&quot;');
-        const noteText = r.note || r.comment || '';
-        const mapsLink = r.url
-          ? `<a href="${r.url}" target="_blank" rel="noopener" aria-label="Open ${r.title} in Maps" class="maps-link">Open in Maps ↗</a>`
-          : '';
-
         const el = document.createElement('li');
         el.className = `card${isV ? ' is-visited' : ''}`;
-        const cityState = [r.city, r.state ? normalizeState(r.state) : ''].filter(Boolean).join(', ');
-
-        el.innerHTML = `
-          <article>
-          <div class="card-header-row">
-            <div class="card-name-row">
-              <h2 class="restaurant-name">${r.title}</h2>
-              ${isV ? `<span class="visited-badge"><span class="visited-badge-star">✦</span> Visited${r.visited_at ? ` · <time datetime="${r.visited_at}">${new Date(r.visited_at + 'T12:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'})}</time>` : ''}</span>` : ''}
-            </div>
-            <div class="card-tags">
-              ${r.cuisine ? `<span class="tag">${r.cuisine}</span>` : ''}
-              ${r.tags ? `<span class="tag">${r.tags}</span>` : ''}
-            </div>
-          </div>
-          ${noteText ? `<p class="note">${noteText}</p>` : ''}
-          <div class="card-info-row">
-            <div class="card-location-row">
-              ${cityState ? `<address class="loc-city">${cityState}</address>` : ''}
-              <output class="distance-badge"></output>
-              ${mapsLink}
-            </div>
-            <button class="card-edit-btn" onclick="openCardEdit(${r.id})" aria-label="Edit ${r.title}">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12.5 2.5a1.414 1.414 0 0 1 2 2L5.5 13.5l-3 .5.5-3L12.5 2.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-          </div>
-          ${r.added_at ? `<time class="card-added-date" datetime="${r.added_at}">Added ${new Date(r.added_at + 'Z').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</time>` : ''}
-          </article>`;
-
+        el.innerHTML = buildCardHTML(r, isV);
         container.appendChild(el);
         cardElements.set(i, el);
       });
     }
 
+    // ── Filter pipeline ───────────────────────────────────────────────────────
+    function getFilterValues() {
+      return {
+        catVal:        document.getElementById('categoryFilter').value,
+        radius:        sliderToDistance(parseFloat(document.getElementById('radiusFilter').value)),
+        searchQuery:   (document.getElementById('searchFilter').value || '').toLowerCase().trim(),
+        visitedFilter: (document.querySelector('input[name="visitedFilter"]:checked') || {value: ''}).value,
+        addedDays:     parseInt(document.getElementById('addedFilter').value) || 0,
+        sortMode:      document.getElementById('sortOrder').value,
+      };
+    }
 
-    function applyFilters() {
-      const catVal = document.getElementById('categoryFilter').value;
-      const radiusFilter = sliderToDistance(parseFloat(document.getElementById('radiusFilter').value));
-      const searchQuery = (document.getElementById('searchFilter').value || '').toLowerCase().trim();
-      const visitedFilter = (document.querySelector('input[name="visitedFilter"]:checked') || {value: ''}).value;
-      const addedDays = parseInt(document.getElementById('addedFilter').value) || 0;
+    function computeDistances() {
+      restaurantData.forEach(r => {
+        r.distance = (currentLocation && r.lat !== null && r.lng !== null)
+          ? calculateDistance(currentLocation.lat, currentLocation.lng, r.lat, r.lng)
+          : null;
+      });
+    }
+
+    function filterRestaurants({ catVal, radius, searchQuery, visitedFilter, addedDays }) {
       const addedCutoff = addedDays ? new Date(Date.now() - addedDays * 864e5) : null;
-
-      filteredData = restaurantData.reduce((acc, r, i) => {
-        if (currentLocation && r.lat !== null && r.lng !== null) {
-          r.distance = calculateDistance(currentLocation.lat, currentLocation.lng, r.lat, r.lng);
-        } else {
-          r.distance = null;
-        }
-        const categoryMatch = !catVal
-          || (catVal === '__food' ? FOOD_DRINK_TYPES.has(r.type) : r.cuisine === catVal);
-        const radiusMatch = !currentLocation || (r.distance !== null && r.distance <= radiusFilter);
-        const addedMatch = !addedCutoff || (r.added_at && new Date(r.added_at + 'Z') >= addedCutoff);
-        const searchMatch = !searchQuery || [r.title, r.city, r.state, r.cuisine, r.note, r.tags]
+      return restaurantData.reduce((acc, r, i) => {
+        const categoryMatch = !catVal || (catVal === '__food' ? FOOD_DRINK_TYPES.has(r.type) : r.cuisine === catVal);
+        const radiusMatch   = !currentLocation || (r.distance !== null && r.distance <= radius);
+        const addedMatch    = !addedCutoff || (r.added_at && new Date(r.added_at + 'Z') >= addedCutoff);
+        const searchMatch   = !searchQuery || [r.title, r.city, r.state, r.cuisine, r.note, r.tags]
           .some(f => (f || '').toLowerCase().includes(searchQuery));
-        const isVisited = visited.has(r.title);
-        const visitedMatch = !visitedFilter
+        const isVisited     = visited.has(r.title);
+        const visitedMatch  = !visitedFilter
           || (visitedFilter === 'visited' && isVisited)
           || (visitedFilter === 'unvisited' && !isVisited);
-        if (categoryMatch && radiusMatch && searchMatch && visitedMatch) acc.push({r, i});
+        if (categoryMatch && radiusMatch && addedMatch && searchMatch && visitedMatch) acc.push({ r, i });
         return acc;
       }, []);
+    }
 
-      // Sort
-      const sortMode = document.getElementById('sortOrder').value;
-      if (sortMode === 'newest') {
-        filteredData.sort((a, b) => (b.r.added_at || '').localeCompare(a.r.added_at || ''));
-      } else if (sortMode === 'oldest') {
-        filteredData.sort((a, b) => (a.r.added_at || '').localeCompare(b.r.added_at || ''));
-      } else {
-        filteredData.sort((a, b) => (a.r.distance ?? Infinity) - (b.r.distance ?? Infinity));
-      }
+    function sortRestaurants(data, sortMode) {
+      if (sortMode === 'newest') data.sort((a, b) => (b.r.added_at || '').localeCompare(a.r.added_at || ''));
+      else if (sortMode === 'oldest') data.sort((a, b) => (a.r.added_at || '').localeCompare(b.r.added_at || ''));
+      else data.sort((a, b) => (a.r.distance ?? Infinity) - (b.r.distance ?? Infinity));
+      return data;
+    }
 
-      const container = document.getElementById('cardContainer');
-      // Build sort-order map: data index → position in sorted results
-      const sortOrder = new Map(filteredData.map(({i}, pos) => [i, pos]));
-
-      // Pagination slice
-      const totalPages = perPage === 0 ? 1 : Math.ceil(filteredData.length / perPage);
+    function updateCardVisibility(sortedData) {
+      const sortOrder = new Map(sortedData.map(({ i }, pos) => [i, pos]));
+      const totalPages = perPage === 0 ? 1 : Math.ceil(sortedData.length / perPage);
       currentPage = Math.min(currentPage, totalPages || 1);
       const start = perPage === 0 ? 0 : (currentPage - 1) * perPage;
-      const end = perPage === 0 ? filteredData.length : start + perPage;
-      const pageSet = new Set(filteredData.slice(start, end).map(({i}) => i));
-
-      // Update each card declaratively — no DOM moves, no flicker
+      const end = perPage === 0 ? sortedData.length : start + perPage;
+      const pageSet = new Set(sortedData.slice(start, end).map(({ i }) => i));
       restaurantData.forEach((r, i) => {
         const el = cardElements.get(i);
         if (!el) return;
-        if (r.distance !== null) {
-          const mi = Math.round(r.distance * 10) / 10;
-          el.querySelector('.distance-badge').textContent = `${mi} mi`;
-        } else {
-          el.querySelector('.distance-badge').textContent = '';
-        }
-        const isV = visited.has(r.title);
-        el.classList.toggle('is-visited', isV);
+        el.querySelector('.distance-badge').textContent = r.distance !== null
+          ? `${Math.round(r.distance * 10) / 10} mi` : '';
+        el.classList.toggle('is-visited', visited.has(r.title));
         const inFilter = sortOrder.has(i);
-        const visible = inFilter && pageSet.has(i);
-        el.hidden = !visible;
+        el.hidden = !(inFilter && pageSet.has(i));
         el.style.order = inFilter ? sortOrder.get(i) : 0;
       });
+      return { totalPages };
+    }
 
-      // Update pagination navs (top + bottom) — buttons are persistent in HTML
+    function updatePaginationUI(totalPages) {
       const showPagination = totalPages > 1;
       paginationNavs.forEach(({ nav, info, prev, next }) => {
         nav.hidden = !showPagination;
@@ -1592,34 +1630,35 @@
         prev.disabled = currentPage === 1;
         next.disabled = currentPage === totalPages;
       });
+    }
 
-      // Empty state
+    function updateEmptyState(container, hasResults) {
       let emptyEl = container.querySelector('.empty-state-card');
-      if (filteredData.length === 0) {
+      if (!hasResults) {
         if (!emptyEl) {
           emptyEl = document.createElement('div');
           emptyEl.className = 'card empty-state-card';
-          emptyEl.innerHTML = `
-            <div class="empty-state">
-              <p class="empty-state-heading">No places match your filters</p>
-              <p class="empty-state-sub">Try adjusting your preferences or location</p>
-            </div>`;
+          emptyEl.innerHTML = `<div class="empty-state">
+            <p class="empty-state-heading">No places match your filters</p>
+            <p class="empty-state-sub">Try adjusting your preferences or location</p>
+          </div>`;
           container.appendChild(emptyEl);
         }
         emptyEl.hidden = false;
       } else if (emptyEl) {
         emptyEl.hidden = true;
       }
+    }
 
-      // Update cuisine counts based on all filters except category
+    function updateCuisineCounts({ radius, searchQuery, visitedFilter }) {
       Array.from(document.getElementById('categoryFilter').options).forEach(opt => {
         if (!opt.value || opt.value === '__food') return;
         const count = restaurantData.filter(r => {
           if (r.cuisine !== opt.value) return false;
-          const radiusMatch = !currentLocation || (r.distance !== null && r.distance <= radiusFilter);
-          const searchMatch = !searchQuery || [r.title, r.city, r.state, r.cuisine, r.note, r.tags]
+          const radiusMatch  = !currentLocation || (r.distance !== null && r.distance <= radius);
+          const searchMatch  = !searchQuery || [r.title, r.city, r.state, r.cuisine, r.note, r.tags]
             .some(f => (f || '').toLowerCase().includes(searchQuery));
-          const isVisited = visited.has(r.title);
+          const isVisited    = visited.has(r.title);
           const visitedMatch = !visitedFilter
             || (visitedFilter === 'visited' && isVisited)
             || (visitedFilter === 'unvisited' && !isVisited);
@@ -1627,25 +1666,32 @@
         }).length;
         opt.textContent = `${opt.value} (${count})`;
       });
+    }
 
-      // Update count
-      const shown = filteredData.length;
+    function updateResultsCount(count) {
       const countEl = document.getElementById('resultsCount');
-      countEl.textContent = `${shown} place${shown !== 1 ? 's' : ''}`;
+      countEl.textContent = `${count} place${count !== 1 ? 's' : ''}`;
       countEl.classList.remove('count-changed');
       void countEl.offsetWidth;
       countEl.classList.add('count-changed');
     }
-    
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Copied: ' + text);
-      });
-    }
-    
-    
 
-    // Cache pagination nav refs for applyFilters()
+    function applyFilters() {
+      const filters = getFilterValues();
+      computeDistances();
+      filteredData = sortRestaurants(filterRestaurants(filters), filters.sortMode);
+      const { totalPages } = updateCardVisibility(filteredData);
+      updatePaginationUI(totalPages);
+      updateEmptyState(document.getElementById('cardContainer'), filteredData.length > 0);
+      updateCuisineCounts(filters);
+      updateResultsCount(filteredData.length);
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => { alert('Copied: ' + text); });
+    }
+
+    // ── Pagination ────────────────────────────────────────────────────────────
     const paginationNavs = Array.from(document.querySelectorAll('.pagination')).map(nav => ({
       nav,
       info: nav.querySelector('.pagination-info'),
@@ -1653,7 +1699,6 @@
       next: nav.querySelector('.next-btn'),
     }));
 
-    // Press animation — shared by touch and mouse
     function pressStart(btn) {
       btn.classList.remove('was-pressed');
       btn.classList.add('is-pressed');
@@ -1676,26 +1721,25 @@
       next.addEventListener('click', () => { currentPage++; requestAnimationFrame(applyFilters); });
     });
 
+    // ── Filter event listeners ────────────────────────────────────────────────
     document.getElementById('addedFilter').addEventListener('change', () => { currentPage = 1; applyFilters(); });
     document.getElementById('sortOrder').addEventListener('change', () => { currentPage = 1; applyFilters(); });
+    document.getElementById('categoryFilter').addEventListener('change', () => { currentPage = 1; applyFilters(); });
+    document.querySelectorAll('input[name="visitedFilter"]').forEach(el => el.addEventListener('change', () => { currentPage = 1; applyFilters(); }));
+
     const searchFilter = document.getElementById('searchFilter');
-    const searchClear = document.getElementById('searchClear');
-    searchFilter.addEventListener('input', () => {
-      currentPage = 1;
-      searchClear.classList.toggle('hidden', !searchFilter.value);
-      applyFilters();
-    });
+    const searchClear  = document.getElementById('searchClear');
+    searchFilter.addEventListener('input', () => { currentPage = 1; applyFilters(); });
     searchClear.addEventListener('click', () => {
       currentPage = 1;
       searchFilter.value = '';
-      searchClear.classList.add('hidden');
       searchFilter.focus();
       applyFilters();
     });
-    document.getElementById('categoryFilter').addEventListener('change', () => { currentPage = 1; applyFilters(); });
+
+    // ── Radius slider ─────────────────────────────────────────────────────────
     function sliderToDistance(val) {
-      if (val <= 70) return Math.max(5, (val / 70) * 60); // 0–60 miles continuous
-      // Snap points at 75=100mi, 80=200mi, 85=300mi, 90=400mi, 95=500mi, 100=Unlimited
+      if (val <= 70)   return Math.max(5, (val / 70) * 60);
       if (val <= 77.5) return 100;
       if (val <= 82.5) return 200;
       if (val <= 87.5) return 300;
@@ -1711,26 +1755,26 @@
       const dist = sliderToDistance(val);
       if (dist === Infinity) return 'Unlimited distance';
       const mi = Math.round(dist);
-      if (mi <= 5) return 'Within 5 miles';
-      return `Within ${mi} miles`;
+      return mi <= 5 ? 'Within 5 miles' : `Within ${mi} miles`;
     }
     function updateSliderFill() {
       const el = document.getElementById('radiusFilter');
-      const pct = (el.value - el.min) / (el.max - el.min) * 100;
-      el.style.setProperty('--pct', pct + '%');
+      el.style.setProperty('--pct', ((el.value - el.min) / (el.max - el.min) * 100) + '%');
     }
-    let _sliderPointerDown = false;
+
+    const _snaps = [0, 11.67, 23.33, 35, 46.67, 58.33, 70, 75, 80, 85, 90, 95, 100];
     const _radiusEl = document.getElementById('radiusFilter');
+    let _sliderPointerDown = false;
+
     _radiusEl.addEventListener('pointerdown', () => { _sliderPointerDown = true; });
     window.addEventListener('pointerup', () => {
-      if (_sliderPointerDown) {
-        _sliderPointerDown = false;
-        let val = snapSlider(parseInt(_radiusEl.value));
-        _radiusEl.value = val;
-        document.getElementById('radiusLabel').textContent = sliderLabel(val);
-        updateSliderFill();
-        applyFilters();
-      }
+      if (!_sliderPointerDown) return;
+      _sliderPointerDown = false;
+      const val = snapSlider(parseInt(_radiusEl.value));
+      _radiusEl.value = val;
+      document.getElementById('radiusLabel').textContent = sliderLabel(val);
+      updateSliderFill();
+      applyFilters();
     });
     _radiusEl.addEventListener('input', () => {
       let val = parseInt(_radiusEl.value);
@@ -1739,13 +1783,11 @@
       updateSliderFill();
       applyFilters();
     });
-    const _snaps = [0, 11.67, 23.33, 35, 46.67, 58.33, 70, 75, 80, 85, 90, 95, 100];
     _radiusEl.addEventListener('keydown', e => {
-      const cur = parseFloat(_radiusEl.value);
       if (!['ArrowRight','ArrowLeft','ArrowUp','ArrowDown'].includes(e.key)) return;
       e.preventDefault();
       const forward = e.key === 'ArrowRight' || e.key === 'ArrowUp';
-      const snappedCur = snapSlider(cur);
+      const snappedCur = snapSlider(parseFloat(_radiusEl.value));
       const next = forward
         ? _snaps.find(s => s > snappedCur) ?? 100
         : [..._snaps].reverse().find(s => s < snappedCur) ?? 0;
@@ -1755,9 +1797,10 @@
       applyFilters();
     });
     updateSliderFill();
-    document.querySelectorAll('input[name="visitedFilter"]').forEach(el => el.addEventListener('change', () => { currentPage = 1; applyFilters(); }));
-    
-    // Initialize — fetch data from server
+
+    document.getElementById('mapToggle').addEventListener('click', toggleLocationMap);
+
+    // ── App initialization ────────────────────────────────────────────────────
     (async () => {
       try {
         const res = await fetch('/api/restaurants');
@@ -1768,48 +1811,48 @@
       }
       document.getElementById('lat').value = currentLocation?.lat ?? '';
       document.getElementById('lng').value = currentLocation?.lng ?? '';
-      if (realSavedLocation) {
-        showLocationMap(realSavedLocation.lat, realSavedLocation.lng);
-      }
+      if (realSavedLocation) showLocationMap(realSavedLocation.lat, realSavedLocation.lng);
       useCurrentLocation();
       populateFilters();
       renderAllCards();
       applyFilters();
     })();
 
-    // ── iOS Safari: prevent pinch-to-zoom and double-tap zoom ──
+    // ── Data refresh (bfcache / tab switch) ───────────────────────────────────
+    async function refreshData() {
+      try {
+        const res = await fetch('/api/restaurants');
+        restaurantData = await res.json();
+        visited.clear();
+        restaurantData.forEach(r => { if (r.visited) visited.add(r.title); });
+        applyFilters();
+      } catch(e) { /* silent */ }
+    }
+    window.addEventListener('pageshow', e => { if (e.persisted) refreshData(); });
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshData(); });
+
+    // ── iOS Safari: prevent pinch-to-zoom and double-tap zoom ────────────────
     if (/iP(ad|hone|od)/.test(navigator.userAgent) && /WebKit/.test(navigator.userAgent) && !/CriOS|FxiOS/.test(navigator.userAgent)) {
-      document.addEventListener('touchmove', (e) => {
-        if (e.touches.length > 1) e.preventDefault();
-      }, { passive: false });
+      document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
       let lastTap = 0;
-      document.addEventListener('touchend', (e) => {
+      document.addEventListener('touchend', e => {
         const now = Date.now();
-        if (now - lastTap < 300 && !e.target.closest('button, a, input, select, textarea, label')) {
-          e.preventDefault();
-        }
+        if (now - lastTap < 300 && !e.target.closest('button, a, input, select, textarea, label')) e.preventDefault();
         lastTap = now;
       }, { passive: false });
     }
 
-    // ── Hero carousel ──
+    // ── Hero carousel ─────────────────────────────────────────────────────────
     (function () {
       const slides = document.querySelectorAll('.carousel-slide');
-      let current  = 0;
-
+      let current = 0;
       function goTo(n) {
         slides[current].classList.remove('active');
         current = (n + slides.length) % slides.length;
         slides[current].classList.add('active');
       }
-
       let timer = setInterval(() => goTo(current + 1), 30000);
-
-      function resetTimer() {
-        clearInterval(timer);
-        timer = setInterval(() => goTo(current + 1), 30000);
-      }
-
+      function resetTimer() { clearInterval(timer); timer = setInterval(() => goTo(current + 1), 30000); }
       const carousel = document.getElementById('heroCarousel');
       carousel.addEventListener('mouseenter', () => clearInterval(timer));
       carousel.addEventListener('mouseleave', () => resetTimer());
@@ -1852,7 +1895,7 @@
         <label for="ce-url">Google Maps URL</label>
         <div class="url-input-wrap">
           <input id="ce-url" type="url" autocomplete="off">
-          <a id="ce-url-link" href="#" target="_blank" rel="noopener noreferrer" class="url-visit-btn hidden" aria-label="Open link">
+          <a id="ce-url-link" href="" target="_blank" rel="noopener noreferrer" class="url-visit-btn" aria-label="Open link">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M9 2h5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="14" y1="2" x2="7" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </a>
         </div>
@@ -1875,34 +1918,52 @@
   <script>
     let _cardEditId = null;
     let _cardEditIndex = -1;
-    let _scrollY = 0;
 
+    // ── Card edit form ────────────────────────────────────────────────────────
+    function populateEditForm(r) {
+      const ceUrl = r.url || '';
+      document.getElementById('ce-title').value    = r.title   || '';
+      document.getElementById('ce-cuisine').value  = r.cuisine || '';
+      document.getElementById('ce-tags').value     = r.tags    || '';
+      document.getElementById('ce-city').value     = r.city    || '';
+      document.getElementById('ce-state').value    = r.state   || '';
+      document.getElementById('ce-url').value      = ceUrl;
+      document.getElementById('ce-url-link').setAttribute('href', ceUrl);
+      document.getElementById('ce-note').value     = r.note || r.comment || '';
+      document.getElementById('ce-visited').checked = !!r.visited;
+    }
+
+    function readEditFormValues(r) {
+      const nowVisited = document.getElementById('ce-visited').checked;
+      return {
+        title:      document.getElementById('ce-title').value.trim(),
+        cuisine:    document.getElementById('ce-cuisine').value.trim(),
+        tags:       document.getElementById('ce-tags').value.trim(),
+        city:       document.getElementById('ce-city').value.trim(),
+        state:      document.getElementById('ce-state').value.trim(),
+        url:        document.getElementById('ce-url').value.trim(),
+        note:       document.getElementById('ce-note').value.trim(),
+        visited:    nowVisited ? 1 : 0,
+        visited_at: nowVisited ? (r.visited_at || new Date().toISOString().slice(0, 10)) : null,
+        lat: r.lat ?? '', lng: r.lng ?? '',
+        country: r.country || '',
+        type: r.type || '',
+      };
+    }
+
+    // ── Card edit modal ───────────────────────────────────────────────────────
     function openCardEdit(id, skipFocus) {
       const r = restaurantData.find(x => x.id === id);
       if (!r) return;
       _cardEditId = id;
-      _cardEditIndex = filteredData.findIndex(({r: fr}) => fr.id === id);
-      document.getElementById('ce-title').value   = r.title   || '';
-      document.getElementById('ce-cuisine').value = r.cuisine || '';
-      document.getElementById('ce-tags').value    = r.tags    || '';
-      document.getElementById('ce-city').value    = r.city    || '';
-      document.getElementById('ce-state').value   = r.state   || '';
-      const ceUrl = r.url || '';
-      document.getElementById('ce-url').value = ceUrl;
-      const ceUrlLink = document.getElementById('ce-url-link');
-      ceUrlLink.href = ceUrl;
-      ceUrlLink.classList.toggle('hidden', !ceUrl);
-      document.getElementById('ce-note').value    = r.note || r.comment || '';
-      document.getElementById('ce-visited').checked = !!r.visited;
+      _cardEditIndex = filteredData.findIndex(({ r: fr }) => fr.id === id);
+      populateEditForm(r);
       _updateCardEditNav();
       const modal = document.getElementById('cardEditModal');
-      modal.classList.add('open');
-      _scrollY = window.scrollY;
-      document.documentElement.classList.add('edit-open');
-      document.body.classList.add('edit-open');
-      document.body.style.top = `-${_scrollY}px`;
-      const isMobile = window.matchMedia('(max-width: 480px)').matches;
-      if (!skipFocus && !isMobile) document.getElementById('ce-title').focus();
+      modal.showModal();
+      if (!skipFocus && !window.matchMedia('(max-width: 480px)').matches) {
+        document.getElementById('ce-title').focus();
+      }
       modal.addEventListener('keydown', _cardEditKeydown);
     }
 
@@ -1915,24 +1976,18 @@
       const next = _cardEditIndex + dir;
       if (next < 0 || next >= filteredData.length) return;
       _cardEditIndex = next;
-      const { r } = filteredData[next];
-      openCardEdit(r.id, true);
+      openCardEdit(filteredData[next].r.id, true);
     }
 
     function closeCardEdit() {
       const modal = document.getElementById('cardEditModal');
-      modal.classList.remove('open');
-      document.documentElement.classList.remove('edit-open');
-      document.body.classList.remove('edit-open');
-      document.body.style.top = '';
-      window.scrollTo(0, _scrollY);
+      modal.close();
       modal.removeEventListener('keydown', _cardEditKeydown);
       _cardEditId = null;
       _cardEditIndex = -1;
     }
 
     function _cardEditKeydown(e) {
-      if (e.key === 'Escape') { closeCardEdit(); return; }
       if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
         e.preventDefault();
         saveCardEdit();
@@ -1944,10 +1999,10 @@
       }
     }
 
-    document.getElementById('cardEditModal').addEventListener('click', function(e) {
-      if (e.target === this) closeCardEdit();
-    });
+    document.getElementById('cardEditModal').addEventListener('cancel', e => { e.preventDefault(); closeCardEdit(); });
+    document.getElementById('cardEditModal').addEventListener('click', function(e) { if (e.target === this) closeCardEdit(); });
 
+    // ── Visited animation ─────────────────────────────────────────────────────
     function launchConfetti(el) {
       const rect = el.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
@@ -1958,29 +2013,26 @@
         'hsl(40 66% 45%)',  'hsl(42 80% 68%)',
         'hsl(36 23% 55%)',
       ];
-      const count = 22;
-      for (let i = 0; i < count; i++) {
-        const p = document.createElement('div');
-        const angle = (i / count) * 360 + (Math.random() - 0.5) * 28;
+      for (let i = 0; i < 22; i++) {
+        const angle = (i / 22) * 360 + (Math.random() - 0.5) * 28;
         const dist  = 38 + Math.random() * 65;
-        const dx    = Math.cos(angle * Math.PI / 180) * dist;
-        const dy    = Math.sin(angle * Math.PI / 180) * dist;
         const size  = 3 + Math.random() * 5;
         const isRect = Math.random() > 0.5;
-        const color = colors[Math.floor(Math.random() * colors.length)];
         const dur   = 550 + Math.random() * 350;
         const rot   = Math.random() * 360;
+        const p = document.createElement('div');
         p.style.cssText = `
           position:fixed; left:${cx}px; top:${cy}px; z-index:99999;
           width:${isRect ? size * 1.8 : size}px; height:${size}px;
           border-radius:${isRect ? '2px' : '50%'};
-          background:${color}; pointer-events:none;
-          transform:translate(-50%,-50%) rotate(${rot}deg);
-          opacity:1;
+          background:${colors[Math.floor(Math.random() * colors.length)]}; pointer-events:none;
+          transform:translate(-50%,-50%) rotate(${rot}deg); opacity:1;
           transition:transform ${dur}ms cubic-bezier(0.22,0.61,0.36,1),
                      opacity ${dur * 0.6}ms ease ${dur * 0.4}ms;
         `;
         document.body.appendChild(p);
+        const dx = Math.cos(angle * Math.PI / 180) * dist;
+        const dy = Math.sin(angle * Math.PI / 180) * dist;
         requestAnimationFrame(() => requestAnimationFrame(() => {
           p.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) rotate(${rot + 120}deg)`;
           p.style.opacity = '0';
@@ -1989,69 +2041,42 @@
       }
     }
 
+    function triggerVisitedAnimation(id) {
+      const idx = restaurantData.findIndex(x => x.id === id);
+      const cardEl = cardElements.get(idx);
+      if (!cardEl) return;
+      const badge = cardEl.querySelector('.visited-badge');
+      if (badge) { badge.classList.add('is-new'); launchConfetti(badge); }
+    }
+
+    // ── Save ──────────────────────────────────────────────────────────────────
     async function saveCardEdit() {
       const id = _cardEditId;
       const r = restaurantData.find(x => x.id === id);
       if (!r) return;
-
       const wasVisited = !!r.visited;
-
-      const updates = {
-        title:   document.getElementById('ce-title').value.trim(),
-        cuisine: document.getElementById('ce-cuisine').value.trim(),
-        tags:    document.getElementById('ce-tags').value.trim(),
-        city:    document.getElementById('ce-city').value.trim(),
-        state:   document.getElementById('ce-state').value.trim(),
-        url:     document.getElementById('ce-url').value.trim(),
-        note:    document.getElementById('ce-note').value.trim(),
-        visited: document.getElementById('ce-visited').checked ? 1 : 0,
-        // preserve existing fields
-        lat: r.lat ?? '', lng: r.lng ?? '',
-        country: r.country || '',
-        type: r.type || '',
-      };
-
-      const nowVisited = !!updates.visited;
-      updates.visited_at = nowVisited ? (r.visited_at || new Date().toISOString().slice(0, 10)) : null;
-
+      const updates = readEditFormValues(r);
       await fetch(`/api/restaurants/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
-
-      // update local data and re-render
       Object.assign(r, updates);
       if (updates.visited) visited.add(r.title); else visited.delete(r.title);
       closeCardEdit();
       renderAllCards();
       applyFilters();
-
-      if (!wasVisited && nowVisited) {
-        const idx = restaurantData.findIndex(x => x.id === id);
-        const cardEl = cardElements.get(idx);
-        if (cardEl) {
-          const badge = cardEl.querySelector('.visited-badge');
-          if (badge) {
-            badge.classList.add('is-new');
-            launchConfetti(badge);
-          }
-        }
-      }
+      if (!wasVisited && !!updates.visited) triggerVisitedAnimation(id);
     }
 
     document.getElementById('ce-url').addEventListener('input', function() {
-      const link = document.getElementById('ce-url-link');
-      link.href = this.value;
-      link.classList.toggle('hidden', !this.value);
+      document.getElementById('ce-url-link').setAttribute('href', this.value);
     });
 
-    // Text resizer
+    // ── Text resizer ──────────────────────────────────────────────────────────
     const textSizes = { small: '14px', medium: '15px', large: '17px' };
     document.querySelectorAll('input[name="textSize"]').forEach(el => {
-      el.addEventListener('change', () => {
-        document.documentElement.style.fontSize = textSizes[el.value];
-      });
+      el.addEventListener('change', () => { document.documentElement.style.fontSize = textSizes[el.value]; });
     });
   </script>
 </body>
