@@ -170,6 +170,7 @@
       transition: background 0.15s, border-color 0.15s;
     }
     .btn-sm:hover { background: var(--md-surface-container-high); border-color: var(--md-on-surface-variant); }
+    .btn-sm.btn-icon { width: 28px; padding: 0; font-size: 1rem; line-height: 28px; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
 
     .btn {
       height: var(--ctrl-height);
@@ -203,8 +204,32 @@
       /* border: 1px solid var(--md-outline-variant); */
     }
     #locationMap { height: 100%; }
-    #locName { transition: opacity 0.252s ease; }
-    #locName.fading { opacity: 0; }
+    #locName { display: inline-block; }
+    #locName.fading { opacity: 0; transition: opacity 0.15s; }
+    #locName.revealing {
+      -webkit-mask-image: linear-gradient(to right, black 55%, transparent);
+      mask-image: linear-gradient(to right, black 55%, transparent);
+      -webkit-mask-size: 250% 100%;
+      mask-size: 250% 100%;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      animation: loc-reveal 2.8s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    }
+    @keyframes loc-reveal {
+      0%   { opacity: 0; -webkit-mask-position: right; mask-position: right; }
+      25%  { opacity: 1; color: hsl(270 35% 62%); }
+      70%  {             color: hsla(30, 5%, 66%, 1); }
+      100% {             -webkit-mask-position: left;  mask-position: left; }
+    }
+    #locName.is-detecting::after {
+      content: '.';
+      animation: detecting-dots 1.2s step-start infinite;
+    }
+    @keyframes detecting-dots {
+      0%  { content: '.'; }
+      33% { content: '..'; }
+      66% { content: '...'; }
+    }
     #mapToggle {
       position: absolute;
       top: 21px;
@@ -556,7 +581,6 @@
 
     /* ── Filter layout helpers ── */
     #searchFilter { width: 100%; }
-    #searchFilter + button { display: none; } /* overridden by JS */
 
     .filter-search-wrap { flex: 0 0 100%; position: relative; }
     .filter-category-wrap { flex: 0 0 100%; display: flex; flex-direction: column; gap: 6px; }
@@ -1037,7 +1061,7 @@
 </head>
 <body>
   <!-- 2.4.1 Skip navigation -->
-  <time class="build-stamp" datetime="15:50:36">build 15:52:30</time>
+  <time class="build-stamp" datetime="16:45:58">build 17:18:10</time>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
   <header class="site-masthead">
@@ -1063,9 +1087,9 @@
       <section class="location-section">
         <a href="#" id="mapToggle" class="hidden" onclick="toggleLocationMap(event)">Show map</a>
         <p id="currentLocationDisplay" class="current-location">
-          <span class="location-label">Your location<span id="locName"></span></span>
+          <span class="location-label">You&#x2019;re in<span id="locName"></span></span>
         </p>
-        <button class="btn-sm" onclick="useCurrentLocation()">Update location</button>
+        <button class="btn-sm btn-icon" onclick="useCurrentLocation()" aria-label="Update location">⌖</button>
         <figure id="locationMapFigure" class="hidden">
           <div id="locationMap"></div>
         </figure>
@@ -1300,12 +1324,15 @@
       if (!display) return;
       if (!detecting && locName) {
         locName.classList.add('fading');
+        locName.classList.remove('revealing', 'is-detecting');
         setTimeout(() => {
-          locName.textContent = currentLocation?.name ? `: ${currentLocation.name}` : '';
+          locName.textContent = currentLocation?.name ? `\u00a0${currentLocation.name}` : '';
           locName.classList.remove('fading');
-        }, 252);
+          locName.classList.add('revealing');
+        }, 150);
       } else if (locName) {
-        locName.textContent = ': Detecting…';
+        locName.textContent = '';
+        locName.classList.add('is-detecting');
       }
     }
     
@@ -1357,11 +1384,11 @@
         return;
       }
       const btn = document.querySelector('button[onclick="useCurrentLocation()"]');
-      if (btn) { btn.textContent = 'Locating…'; btn.disabled = true; }
+      if (btn) { btn.textContent = '…'; btn.disabled = true; }
       updateLocationDisplay(true);
       navigator.geolocation.getCurrentPosition(
         async pos => {
-          if (btn) { btn.textContent = 'Update location'; btn.disabled = false; }
+          if (btn) { btn.textContent = '⌖'; btn.disabled = false; }
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
           document.getElementById('lat').value = lat.toFixed(6);
@@ -1387,7 +1414,7 @@
           const errEl = document.getElementById('locationError');
           errEl.textContent = tips[err.code] || err.message;
           errEl.classList.remove('hidden');
-          if (btn) { btn.textContent = 'Update location'; btn.disabled = false; }
+          if (btn) { btn.textContent = '⌖'; btn.disabled = false; }
         },
         {enableHighAccuracy: true, timeout: 30000, maximumAge: 0}
       );
