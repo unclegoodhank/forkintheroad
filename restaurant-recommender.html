@@ -1103,7 +1103,7 @@
 
 
   <!-- 2.4.1 Skip navigation -->
-  <time class="build-stamp" datetime="21:44:52">build 00:17:21</time>
+  <time class="build-stamp" datetime="21:44:52">build 18:41:42</time>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
   <header class="site-masthead">
@@ -1803,7 +1803,7 @@
     // ── App initialization ────────────────────────────────────────────────────
     (async () => {
       try {
-        const res = await fetch('/api/restaurants');
+        const res = await fetch('/api/restaurants', { cache: 'no-store' });
         restaurantData = await res.json();
         restaurantData.forEach(r => { if (r.visited) visited.add(r.title); });
       } catch(e) {
@@ -1821,7 +1821,7 @@
     // ── Data refresh (bfcache / tab switch) ───────────────────────────────────
     async function refreshData() {
       try {
-        const res = await fetch('/api/restaurants');
+        const res = await fetch('/api/restaurants', { cache: 'no-store' });
         restaurantData = await res.json();
         visited.clear();
         restaurantData.forEach(r => { if (r.visited) visited.add(r.title); });
