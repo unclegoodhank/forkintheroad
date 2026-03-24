@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Texture Variants</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #e8e8e8;
+    padding: 40px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  h1 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #555; margin-bottom: -32px; }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .swatch {
+    position: relative;
+    width: 280px;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 20px;
+  }
+  .swatch::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .label {
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    opacity: 0.5;
+  }
+  .name {
+    position: relative;
+    z-index: 1;
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  /* ── Light swatches ── */
+  .light { background: #f5f2ee; color: #1a1a1a; }
+  .dark  { background: #1a1814; color: #f0ece6; }
+
+  /* ── Variant 1: Fine grain, overlay ── */
+  .v1::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.08;
+    mix-blend-mode: overlay;
+  }
+
+  /* ── Variant 2: Medium grain, soft-light ── */
+  .v2::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.12;
+    mix-blend-mode: soft-light;
+  }
+
+  /* ── Variant 3: Coarse grain, multiply/screen ── */
+  .v3.light::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.35' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.15;
+    mix-blend-mode: multiply;
+  }
+  .v3.dark::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.35' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.2;
+    mix-blend-mode: screen;
+  }
+
+  /* ── Variant 4: Fine grain, higher opacity, luminosity ── */
+  .v4::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.07;
+    mix-blend-mode: luminosity;
+  }
+
+  /* ── Variant 5: Very fine grain, normal blend, low opacity ── */
+  .v5::after {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.06;
+    mix-blend-mode: normal;
+  }
+</style>
+</head>
+<body>
+
+<h1>Texture Variants</h1>
+
+<div class="row">
+  <div class="swatch light v1">
+    <div class="name">Variant 1</div>
+    <div class="label">Fine grain · overlay · 8%</div>
+  </div>
+  <div class="swatch dark v1">
+    <div class="name">Variant 1</div>
+    <div class="label">Fine grain · overlay · 8%</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="swatch light v2">
+    <div class="name">Variant 2</div>
+    <div class="label">Medium grain · soft-light · 12%</div>
+  </div>
+  <div class="swatch dark v2">
+    <div class="name">Variant 2</div>
+    <div class="label">Medium grain · soft-light · 12%</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="swatch light v3">
+    <div class="name">Variant 3</div>
+    <div class="label">Coarse grain · multiply · 15%</div>
+  </div>
+  <div class="swatch dark v3">
+    <div class="name">Variant 3</div>
+    <div class="label">Coarse grain · screen · 20%</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="swatch light v4">
+    <div class="name">Variant 4</div>
+    <div class="label">Fine grain · luminosity · 7%</div>
+  </div>
+  <div class="swatch dark v4">
+    <div class="name">Variant 4</div>
+    <div class="label">Fine grain · luminosity · 7%</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="swatch light v5">
+    <div class="name">Variant 5</div>
+    <div class="label">Very fine grain · normal · 6%</div>
+  </div>
+  <div class="swatch dark v5">
+    <div class="name">Variant 5</div>
+    <div class="label">Very fine grain · normal · 6%</div>
+  </div>
+</div>
+
+</body>
+</html>

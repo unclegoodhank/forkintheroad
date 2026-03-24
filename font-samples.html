@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Font Samples</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Fraunces:ital,wght@0,400;0,500;1,400;1,500&family=Outfit:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: hsl(42, 60%, 97%); color: hsl(36, 43%, 9%); padding: 48px 32px; }
+
+    .options { display: flex; flex-direction: column; gap: 48px; max-width: 720px; margin: 0 auto; }
+
+    .option { background: white; border-radius: 18px; padding: 36px; border: 1px solid hsl(30 5% 83%); }
+    .option-label { font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: hsl(30, 5%, 55%); margin-bottom: 24px; }
+
+    .sample-heading { font-size: 2rem; font-weight: 500; line-height: 1.2; margin-bottom: 8px; }
+    .sample-subheading { font-size: 1.1rem; font-style: italic; margin-bottom: 20px; color: hsl(36 23% 45%); }
+    .sample-body { font-size: 1rem; line-height: 1.65; color: hsl(36, 43%, 22%); margin-bottom: 16px; }
+    .sample-ui { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+    .sample-badge { font-size: 0.8125rem; font-weight: 500; padding: 5px 13px; border-radius: 6px; border: 1px solid hsl(30 5% 83%); color: hsl(36 23% 45%); }
+    .sample-btn { font-size: 0.9375rem; font-weight: 500; padding: 8px 18px; border-radius: 6px; border: 1px solid hsl(30 5% 83%); background: white; color: hsl(36, 43%, 9%); }
+
+    /* Option A */
+    .option-a .sample-heading { font-family: 'Fraunces', Georgia, serif; }
+    .option-a .sample-subheading { font-family: 'Fraunces', Georgia, serif; }
+    .option-a .sample-body, .option-a .sample-ui { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .option-a .sample-badge, .option-a .sample-btn { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    /* Option B */
+    .option-b .sample-heading { font-family: 'Playfair Display', Georgia, serif; }
+    .option-b .sample-subheading { font-family: 'Playfair Display', Georgia, serif; }
+    .option-b .sample-body, .option-b .sample-ui { font-family: 'Outfit', sans-serif; }
+    .option-b .sample-badge, .option-b .sample-btn { font-family: 'Outfit', sans-serif; }
+
+    /* Option C */
+    .option-c .sample-heading { font-family: 'DM Serif Display', Georgia, serif; }
+    .option-c .sample-subheading { font-family: 'DM Serif Display', Georgia, serif; }
+    .option-c .sample-body, .option-c .sample-ui { font-family: 'DM Sans', sans-serif; }
+    .option-c .sample-badge, .option-c .sample-btn { font-family: 'DM Sans', sans-serif; }
+  </style>
+</head>
+<body>
+  <div class="options">
+
+    <div class="option option-a">
+      <div class="option-label">Option A — Fraunces + Plus Jakarta Sans</div>
+      <div class="sample-heading">Fork in the Road</div>
+      <div class="sample-subheading">A personal travel guide</div>
+      <div class="sample-body">Discover places worth going back to. From hidden neighborhood bars to sun-drenched rooftop restaurants — curated by someone who actually ate there.</div>
+      <div class="sample-ui">
+        <span class="sample-badge">Within 10 miles</span>
+        <span class="sample-badge">Visited</span>
+        <span class="sample-btn">Use my location</span>
+      </div>
+    </div>
+
+    <div class="option option-b">
+      <div class="option-label">Option B — Playfair Display + Outfit</div>
+      <div class="sample-heading">Fork in the Road</div>
+      <div class="sample-subheading">A personal travel guide</div>
+      <div class="sample-body">Discover places worth going back to. From hidden neighborhood bars to sun-drenched rooftop restaurants — curated by someone who actually ate there.</div>
+      <div class="sample-ui">
+        <span class="sample-badge">Within 10 miles</span>
+        <span class="sample-badge">Visited</span>
+        <span class="sample-btn">Use my location</span>
+      </div>
+    </div>
+
+    <div class="option option-c">
+      <div class="option-label">Option C — DM Serif Display + DM Sans</div>
+      <div class="sample-heading">Fork in the Road</div>
+      <div class="sample-subheading">A personal travel guide</div>
+      <div class="sample-body">Discover places worth going back to. From hidden neighborhood bars to sun-drenched rooftop restaurants — curated by someone who actually ate there.</div>
+      <div class="sample-ui">
+        <span class="sample-badge">Within 10 miles</span>
+        <span class="sample-badge">Visited</span>
+        <span class="sample-btn">Use my location</span>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

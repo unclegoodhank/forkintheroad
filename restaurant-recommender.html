@@ -441,9 +441,12 @@
       background: var(--md-surface-container-lowest);
       border: 1px solid var(--md-outline-variant);
       border-radius: var(--shape-lg);
-      padding: 18px 6px 6px 18px;
+      padding: 12px 6px 3px 18px;
+      display: flex;
+      flex-direction: column;
       animation: slideIn 0.25s ease-out;
     }
+    .card[hidden] { display: none; }
     @keyframes slideIn {
       from { opacity: 0; transform: translateY(9px); }
       to { opacity: 1; transform: translateY(0); }
@@ -634,18 +637,21 @@
     }
 
     /* ── Filter layout helpers ── */
-    .filter-search-wrap { flex: 0 0 100%; position: relative; }
+    .filter-search-wrap { flex: 0 0 100%; display: grid; align-items: center; }
     .filter-category-wrap { flex: 0 0 100%; display: flex; flex-direction: column; gap: 6px; }
     .filter-row-pair { display: flex; gap: 9px; flex: 0 0 100%; padding: 3px 0 0; }
     .filter-col { display: flex; flex-direction: column; gap: 4px; flex: 1; }
     .filter-col select { width: 100%; }
+    #searchFilter { grid-area: 1 / 1; }
     #searchClear {
       display: none;
-      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      grid-area: 1 / 1;
+      justify-self: end;
+      margin-right: 10px;
       background: none; border: none; cursor: pointer;
       color: var(--md-on-surface-variant); line-height: 0; padding: 4px;
     }
-    #searchFilter:not(:placeholder-shown) + #searchClear { display: flex; }
+    #searchFilter:not(:placeholder-shown) + #searchClear { display: flex; align-items: center; }
     .filter-visited-row { flex: 0 0 100%; }
 
     @media (min-width: 481px) {
@@ -655,33 +661,35 @@
 
     #sliderDistance { display: flex; flex-direction: column; gap: 28px; width: 100%; }
     .slider-ticks { position: relative; margin: 0 15px; height: 10px; }
-    .slider-tick { position: absolute; width: 1.5px; height: 5px; background: var(--md-outline); top: 2.5px; transform: translateX(-50%); border-radius: var(--shape-full); }
+    .slider-tick { position: absolute; width: 1.5px; height: 5px; background: var(--md-outline); top: 2.5px; margin-left: -0.75px; border-radius: var(--shape-full); }
     .slider-tick-end { height: 10px; top: 0; }
     .slider-endpoints { display: flex; justify-content: space-between; font-size: 0.6875rem; color: var(--md-on-surface-variant); letter-spacing: 0.02em; }
 
     /* ── Card inner layout ── */
-    .card-name-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .card-header-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 4px;
-    }
-    .card-tags {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      flex-shrink: 0;
-    }
-    .card-info-row {
+    .card header {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
       gap: 12px;
-      margin-top: 0;
+      flex-wrap: wrap;
+      /* margin-bottom: 4px; */
     }
-    .card-location-row {
+    .card-tags {
+      display: flex;
+      gap: 0;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .card-location {
       display: flex;
       align-items: baseline;
       flex-wrap: wrap;
@@ -691,6 +699,7 @@
     }
     .loc-city { font-style: normal; }
     .distance-badge:empty { display: none; }
+    .location-icon { margin-right: 3px; vertical-align: -1px; }
     /* separator before maps link via CSS — no DOM element needed */
     .maps-sep {
       display: none;
@@ -709,27 +718,19 @@
       font-size: 0.6875rem;
       margin-right: 6px;
     }
-    .card-meta-row {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      flex-wrap: wrap;
-      margin-bottom: 9px;
-    }
-    .card-meta-row .tag { font-size: 0.75rem; }
-
-    .card-added-date { display: none; }
+.card-added-date { display: none; }
     .visited-badge {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 1px 9px 2px 6px;
-      background: hsl(135deg 85% 33% / 10%);
+      padding: 3.5px 9px 3px 7px;
+      margin-right: auto;
+      background-color: hsl(135deg 85% 33% / 10%);
       border-radius: var(--shape-full);
       font-size: 0.7rem;
       font-weight: 600;
       color: hsl(135 76% 40% / 1);
-      letter-spacing: 0;
+      letter-spacing: 0.01rem;
     }
     .visited-badge-star { font-size: 0.7rem; }
     @keyframes loc-pulse {
@@ -771,11 +772,11 @@
     .card-edit-btn {
       -webkit-appearance: none; appearance: none;
       background: none; border: none;
-      padding: 8px;
+      padding: 0px 14px;
       border-radius: var(--shape-full);
       color: var(--md-on-surface-variant);
-      cursor: pointer; flex: none; line-height: 0;
-      margin-left: auto;
+      cursor: pointer; line-height: 0;
+      flex-shrink: 0;
       transition: background 0.15s, color 0.15s;
     }
     .card-edit-btn:hover { color: var(--color-warm-text); background: color-mix(in srgb, var(--color-accent) 8%, transparent); }
@@ -856,13 +857,17 @@
     .url-input-wrap input { padding-right: 34px; }
     .url-visit-btn {
       display: none;
-      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      position: absolute; right: 8px; top: 0; bottom: 0; margin: auto 0; height: fit-content;
       align-items: center; color: var(--color-warm-text);
       opacity: 0.6; transition: opacity 0.15s;
     }
     .url-visit-btn[href]:not([href=""]) { display: flex; }
     .url-visit-btn:hover { opacity: 1; }
     .edit-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .ce-visited-date-wrap { display: none; position: relative; width: fit-content; }
+    #ce-visited:checked ~ .ce-visited-date-wrap { display: block; }
+    .edit-field input.ce-visited-at { width: 197px; }
+    .ce-date-helper { position: absolute; left: 112px; top: 2px; bottom: 0; display: flex; align-items: center; color: var(--md-on-surface-variant); font-size: 0.8rem; white-space: nowrap; pointer-events: none; }
     .card-edit-actions {
       display: flex; gap: 12px; justify-content: flex-end; padding-top: 6px;
     }
@@ -1103,10 +1108,10 @@
 
 
   <!-- 2.4.1 Skip navigation -->
-  <time class="build-stamp" datetime="21:44:52">build 19:08:50</time>
+  <time class="build-stamp" datetime="23:03:59">build 14:34:08</time>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
-  <header class="site-masthead">
+  <header class="site-masthead" aria-label="Site header">
     <div class="site-masthead__inner">
       <img src="images/Fork Icon Illustration.png" alt="" aria-hidden="true" class="site-masthead__icon">
       <hgroup>
@@ -1128,9 +1133,9 @@
   <main id="recommender">
       <section class="location-section">
         <p id="currentLocationDisplay" class="current-location">
-          <span class="location-label">You&#x2019;re in<span id="locName"></span></span><button id="updateLocationLink" type="button" onclick="useCurrentLocation()"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right:3px;vertical-align:-1px"><circle cx="6" cy="6" r="3.5" stroke="currentColor" stroke-width="1.25"/><circle cx="6" cy="6" r="0.75" fill="currentColor"/><line x1="6" y1="1" x2="6" y2="2.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><line x1="6" y1="9.5" x2="6" y2="11" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><line x1="1" y1="6" x2="2.5" y2="6" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><line x1="9.5" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>Update</button>
+          <span class="location-label">You&#x2019;re in<span id="locName"></span></span><button id="updateLocationLink" type="button" onclick="useCurrentLocation()"><svg aria-hidden="true" focusable="false" width="11" height="11" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" class="location-icon"><circle cx="6" cy="6" r="3.5" stroke="currentColor" stroke-width="1.25"/><circle cx="6" cy="6" r="0.75" fill="currentColor"/><line x1="6" y1="1" x2="6" y2="2.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><line x1="6" y1="9.5" x2="6" y2="11" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><line x1="1" y1="6" x2="2.5" y2="6" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/><line x1="9.5" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/></svg>Update</button>
         </p>
-        <button id="mapToggle" class="hidden" aria-expanded="false" aria-controls="locationMapFigure"></button>
+        <button id="mapToggle" type="button" class="hidden" aria-expanded="false" aria-controls="locationMapFigure" aria-label="Toggle location map"></button>
         <figure id="locationMapFigure">
           <div id="locationMap"></div>
         </figure>
@@ -1138,7 +1143,6 @@
         <input type="hidden" id="lat" value="">
         <input type="hidden" id="lng" value="">
       </section>
-      
       <form class="filters" aria-label="Search and filters" onsubmit="event.preventDefault()">
         <div class="filter-search-wrap">
           <input type="text" id="searchFilter"
@@ -1182,22 +1186,22 @@
         </div>
         <div class="radius-slider-wrap">
           <div id="sliderDistance">
-            <label for="radiusFilter" id="radiusLabel">Within 5 miles</label>
-            <input type="range" id="radiusFilter" min="0" max="100" value="0" aria-labelledby="radiusLabel">
+            <label for="radiusFilter" id="radiusLabel">Within 10 miles</label>
+            <input type="range" id="radiusFilter" min="0" max="100" value="11.67" aria-labelledby="radiusLabel">
             <div class="slider-ticks" aria-hidden="true">
-              <span class="slider-tick slider-tick-end" style="left:0%"></span>
-              <span class="slider-tick" style="left:11.67%"></span>
-              <span class="slider-tick" style="left:23.33%"></span>
-              <span class="slider-tick" style="left:35%"></span>
-              <span class="slider-tick" style="left:46.67%"></span>
-              <span class="slider-tick" style="left:58.33%"></span>
-              <span class="slider-tick" style="left:70%"></span>
-              <span class="slider-tick" style="left:75%"></span>
-              <span class="slider-tick" style="left:80%"></span>
-              <span class="slider-tick" style="left:85%"></span>
-              <span class="slider-tick" style="left:90%"></span>
-              <span class="slider-tick" style="left:95%"></span>
-              <span class="slider-tick slider-tick-end" style="left:100%"></span>
+              <span class="slider-tick slider-tick-end" data-position="0"></span>
+              <span class="slider-tick" data-position="11.67"></span>
+              <span class="slider-tick" data-position="23.33"></span>
+              <span class="slider-tick" data-position="35"></span>
+              <span class="slider-tick" data-position="46.67"></span>
+              <span class="slider-tick" data-position="58.33"></span>
+              <span class="slider-tick" data-position="70"></span>
+              <span class="slider-tick" data-position="75"></span>
+              <span class="slider-tick" data-position="80"></span>
+              <span class="slider-tick" data-position="85"></span>
+              <span class="slider-tick" data-position="90"></span>
+              <span class="slider-tick" data-position="95"></span>
+              <span class="slider-tick slider-tick-end" data-position="100"></span>
             </div>
             <div class="slider-endpoints" aria-hidden="true">
               <span>Local</span>
@@ -1205,6 +1209,7 @@
             </div>
           </div>
         </div>
+        <button type="submit" class="sr-only">Apply filters</button>
       </form>
 
 
@@ -1213,8 +1218,8 @@
         <nav id="pagination-top" class="pagination" aria-label="Page navigation" hidden>
           <span class="pagination-info" aria-live="polite"></span>
           <div class="pagination-btns">
-            <button class="pagination-btn prev-btn">Prev</button>
-            <button class="pagination-btn next-btn">Next</button>
+            <button type="button" class="pagination-btn prev-btn">Prev</button>
+            <button type="button" class="pagination-btn next-btn">Next</button>
           </div>
         </nav>
       </div>
@@ -1226,13 +1231,13 @@
       <nav id="pagination-bottom" class="pagination" aria-label="Page navigation" hidden>
         <span class="pagination-info" aria-live="polite"></span>
         <div class="pagination-btns">
-          <button class="pagination-btn prev-btn">Prev</button>
-          <button class="pagination-btn next-btn">Next</button>
+          <button type="button" class="pagination-btn prev-btn">Prev</button>
+          <button type="button" class="pagination-btn next-btn">Next</button>
         </div>
       </nav>
   </main>
 
-<footer class="site-footer">
+<footer class="site-footer" aria-label="Site footer">
     <div class="site-footer__inner">
       <div>
         <span class="site-footer__name">Fork in the road</span>
@@ -1259,6 +1264,10 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    // Set slider tick positions from data attributes
+    document.querySelectorAll('.slider-tick[data-position]').forEach(tick => {
+      tick.style.left = tick.dataset.position + '%';
+    });
     // ── Data & constants ──────────────────────────────────────────────────────
     const STATE_ABBR = {"alabama":"AL","alaska":"AK","arizona":"AZ","arkansas":"AR","california":"CA","colorado":"CO","connecticut":"CT","delaware":"DE","florida":"FL","georgia":"GA","hawaii":"HI","idaho":"ID","illinois":"IL","indiana":"IN","iowa":"IA","kansas":"KS","kentucky":"KY","louisiana":"LA","maine":"ME","maryland":"MD","massachusetts":"MA","michigan":"MI","minnesota":"MN","mississippi":"MS","missouri":"MO","montana":"MT","nebraska":"NE","nevada":"NV","new hampshire":"NH","new jersey":"NJ","new mexico":"NM","new york":"NY","north carolina":"NC","north dakota":"ND","ohio":"OH","oklahoma":"OK","oregon":"OR","pennsylvania":"PA","rhode island":"RI","south carolina":"SC","south dakota":"SD","tennessee":"TN","texas":"TX","utah":"UT","vermont":"VT","virginia":"VA","washington":"WA","west virginia":"WV","wisconsin":"WI","wyoming":"WY","district of columbia":"DC"};
     function normalizeState(s) { return STATE_ABBR[s.toLowerCase().trim()] ?? s; }
@@ -1515,23 +1524,21 @@
       const noteText = r.note || r.comment || '';
       const cityState = [r.city, r.state ? normalizeState(r.state) : ''].filter(Boolean).join(', ');
       const mapsLink = r.url
-        ? `<span class="maps-sep" aria-hidden="true">·</span><a href="${r.url}" target="_blank" rel="noopener" aria-label="Open ${r.title} in Maps" class="maps-link">Open in Maps ↗</a>`
+        ? `<span class="maps-sep" aria-hidden="true">·</span><a href="${r.url}" target="_blank" rel="noopener" aria-label="Open ${r.title} in Maps" class="maps-link">Open map ↗</a>`
         : '';
       return `
         <article>
-        <div class="card-header-row">
-          <div class="card-name-row">
-            <h2 class="restaurant-name">${r.title}</h2>
-            ${isV ? `<span class="visited-badge"><span class="visited-badge-star">✦</span> Visited${r.visited_at ? ` · <time datetime="${r.visited_at}">${new Date(r.visited_at + 'T12:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'})}</time>` : ''}</span>` : ''}
-          </div>
-          <div class="card-tags">
-            ${r.cuisine ? `<span class="tag">${r.cuisine}</span>` : ''}
-            ${r.tags ? `<span class="tag">${r.tags}</span>` : ''}
-          </div>
-        </div>
+        <header>
+          <h2 class="restaurant-name">${r.title}</h2>
+          ${isV ? `<span class="visited-badge"><span class="visited-badge-star">✦</span> Visited${r.visited_at ? ` · <time datetime="${r.visited_at}">${new Date(r.visited_at + 'T12:00:00').toLocaleDateString('en-US',{month:'short',year:'numeric'})}</time>` : ''}</span>` : ''}
+          <ul class="card-tags">
+            ${r.cuisine ? `<li class="tag">${r.cuisine}</li>` : ''}
+            ${r.tags ? `<li class="tag">${r.tags}</li>` : ''}
+          </ul>
+        </header>
         ${noteText ? `<p class="note">${noteText}</p>` : ''}
-        <div class="card-info-row">
-          <div class="card-location-row">
+        <div class="card-footer">
+          <div class="card-location">
             ${cityState ? `<address class="loc-city">${cityState}</address>` : ''}
             <output class="distance-badge"></output>
             ${mapsLink}
@@ -1613,11 +1620,12 @@
         const el = cardElements.get(i);
         if (!el) return;
         el.querySelector('.distance-badge').textContent = r.distance !== null
-          ? `${Math.round(r.distance * 10) / 10} mi` : '';
+          ? `${(r.distance > 100 ? Math.round(r.distance) : Math.round(r.distance * 10) / 10).toLocaleString()} mi` : '';
         el.classList.toggle('is-visited', visited.has(r.title));
-        const inFilter = sortOrder.has(i);
-        el.hidden = !(inFilter && pageSet.has(i));
-        el.style.order = inFilter ? sortOrder.get(i) : 0;
+        const visible = sortOrder.has(i) && pageSet.has(i);
+        el.hidden = !visible;
+        el.style.display = visible ? '' : 'none';
+        el.style.order = sortOrder.has(i) ? sortOrder.get(i) : 0;
       });
       return { totalPages };
     }
@@ -1738,18 +1746,15 @@
     });
 
     // ── Radius slider ─────────────────────────────────────────────────────────
+    const _sliderSnaps = [0, 11.67, 23.33, 35, 46.67, 58.33, 70, 75, 80, 85, 90, 95, 100];
+    const _sliderDistances = [5, 10, 20, 30, 40, 50, 60, 100, 200, 300, 400, 500, Infinity];
     function sliderToDistance(val) {
-      if (val <= 70)   return Math.max(5, (val / 70) * 60);
-      if (val <= 77.5) return 100;
-      if (val <= 82.5) return 200;
-      if (val <= 87.5) return 300;
-      if (val <= 92.5) return 400;
-      if (val <= 97.5) return 500;
-      return Infinity;
+      const snapped = snapSlider(val);
+      const idx = _sliderSnaps.indexOf(snapped);
+      return idx !== -1 ? _sliderDistances[idx] : _sliderDistances[0];
     }
     function snapSlider(val) {
-      const snaps = [0, 11.67, 23.33, 35, 46.67, 58.33, 70, 75, 80, 85, 90, 95, 100];
-      return snaps.reduce((closest, s) => Math.abs(s - val) < Math.abs(closest - val) ? s : closest);
+      return _sliderSnaps.reduce((closest, s) => Math.abs(s - val) < Math.abs(closest - val) ? s : closest);
     }
     function sliderLabel(val) {
       const dist = sliderToDistance(val);
@@ -1762,7 +1767,7 @@
       el.style.setProperty('--pct', ((el.value - el.min) / (el.max - el.min) * 100) + '%');
     }
 
-    const _snaps = [0, 11.67, 23.33, 35, 46.67, 58.33, 70, 75, 80, 85, 90, 95, 100];
+    const _snaps = _sliderSnaps;
     const _radiusEl = document.getElementById('radiusFilter');
     let _sliderPointerDown = false;
 
@@ -1825,6 +1830,7 @@
         restaurantData = await res.json();
         visited.clear();
         restaurantData.forEach(r => { if (r.visited) visited.add(r.title); });
+        renderAllCards();
         applyFilters();
       } catch(e) { /* silent */ }
     }
@@ -1863,8 +1869,8 @@
       <header class="card-edit-header">
         <h2 id="cardEditTitle">Edit place</h2>
         <div class="card-edit-nav">
-          <button id="ce-prev" onclick="navigateCardEdit(-1)" title="Previous (⌥←)" aria-label="Previous">←</button>
-          <button id="ce-next" onclick="navigateCardEdit(1)"  title="Next (⌥→)"     aria-label="Next">→</button>
+          <button id="ce-prev" type="button" onclick="navigateCardEdit(-1)" title="Previous (⌥←)" aria-label="Previous">←</button>
+          <button id="ce-next" type="button" onclick="navigateCardEdit(1)"  title="Next (⌥→)"     aria-label="Next">→</button>
         </div>
       </header>
       <div class="edit-field">
@@ -1907,10 +1913,14 @@
       <div class="edit-field edit-field-visited">
         <input id="ce-visited" type="checkbox">
         <label for="ce-visited" class="ce-visited-label">Visited</label>
+        <div class="ce-visited-date-wrap">
+          <input id="ce-visited-at" type="date" class="ce-visited-at" aria-label="Date visited" max="">
+          <span class="ce-date-helper">– Today</span>
+        </div>
       </div>
       <footer class="card-edit-actions">
-        <button class="btn" onclick="closeCardEdit()">Cancel</button>
-        <button class="btn primary" onclick="saveCardEdit()">Save</button>
+        <button type="button" class="btn" onclick="closeCardEdit()">Cancel</button>
+        <button type="submit" class="btn primary" onclick="saveCardEdit()">Save</button>
       </footer>
     </form>
   </dialog>
@@ -1922,6 +1932,7 @@
     // ── Card edit form ────────────────────────────────────────────────────────
     function populateEditForm(r) {
       const ceUrl = r.url || '';
+      const dateVal = r.visited_at || new Date().toISOString().slice(0, 10);
       document.getElementById('ce-title').value    = r.title   || '';
       document.getElementById('ce-cuisine').value  = r.cuisine || '';
       document.getElementById('ce-tags').value     = r.tags    || '';
@@ -1931,6 +1942,7 @@
       document.getElementById('ce-url-link').setAttribute('href', ceUrl);
       document.getElementById('ce-note').value     = r.note || r.comment || '';
       document.getElementById('ce-visited').checked = !!r.visited;
+      document.getElementById('ce-visited-at').value = !!r.visited ? dateVal : '';
     }
 
     function readEditFormValues(r) {
@@ -1944,7 +1956,7 @@
         url:        document.getElementById('ce-url').value.trim(),
         note:       document.getElementById('ce-note').value.trim(),
         visited:    nowVisited ? 1 : 0,
-        visited_at: nowVisited ? (r.visited_at || new Date().toISOString().slice(0, 10)) : null,
+        visited_at: nowVisited ? (document.getElementById('ce-visited-at').value || new Date().toISOString().slice(0, 10)) : null,
         lat: r.lat ?? '', lng: r.lng ?? '',
         country: r.country || '',
         type: r.type || '',
@@ -1961,10 +1973,15 @@
       _updateCardEditNav();
       const modal = document.getElementById('cardEditModal');
       modal.showModal();
+      document.getElementById('ce-visited-at').max = new Date().toISOString().slice(0, 10);
       if (!skipFocus && !window.matchMedia('(max-width: 480px)').matches) {
         document.getElementById('ce-title').focus();
       }
       modal.addEventListener('keydown', _cardEditKeydown);
+      document.getElementById('ce-visited').addEventListener('change', _ceVisitedChange);
+      document.getElementById('ce-visited-at').addEventListener('change', _ceDateClamp);
+      document.getElementById('ce-visited-at').addEventListener('input', _ceDateClamp);
+      _ceDateClamp();
     }
 
     function _updateCardEditNav() {
@@ -1983,8 +2000,27 @@
       const modal = document.getElementById('cardEditModal');
       modal.close();
       modal.removeEventListener('keydown', _cardEditKeydown);
+      document.getElementById('ce-visited').removeEventListener('change', _ceVisitedChange);
+      document.getElementById('ce-visited-at').removeEventListener('change', _ceDateClamp);
+      document.getElementById('ce-visited-at').removeEventListener('input', _ceDateClamp);
       _cardEditId = null;
       _cardEditIndex = -1;
+    }
+
+    function _ceDateClamp() {
+      const today = new Date().toISOString().slice(0, 10);
+      const dateEl = document.getElementById('ce-visited-at');
+      if (dateEl.value > today) dateEl.value = today;
+      document.querySelector('.ce-date-helper').style.display =
+        dateEl.value === today ? '' : 'none';
+    }
+
+    function _ceVisitedChange() {
+      const dateEl = document.getElementById('ce-visited-at');
+      if (this.checked && !dateEl.value) {
+        dateEl.value = new Date().toISOString().slice(0, 10);
+      }
+      _ceDateClamp();
     }
 
     function _cardEditKeydown(e) {

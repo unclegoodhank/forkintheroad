@@ -8,7 +8,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@0,400;0,500;0,600&display=swap');
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { overflow-x: hidden; }
+    body { overflow-x: hidden; }
 
     body {
       font-family: 'Open Sans', -apple-system, sans-serif;
@@ -48,7 +48,7 @@
     }
     .toolbar-left input {
       flex: 1;
-      min-width: 0;
+      min-width: 520px;
       padding: 8px 12px;
       border: 1px solid #f9f3e7;
       background: white;
@@ -125,18 +125,18 @@
     td.actions .btn { padding: 5px 10px; font-size: 11px; }
 
     /* Modal */
-    .modal-backdrop {
+    .admin-dialog-overlay {
       display: none;
       position: fixed;
-      inset: 0;
+      top: 0; right: 0; bottom: 0; left: 0;
       background: rgba(0,0,0,0.45);
       z-index: 100;
       align-items: center;
       justify-content: center;
       padding: 1rem;
     }
-    .modal-backdrop.open { display: flex; }
-    .modal {
+    .admin-dialog-overlay.open { display: flex; }
+    .admin-dialog {
       background: white;
       width: 100%;
       max-width: 520px;
@@ -145,7 +145,7 @@
       padding: 1.75rem;
       position: relative;
     }
-    .modal h2 {
+    .admin-dialog h2 {
       font-size: 13px;
       font-weight: 600;
       letter-spacing: 0.08em;
@@ -177,8 +177,10 @@
     .input-clear-btn {
       position: absolute;
       right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
+      top: 0;
+      bottom: 0;
+      margin: auto 0;
+      height: fit-content;
       background: none;
       border: none;
       cursor: pointer;
@@ -193,13 +195,17 @@
     .form-group.checkbox { flex-direction: row; align-items: center; gap: 8px; }
     .form-group.checkbox input { width: auto; accent-color: #006f84; }
     .form-group.checkbox label { text-transform: uppercase; letter-spacing: 0.07em; font-size: 11px; }
+    .f-visited-date-wrap { display: none; position: relative; width: fit-content; }
+    .f-visited-date-wrap.visible { display: block; }
+    .form-group input#f-visited-at { width: 220px; }
+    .f-date-helper { position: absolute; left: 108px; top: 0; bottom: 0; display: flex; align-items: center; color: #6b6560; font-size: 12px; white-space: nowrap; pointer-events: none; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.5rem; }
-    .modal-close {
+    .admin-dialog-close {
       position: absolute; top: 1rem; right: 1rem;
       background: none; border: none; cursor: pointer;
       font-size: 18px; color: #6b6560; padding: 4px;
     }
-    .modal-close:hover { color: #1c1810; }
+    .admin-dialog-close:hover { color: #1c1810; }
   </style>
 </head>
 <body>
@@ -215,7 +221,7 @@
     <input type="text" id="search" placeholder="Filter by name, cuisine, note…" oninput="renderTable()">
     <span id="rowCount"></span>
   </div>
-  <button class="btn primary" onclick="openAdd()">+ Add Place</button>
+  <button type="button" class="btn primary" onclick="openAdd()">+ Add Place</button>
 </div>
 
 <div style="overflow-x:auto;">
@@ -240,14 +246,14 @@
 </div>
 
 <!-- Edit modal -->
-<div class="modal-backdrop" id="modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal()">✕</button>
+<div class="admin-dialog-overlay" id="admin-dialog">
+  <div class="admin-dialog">
+    <button type="button" class="admin-dialog-close" onclick="closeModal()">✕</button>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem;">
       <h2 id="modal-title" style="margin:0;flex:1;">Edit Place</h2>
       <div id="modal-nav" style="display:none;gap:4px;">
-        <button class="btn" id="btn-prev" onclick="navigateEdit(-1)" title="Previous" style="padding:0 10px;font-size:15px;">←</button>
-        <button class="btn" id="btn-next" onclick="navigateEdit(1)"  title="Next"     style="padding:0 10px;font-size:15px;">→</button>
+        <button type="button" class="btn" id="btn-prev" onclick="navigateEdit(-1)" title="Previous" style="padding:0 10px;font-size:15px;">←</button>
+        <button type="button" class="btn" id="btn-next" onclick="navigateEdit(1)"  title="Next"     style="padding:0 10px;font-size:15px;">→</button>
       </div>
     </div>
 
@@ -259,7 +265,7 @@
           <input id="f-lookup-url" type="text" placeholder="Paste a Google Maps link…"
             style="width:100%;padding:8px 32px 8px 10px;border:1px solid #f9f3e7;background:#fcf9f3;font-family:inherit;font-size:13px;color:#1c1810;"
             onpaste="onLookupPaste()" oninput="scheduleLookup(600)">
-          <span id="lookup-spinner" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:13px;color:#006f84;">⏳</span>
+          <span id="lookup-spinner" style="display:none;position:absolute;right:10px;top:0;bottom:0;margin:auto 0;height:fit-content;font-size:13px;color:#006f84;">⏳</span>
         </div>
         <div id="lookup-status" style="font-size:12px;min-height:16px;color:#6b6560;"></div>
       </div>
@@ -288,6 +294,10 @@
       <div class="form-group checkbox full">
         <input id="f-visited" type="checkbox">
         <label for="f-visited">Visited</label>
+        <div class="f-visited-date-wrap">
+          <input id="f-visited-at" type="date" aria-label="Date visited" max="">
+          <span class="f-date-helper">– Today</span>
+        </div>
       </div>
       <div class="form-group checkbox">
         <input id="f-open-10pm" type="checkbox">
@@ -303,9 +313,9 @@
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn" id="btn-get-missing" style="display:none;margin-right:auto;" onclick="getMissingInfo()">Get missing info</button>
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn primary" onclick="save()">Save</button>
+      <button type="button" class="btn" id="btn-get-missing" style="display:none;margin-right:auto;" onclick="getMissingInfo()">Get missing info</button>
+      <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn primary" onclick="save()">Save</button>
     </div>
   </div>
 </div>
@@ -359,8 +369,8 @@ async function load() {
       <td style="text-align:center;">${r.open_after_11pm ? '✓' : ''}</td>
       <td style="text-align:center;">${r.open_after_midnight ? '✓' : ''}</td>
       <td class="actions">
-        <button class="btn" onclick="openEdit(${r.id})">Edit</button>
-        <button class="btn danger" onclick="del(${r.id})">Delete</button>
+        <button type="button" class="btn" onclick="openEdit(${r.id})">Edit</button>
+        <button type="button" class="btn danger" onclick="del(${r.id})">Delete</button>
       </td>
     </tr>`;
   }
@@ -464,7 +474,9 @@ async function load() {
     document.getElementById('lookup-section').style.display = '';
     document.getElementById('modal-nav').style.display = 'none';
     modalOpenedAt = Date.now();
-    document.getElementById('modal').classList.add('open');
+    const modalEl = document.getElementById('admin-dialog');
+    modalEl.classList.add('open');
+    modalEl.style.display = 'flex';
     document.getElementById('f-lookup-url').focus();
   }
 
@@ -506,6 +518,11 @@ async function load() {
     document.getElementById('f-lat').value     = r.lat     ?? '';
     document.getElementById('f-lng').value     = r.lng     ?? '';
     document.getElementById('f-visited').checked = !!r.visited;
+    const dateVal = r.visited_at || new Date().toISOString().slice(0, 10);
+    document.getElementById('f-visited-at').value = r.visited ? dateVal : '';
+    document.getElementById('f-visited-at').max = new Date().toISOString().slice(0, 10);
+    document.querySelector('.f-visited-date-wrap').classList.toggle('visible', !!r.visited);
+    _fDateClamp();
     document.getElementById('f-open-10pm').checked = !!r.open_after_10pm;
     document.getElementById('f-open-11pm').checked = !!r.open_after_11pm;
     document.getElementById('f-open-midnight').checked = !!r.open_after_midnight;
@@ -514,14 +531,18 @@ async function load() {
     document.getElementById('btn-get-missing').style.display = '';
     document.getElementById('lookup-section').style.display = '';
     modalOpenedAt = Date.now();
-    document.getElementById('modal').classList.add('open');
+    const modalElEdit = document.getElementById('admin-dialog');
+    modalElEdit.classList.add('open');
+    modalElEdit.style.display = 'flex';
     document.getElementById('f-title').focus();
     refreshClearButtons();
     updateNavButtons();
   }
 
   function closeModal() {
-    document.getElementById('modal').classList.remove('open');
+    const modalEl = document.getElementById('admin-dialog');
+    modalEl.classList.remove('open');
+    modalEl.style.display = 'none';
     editingId = null;
     document.getElementById('modal-nav').style.display = 'none';
   }
@@ -608,6 +629,9 @@ async function load() {
       lat:     document.getElementById('f-lat').value,
       lng:     document.getElementById('f-lng').value,
       visited: document.getElementById('f-visited').checked,
+      visited_at: document.getElementById('f-visited').checked
+        ? (document.getElementById('f-visited-at').value || new Date().toISOString().slice(0, 10))
+        : null,
       open_after_10pm: document.getElementById('f-open-10pm').checked,
       open_after_11pm: document.getElementById('f-open-11pm').checked,
       open_after_midnight: document.getElementById('f-open-midnight').checked,
@@ -670,8 +694,26 @@ async function load() {
     });
   }
 
+  function _fDateClamp() {
+    const today = new Date().toISOString().slice(0, 10);
+    const dateEl = document.getElementById('f-visited-at');
+    if (dateEl.value > today) dateEl.value = today;
+    document.querySelector('.f-date-helper').style.display =
+      dateEl.value === today ? '' : 'none';
+  }
+
+  // Toggle visited date input visibility
+  document.getElementById('f-visited').addEventListener('change', function() {
+    const dateEl = document.getElementById('f-visited-at');
+    const wrapEl = document.querySelector('.f-visited-date-wrap');
+    wrapEl.classList.toggle('visible', this.checked);
+    if (this.checked && !dateEl.value) dateEl.value = new Date().toISOString().slice(0, 10);
+    _fDateClamp();
+  });
+  document.getElementById('f-visited-at').addEventListener('change', _fDateClamp);
+  document.getElementById('f-visited-at').addEventListener('input', _fDateClamp);
   // Close modal on backdrop click
-  document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget && Date.now() - modalOpenedAt > 350) closeModal(); });
+  document.getElementById('admin-dialog').addEventListener('click', e => { if (e.target === e.currentTarget && Date.now() - modalOpenedAt > 350) closeModal(); });
   // Close modal on Escape
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 

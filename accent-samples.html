@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accent Samples</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: hsl(42, 60%, 97%);
+      color: hsl(36 13% 37%);
+      padding: 48px 32px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .sample { display: flex; flex-direction: column; gap: 8px; }
+    .label {
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: hsl(30 5% 55%);
+      padding-left: 4px;
+    }
+
+    .card {
+      width: 300px;
+      background: white;
+      border: 1px solid hsl(30 5% 83%);
+      border-radius: 20px;
+      padding: 18px 18px 12px;
+      opacity: 0.65;
+    }
+    .card.terracotta { border-left: 3px solid hsl(16 65% 48%); }
+    .card.olive      { border-left: 3px solid hsl(75 35% 38%); }
+    .card.burgundy   { border-left: 3px solid hsl(345 48% 40%); }
+
+    .card-name {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: hsl(36 13% 37%);
+    }
+    .card-meta {
+      font-size: 0.8125rem;
+      color: hsl(30 5% 55%);
+      margin-bottom: 10px;
+    }
+    .card-note {
+      font-size: 0.875rem;
+      color: hsl(36 13% 45%);
+      line-height: 1.5;
+    }
+    .visited-tag {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: hsl(30 5% 55%);
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sample">
+    <div class="label">Terracotta — hsl(16 65% 48%)</div>
+    <div class="card terracotta">
+      <div class="card-name">Osteria Francescana</div>
+      <div class="card-meta">Modena, Italy · Italian</div>
+      <div class="card-note">One of the best meals of my life. Book months in advance.</div>
+      <div class="visited-tag">✓ Visited</div>
+    </div>
+  </div>
+
+  <div class="sample">
+    <div class="label">Olive — hsl(75 35% 38%)</div>
+    <div class="card olive">
+      <div class="card-name">Osteria Francescana</div>
+      <div class="card-meta">Modena, Italy · Italian</div>
+      <div class="card-note">One of the best meals of my life. Book months in advance.</div>
+      <div class="visited-tag">✓ Visited</div>
+    </div>
+  </div>
+
+  <div class="sample">
+    <div class="label">Burgundy — hsl(345 48% 40%)</div>
+    <div class="card burgundy">
+      <div class="card-name">Osteria Francescana</div>
+      <div class="card-meta">Modena, Italy · Italian</div>
+      <div class="card-note">One of the best meals of my life. Book months in advance.</div>
+      <div class="visited-tag">✓ Visited</div>
+    </div>
+  </div>
+
+</body>
+</html>
