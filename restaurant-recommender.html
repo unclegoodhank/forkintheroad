@@ -38,6 +38,8 @@
       --shape-lg:  20px;
       --shape-full: 9999px;
       --ctrl-height: 45px;
+      /* Card header */
+      --card-header-lh:  1.8rem; /* shared line-height for card header children so baselines align */
       /* Layout */
       --layout-max-width:    760px;
       --layout-gutter:        24px;
@@ -129,7 +131,7 @@
       background: var(--md-surface-container-lowest);
       border: 1px solid var(--md-outline-variant);
       border-radius: var(--shape-lg);
-      padding: 2px 24px;
+      padding: 18px;
       margin-bottom: 12px;
       display: flex;
       flex-wrap: wrap;
@@ -287,6 +289,7 @@
       filter: none;
       text-decoration: none;
       cursor: pointer;
+      line-height: 1;
       transition: opacity 0.6s ease;
       pointer-events: none;
     }
@@ -441,7 +444,7 @@
       background: var(--md-surface-container-lowest);
       border: 1px solid var(--md-outline-variant);
       border-radius: var(--shape-lg);
-      padding: 12px 6px 3px 18px;
+      padding: 12px 18px 13px 18px;
       display: flex;
       flex-direction: column;
       animation: slideIn 0.25s ease-out;
@@ -467,7 +470,7 @@
       font-family: 'Fraunces', Georgia, serif;
       font-size: 1.312rem;
       font-weight: 400;
-      line-height: 1.8rem;
+      line-height: var(--card-header-lh);
       letter-spacing: -0.0125rem;
       margin-bottom: 0;
       color: var(--md-on-surface);
@@ -487,10 +490,11 @@
       align-items: center;
       background: transparent;
       color: var(--color-warm-text);
-      padding: 6px 12px;
+      /* padding: 6px 12px; */
       font-size: 0.8rem;
       font-weight: 400;
       letter-spacing: 0;
+      line-height: var(--card-header-lh);
     }
     .note {
       border-radius: var(--shape-xs);
@@ -501,8 +505,7 @@
     }
     .buttons { display: flex; gap: 9px; }
     button {
-      height: var(--ctrl-height);
-      padding: 0 18px;
+      padding: 9px 18px;
       border: 1px solid var(--color-subtle);
       border-radius: var(--shape-xs);
       background: var(--btn-gradient);
@@ -541,6 +544,7 @@
       text-decoration: underline dotted;
       text-decoration-color: var(--color-warm-text);
       text-underline-offset: 3px;
+      cursor: pointer;
     }
     .results-row {
       display: flex;
@@ -670,13 +674,14 @@
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      gap: 12px;
+      gap: 6px;
       flex-wrap: wrap;
-      /* margin-bottom: 4px; */
+      margin-bottom: -2px;
     }
+    .card header * { vertical-align: baseline; }
     .card-tags {
       display: flex;
-      gap: 0;
+      gap: 12px;
       flex-wrap: wrap;
       flex-shrink: 0;
       list-style: none;
@@ -687,7 +692,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
+      margin-top: 12px;
     }
     .card-location {
       display: flex;
@@ -721,16 +726,17 @@
 .card-added-date { display: none; }
     .visited-badge {
       display: inline-flex;
-      align-items: center;
+      align-items: baseline;
       gap: 4px;
       padding: 3.5px 9px 3px 7px;
       margin-right: auto;
-      background-color: hsl(135deg 85% 33% / 10%);
+      /* background-color: hsl(135deg 85% 33% / 10%); */
       border-radius: var(--shape-full);
       font-size: 0.7rem;
       font-weight: 600;
       color: hsl(135 76% 40% / 1);
       letter-spacing: 0.01rem;
+      line-height: var(--card-header-lh);
     }
     .visited-badge-star { font-size: 0.7rem; }
     @keyframes loc-pulse {
@@ -772,7 +778,11 @@
     .card-edit-btn {
       -webkit-appearance: none; appearance: none;
       background: none; border: none;
-      padding: 0px 14px;
+      padding: 8px;
+      margin: -8px;
+      box-sizing: content-box;
+      height: 18px;
+      width: 18px;
       border-radius: var(--shape-full);
       color: var(--md-on-surface-variant);
       cursor: pointer; line-height: 0;
@@ -862,6 +872,7 @@
       opacity: 0.6; transition: opacity 0.15s;
     }
     .url-visit-btn[href]:not([href=""]) { display: flex; }
+    .url-visit-btn { cursor: pointer; }
     .url-visit-btn:hover { opacity: 1; }
     .edit-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .ce-visited-date-wrap { display: none; position: relative; width: fit-content; }
@@ -1045,7 +1056,7 @@
       .filters select { font-size: 0.9375rem; }
       .segmented label { padding: 0 9px; font-size: 0.75rem; }
 
-      .location-section { padding: 18px; }
+      .location-section { padding: 2px 24px; }
 
       .site-footer { padding-bottom: calc(33px + env(safe-area-inset-bottom)); }
       .site-footer__inner {
@@ -1108,7 +1119,7 @@
 
 
   <!-- 2.4.1 Skip navigation -->
-  <time class="build-stamp" datetime="23:03:59">build 14:38:52</time>
+  <time class="build-stamp" datetime="15:47:03">build 15:49:26</time>
   <a href="#cardContainer" class="skip-link">Skip to results</a>
 
   <header class="site-masthead" aria-label="Site header">
