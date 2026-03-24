@@ -36,12 +36,19 @@
       display: flex;
       gap: 10px;
       align-items: center;
+      justify-content: space-between;
       flex-wrap: wrap;
       border-bottom: 1px solid #f9f3e7;
     }
-    .toolbar input {
-      flex: 2;
-      min-width: 320px;
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+    .toolbar-left input {
+      flex: 1;
+      min-width: 0;
       padding: 8px 12px;
       border: 1px solid #f9f3e7;
       background: white;
@@ -49,7 +56,7 @@
       font-size: 13px;
       color: #1c1810;
     }
-    .toolbar input:focus { outline: 2px solid #006f84; outline-offset: 1px; }
+    .toolbar-left input:focus { outline: 2px solid #006f84; outline-offset: 1px; }
     #rowCount { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #6b6560; white-space: nowrap; }
 
     .btn {
@@ -63,6 +70,7 @@
       letter-spacing: 0.05em;
       text-transform: uppercase;
       cursor: pointer;
+      user-select: none;
       white-space: nowrap;
     }
     .btn:hover { background: #eeece6; }
@@ -203,9 +211,10 @@
 
 <div id="data-notice" style="display:none;padding:8px 1.5rem;font-size:12px;color:#6b6560;background:#f9f3e7;border-bottom:1px solid #f0e8d8;"></div>
 <div class="toolbar">
-  <input type="text" id="search" placeholder="Filter by name, cuisine, note…" oninput="renderTable()">
-  <span id="rowCount"></span>
-  <span style="flex:1;"></span>
+  <div class="toolbar-left">
+    <input type="text" id="search" placeholder="Filter by name, cuisine, note…" oninput="renderTable()">
+    <span id="rowCount"></span>
+  </div>
   <button class="btn primary" onclick="openAdd()">+ Add Place</button>
 </div>
 
@@ -310,6 +319,7 @@
   let sortDir = 1;
   let editingId = null; // null = add mode, number = edit mode
   let renderedRows = [];
+  let modalOpenedAt = 0;
 
   const FOOD_DRINK_TYPES = new Set(['Restaurant','Bar','Café / Coffee','Bakery','Ice Cream / Dessert','Brewery','Winery']);
   function isFoodDrink(type) { return FOOD_DRINK_TYPES.has(type); }
@@ -453,6 +463,7 @@ async function load() {
     document.getElementById('modal-title').textContent = 'Add Place';
     document.getElementById('lookup-section').style.display = '';
     document.getElementById('modal-nav').style.display = 'none';
+    modalOpenedAt = Date.now();
     document.getElementById('modal').classList.add('open');
     document.getElementById('f-lookup-url').focus();
   }
@@ -502,6 +513,7 @@ async function load() {
     document.getElementById('modal-title').textContent = 'Edit Place';
     document.getElementById('btn-get-missing').style.display = '';
     document.getElementById('lookup-section').style.display = '';
+    modalOpenedAt = Date.now();
     document.getElementById('modal').classList.add('open');
     document.getElementById('f-title').focus();
     refreshClearButtons();
@@ -659,7 +671,7 @@ async function load() {
   }
 
   // Close modal on backdrop click
-  document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget && Date.now() - modalOpenedAt > 350) closeModal(); });
   // Close modal on Escape
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
