@@ -1246,8 +1246,8 @@
     .site-footer__copy {
       font-size: 0.75rem;
       font-weight: 400;
-      letter-spacing: 0.1em;
-      color: var(--footer-muted);
+      letter-spacing: 0.15em;
+      color: hsl(30 5% 71% / 1);
     }
 
     /* ── Hero carousel ── */
