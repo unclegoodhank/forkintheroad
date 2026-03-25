@@ -69,13 +69,12 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
     })
   }, [currentLocation?.lat, currentLocation?.lng])
 
-  // Invalidate map size when toggled open
+  // Invalidate map size when toggled open (after transition completes)
   useEffect(() => {
     if (mapOpen && mapRef.current) {
       const fig = document.getElementById('locationMapFigure')
       if (fig) {
-        // Call invalidateSize immediately and again after transition
-        mapRef.current.invalidateSize()
+        // Call invalidateSize only after the height transition completes
         fig.addEventListener('transitionend', () => mapRef.current?.invalidateSize(), { once: true })
       }
     }
