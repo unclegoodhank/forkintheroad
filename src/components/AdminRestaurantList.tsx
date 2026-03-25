@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { Restaurant } from '../types/api'
 import { isFoodDrink, normalizeState } from '../lib/admin-utils'
 
@@ -133,4 +134,3 @@ export default function AdminRestaurantList({
   )
 }
 
-import { Fragment } from 'react'

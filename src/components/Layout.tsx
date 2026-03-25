@@ -1,6 +1,7 @@
 import { Link, Outlet } from 'react-router-dom'
 import HeroCarousel from './HeroCarousel'
 
+import OfflineIndicator from './OfflineIndicator'
 const TEXT_SIZES: Record<string, string> = { small: '14px', medium: '15px', large: '17px' }
 
 export default function Layout() {
@@ -10,6 +11,7 @@ export default function Layout() {
 
   return (
     <div className="layout">
+      <OfflineIndicator />
       <a href="#cardContainer" className="skip-link">Skip to results</a>
       <header className="site-masthead" aria-label="Site header">
         <div className="site-masthead__inner">

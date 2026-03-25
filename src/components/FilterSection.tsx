@@ -1,28 +1,11 @@
 import { useCallback, useRef, useEffect, useState } from 'react'
 import { Restaurant } from '../types/api'
+import { FOOD_DRINK_TYPES } from '../lib/admin-utils'
+import { FilterPreset } from '../types/filters'
+import { generatePresetName } from '../lib/preset-utils'
 
-interface FilterPreset {
-  id: string
-  name: string
-  description: string
-  searchQuery: string
-  cuisine: string
-  radius: number
-  visited: '' | 'visited' | 'unvisited'
-  added: string
-  sort: string
-}
 
-const FOOD_DRINK_TYPES = new Set(['Restaurant', 'Bar', 'Café / Coffee', 'Bakery', 'Ice Cream / Dessert', 'Brewery', 'Winery'])
 
-const generatePresetName = (cuisine: string, visited: '' | 'visited' | 'unvisited', sort: string): string => {
-  const parts: string[] = []
-  if (cuisine) parts.push(cuisine)
-  if (visited === 'visited') parts.push('Visited')
-  else if (visited === 'unvisited') parts.push('Unvisited')
-  if (sort !== 'distance') parts.push(sort.charAt(0).toUpperCase() + sort.slice(1))
-  return parts.length ? parts.join(', ') : 'My filters'
-}
 
 const SLIDER_SNAPS = [0, 11.67, 23.33, 35, 46.67, 58.33, 70, 75, 80, 85, 90, 95, 100]
 const SLIDER_DISTANCES = [5, 10, 20, 30, 40, 50, 60, 100, 200, 300, 400, 500, Infinity]

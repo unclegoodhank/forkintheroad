@@ -2,23 +2,13 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { api } from '../lib/api'
 import { Restaurant } from '../types/api'
 import { smartify } from '../lib/smartify'
-import { normalizeState, TYPE_OPTIONS } from '../lib/admin-utils'
+import { normalizeState, TYPE_OPTIONS, FOOD_DRINK_TYPES } from '../lib/admin-utils'
 import LocationSection from '../components/LocationSection'
 import FilterSection, { sliderToDistance, sliderLabel } from '../components/FilterSection'
+import { FilterPreset } from '../types/filters'
+import { generatePresetName } from '../lib/preset-utils'
 
-const FOOD_DRINK_TYPES = new Set(['Restaurant', 'Bar', 'Café / Coffee', 'Bakery', 'Ice Cream / Dessert', 'Brewery', 'Winery'])
 
-interface FilterPreset {
-  id: string
-  name: string
-  description: string
-  searchQuery: string
-  cuisine: string
-  radius: number
-  visited: '' | 'visited' | 'unvisited'
-  added: string
-  sort: string
-}
 
 function launchConfetti(el: HTMLElement) {
   const rect = el.getBoundingClientRect()
@@ -119,19 +109,11 @@ export default function Home() {
     setSortOrder('distance')
   }
 
-  const generatePresetName = (): string => {
-    const parts: string[] = []
-    if (selectedCuisine) parts.push(selectedCuisine)
-    if (visitedFilter === 'visited') parts.push('Visited')
-    else if (visitedFilter === 'unvisited') parts.push('Unvisited')
-    if (sortOrder !== 'distance') parts.push(sortOrder.charAt(0).toUpperCase() + sortOrder.slice(1))
-    return parts.length ? parts.join(', ') : 'My filters'
-  }
 
   const saveCurrentAsPreset = () => {
     const newPreset: FilterPreset = {
       id: Date.now().toString(),
-      name: generatePresetName(),
+      name: generatePresetName(selectedCuisine, visitedFilter, sortOrder),
       description: '',
       searchQuery,
       cuisine: selectedCuisine,

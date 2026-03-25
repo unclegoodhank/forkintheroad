@@ -1835,3 +1835,39 @@
     border-color: hsl(200 60% 35%);
   }
   .admin-dialog__footer button.primary:hover { background: hsl(200 60% 42%); }
+
+/* Offline Indicator */
+.offline-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #d32f2f;
+  color: white;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9999;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.offline-indicator-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+  animation: pulse-offline 2s infinite;
+}
+
+@keyframes pulse-offline {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
