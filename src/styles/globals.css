@@ -825,13 +825,13 @@
       font-size: 0.6875rem; font-weight: 400; letter-spacing: 0.06em;
       color: var(--md-on-surface-variant);
     }
-    .edit-field input[type="checkbox"] + label,
-    .edit-field label:has(input[type="checkbox"]) {
-      display: flex; flex-direction: row; align-items: center; gap: 8px;
+    .edit-field .checkbox-label {
+      display: flex; align-items: center; gap: 6px;
       font-size: 0.9375rem; color: var(--md-on-surface);
-    }
-    .edit-field label:has(input[type="checkbox"]) {
       margin-top: 8px;
+    }
+    .edit-field .checkbox-label input[type="checkbox"] {
+      margin: 0;
     }
     .edit-field input, .edit-field select, .edit-field textarea {
       font-family: inherit; font-size: 0.9375rem;
