@@ -826,12 +826,17 @@
       color: var(--md-on-surface-variant);
     }
     .edit-field .checkbox-label {
-      display: flex; align-items: center; gap: 6px;
+      display: flex; align-items: center; justify-content: flex-start; gap: 6px;
       font-size: 0.9375rem; color: var(--md-on-surface);
       margin-top: 8px;
+      margin-bottom: 0;
+      padding: 0;
     }
     .edit-field .checkbox-label input[type="checkbox"] {
       margin: 0;
+      padding: 0;
+      width: auto;
+      height: auto;
     }
     .edit-field input, .edit-field select, .edit-field textarea {
       font-family: inherit; font-size: 0.9375rem;

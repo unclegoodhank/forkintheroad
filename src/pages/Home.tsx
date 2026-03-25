@@ -397,13 +397,13 @@ export default function Home() {
 
             <div className="edit-field">
               <label htmlFor="edit-visited" className="checkbox-label">
-                Visited
                 <input
                   id="edit-visited"
                   type="checkbox"
                   checked={!!editFormData.visited}
                   onChange={(e) => setEditFormData({ ...editFormData, visited: e.target.checked ? 1 : 0 })}
                 />
+                Visited
               </label>
             </div>
 
