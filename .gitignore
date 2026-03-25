@@ -1,4 +1,7 @@
 node_modules/
+dist/
+dist-ssr/
+*.local
 
 # SSL certs (regenerate locally with openssl)
 key.pem

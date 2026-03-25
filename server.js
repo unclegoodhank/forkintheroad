@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const session = require('express-session');
 const path = require('path');
 const https = require('https');
@@ -9,6 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const PASSWORD = process.env.PASSWORD || 'hello';
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(session({
@@ -20,8 +22,18 @@ app.use(session({
 
 // ── Static assets ──────────────────────────────────────────────────────────
 app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use(express.static(path.join(__dirname, 'dist'))); // Serve Vite build
 app.get('/robots.txt', (req, res) => res.sendFile(path.join(__dirname, 'robots.txt')));
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'restaurant-recommender.html')));
+
+// Serve index.html for SPA routing (must be after other routes)
+app.get('/', (req, res) => {
+  const indexPath = path.join(__dirname, 'dist', 'index.html');
+  if (require('fs').existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.sendFile(path.join(__dirname, 'restaurant-recommender.html'));
+  }
+});
 
 // ── Restaurant API ─────────────────────────────────────────────────────────
 app.get('/api/restaurants', (req, res) => {
