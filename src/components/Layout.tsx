@@ -26,7 +26,7 @@ export default function Layout() {
         <div className="site-footer__inner">
           <div>
             <span className="site-footer__name">Fork in the road</span>
-            <p className="site-footer__tagline">Find places by distance from your location</p>
+            <p className="site-footer__tagline">Your personal travel guide</p>
             <div className="text-resizer">
               <span className="text-resizer__label">Text size</span>
               <fieldset className="segmented">
