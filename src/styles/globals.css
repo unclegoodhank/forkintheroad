@@ -831,6 +831,12 @@
       margin-top: 8px;
       margin-bottom: 0;
       padding: 0;
+      width: fit-content;
+    }
+    .edit-field-row .checkbox-label {
+      margin-right: 24px;
+      margin-top: 0;
+      margin-bottom: 0;
     }
     .edit-field .checkbox-label input[type="checkbox"] {
       margin: 0;
@@ -842,7 +848,6 @@
       flex-direction: row !important;
       align-items: center;
       justify-content: flex-start;
-      gap: 24px;
     }
     .edit-visited-date-input {
       font-family: inherit; font-size: 0.9375rem;
@@ -897,7 +902,7 @@
     .url-visit-btn[href]:not([href=""]) { display: flex; }
     .url-visit-btn { cursor: pointer; }
     .url-visit-btn:hover { opacity: 1; }
-    .edit-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .edit-field-row { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; }
     .ce-visited-date-wrap { display: none; position: relative; width: fit-content; }
     #ce-visited:checked ~ .ce-visited-date-wrap { display: block; }
     .edit-field input.ce-visited-at { width: 197px; }
