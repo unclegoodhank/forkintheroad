@@ -382,7 +382,7 @@
       flex-direction: column;
       gap: 12px;
       border-radius: var(--shape-xs);
-      padding: 12px 12px 3px;
+      padding: 12px 0 3px;
       border: none;
       flex: 0 0 100%;
     }
