@@ -20,66 +20,48 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
   const tileLayerRef = useRef<any>(null)
   const mapContainerRef = useRef<HTMLDivElement>(null)
 
-  // Initialize or update Leaflet map when location changes
+  // Initialize map when modal opens, clean up when it closes
   useEffect(() => {
+    if (!mapOpen) {
+      // Clean up old map when modal closes
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+        markerRef.current = null
+        tileLayerRef.current = null
+      }
+      return
+    }
     if (!currentLocation?.lat || !currentLocation?.lng) return
     const lat = currentLocation.lat
     const lng = currentLocation.lng
 
     loadLeaflet().then((L) => {
+      if (!mapContainerRef.current || mapRef.current) return
       const icon = L.divIcon({
         html: '<div class="loc-pin"></div>',
         iconSize: [14, 14],
         iconAnchor: [7, 7],
         className: '',
       })
-      if (!mapRef.current && mapContainerRef.current) {
-        mapRef.current = L.map(mapContainerRef.current, {
-          zoomControl: false,
-          attributionControl: false,
-          dragging: false,
-          scrollWheelZoom: false,
-          doubleClickZoom: false,
-          touchZoom: false,
-          keyboard: false,
-        }).setView([lat, lng], 14)
-        
-        // Create optimized tile layer with smooth transitions
-        const newTileLayer = createOptimizedTileLayer(L)
-        smoothTransitionTiles(tileLayerRef.current, newTileLayer, mapRef.current)
-        tileLayerRef.current = newTileLayer
-        
-        markerRef.current = L.marker([lat, lng], { icon }).addTo(mapRef.current)
-        
-        // Preload adjacent tiles
-        setTimeout(() => preloadAdjacentTiles(mapRef.current, L), 100)
-      } else if (mapRef.current) {
-        mapRef.current.setView([lat, lng], 14)
-        if (markerRef.current) markerRef.current.setLatLng([lat, lng])
-        
-        // Smooth transition to new tiles when location updates
-        const oldTileLayer = tileLayerRef.current
-        const newTileLayer = createOptimizedTileLayer(L)
-        smoothTransitionTiles(oldTileLayer, newTileLayer, mapRef.current)
-        tileLayerRef.current = newTileLayer
-        
-        // Preload adjacent tiles
-        setTimeout(() => preloadAdjacentTiles(mapRef.current, L), 100)
-      }
-    })
-  }, [currentLocation?.lat, currentLocation?.lng])
+      mapRef.current = L.map(mapContainerRef.current, {
+        zoomControl: true,
+        attributionControl: false,
+        dragging: true,
+        scrollWheelZoom: true,
+        doubleClickZoom: true,
+        touchZoom: true,
+        keyboard: true,
+      }).setView([lat, lng], 14)
 
-  // Invalidate map size when toggled open
-  useEffect(() => {
-    if (mapOpen && mapRef.current) {
-      const fig = document.getElementById('locationMapFigure')
-      if (fig) {
-        // Call invalidateSize immediately and again after transition
-        mapRef.current.invalidateSize()
-        fig.addEventListener('transitionend', () => mapRef.current?.invalidateSize(), { once: true })
-      }
-    }
-  }, [mapOpen])
+      const newTileLayer = createOptimizedTileLayer(L)
+      newTileLayer.addTo(mapRef.current)
+      tileLayerRef.current = newTileLayer
+
+      markerRef.current = L.marker([lat, lng], { icon }).addTo(mapRef.current)
+    })
+  }, [mapOpen, currentLocation?.lat, currentLocation?.lng])
+
 
   // Auto-detect location on mount
   useEffect(() => {
@@ -252,17 +234,24 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
           id="mapToggle"
           type="button"
           aria-expanded={mapOpen}
-          aria-controls="locationMapFigure"
-          aria-label="Toggle location map"
+          aria-label="Show location map"
           onClick={toggleMap}
         />
       )}
 
-      <figure id="locationMapFigure" className={mapOpen ? 'is-open' : ''}>
-        <div id="locationMap" ref={mapContainerRef}></div>
-      </figure>
+      {mapOpen && (
+        <div className="map-modal-overlay" onClick={toggleMap}>
+          <div className="map-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="map-modal-header">
+              <span className="map-modal-title">{currentLocation?.name || 'Your location'}</span>
+              <button className="map-modal-close" onClick={toggleMap} aria-label="Close map">&times;</button>
+            </div>
+            <div id="locationMap" ref={mapContainerRef}></div>
+          </div>
+        </div>
+      )}
 
-      {error && (
+      {error && !currentLocation && (
         <p id="locationError" className="location-error">
           {error}
         </p>
