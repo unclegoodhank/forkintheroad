@@ -20,108 +20,56 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
   const tileLayerRef = useRef<any>(null)
   const mapContainerRef = useRef<HTMLDivElement>(null)
 
-  // Mock geolocation API for testing
+  // Initialize map when modal opens, clean up when it closes
   useEffect(() => {
-    if (!navigator.geolocation || navigator.geolocation._mocked) return
-    const originalGetCurrentPosition = navigator.geolocation.getCurrentPosition
-    navigator.geolocation.getCurrentPosition = function(success, error) {
-      setTimeout(() => {
-        success({
-          coords: {
-            latitude: 37.7749,
-            longitude: -122.4194,
-            accuracy: 50,
-            altitude: null,
-            altitudeAccuracy: null,
-            heading: null,
-            speed: null,
-          },
-        } as GeolocationPosition)
-      }, 500)
+    if (!mapOpen) {
+      // Clean up old map when modal closes
+      if (mapRef.current) {
+        mapRef.current.remove()
+        mapRef.current = null
+        markerRef.current = null
+        tileLayerRef.current = null
+      }
+      return
     }
-    ;(navigator.geolocation as any)._mocked = true
-  }, [])
-
-  // Initialize map when first opened, OR update location if already initialized
-  useEffect(() => {
     if (!currentLocation?.lat || !currentLocation?.lng) return
     const lat = currentLocation.lat
     const lng = currentLocation.lng
 
-    // If map is open and not yet initialized, initialize it now
-    if (mapOpen && !mapRef.current && mapContainerRef.current) {
-      loadLeaflet().then((L) => {
-        const icon = L.divIcon({
-          html: '<div class="loc-pin"></div>',
-          iconSize: [14, 14],
-          iconAnchor: [7, 7],
-          className: '',
-        })
-        mapRef.current = L.map(mapContainerRef.current, {
-          zoomControl: false,
-          attributionControl: false,
-          dragging: false,
-          scrollWheelZoom: false,
-          doubleClickZoom: false,
-          touchZoom: false,
-          keyboard: false,
-        }).setView([lat, lng], 14)
-
-        const newTileLayer = createOptimizedTileLayer(L)
-        newTileLayer.addTo(mapRef.current)
-        tileLayerRef.current = newTileLayer
-
-        markerRef.current = L.marker([lat, lng], { icon }).addTo(mapRef.current)
-        setTimeout(() => preloadAdjacentTiles(mapRef.current, L), 100)
+    loadLeaflet().then((L) => {
+      if (!mapContainerRef.current || mapRef.current) return
+      const icon = L.divIcon({
+        html: '<div class="loc-pin"></div>',
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+        className: '',
       })
-    } else if (mapRef.current) {
-      // Update existing map location
-      mapRef.current.setView([lat, lng], 14)
-      if (markerRef.current) markerRef.current.setLatLng([lat, lng])
-    }
-  }, [currentLocation?.lat, currentLocation?.lng, mapOpen])
+      mapRef.current = L.map(mapContainerRef.current, {
+        zoomControl: true,
+        attributionControl: false,
+        dragging: true,
+        scrollWheelZoom: true,
+        doubleClickZoom: true,
+        touchZoom: true,
+        keyboard: true,
+      }).setView([lat, lng], 14)
 
-  // Invalidate map size when toggled open (after transition completes)
-  useEffect(() => {
-    if (mapOpen && mapRef.current) {
-      const fig = document.getElementById('locationMapFigure')
-      if (fig) {
-        // Call invalidateSize after transition ends with a longer delay for rendering
-        const handleTransitionEnd = () => {
-          setTimeout(() => {
-            mapRef.current?.invalidateSize()
-            // Call again to ensure it's properly sized
-            setTimeout(() => {
-              mapRef.current?.invalidateSize()
-            }, 100)
-          }, 200)
-        }
-        fig.addEventListener('transitionend', handleTransitionEnd, { once: true })
-      }
-    }
-  }, [mapOpen])
+      const newTileLayer = createOptimizedTileLayer(L)
+      newTileLayer.addTo(mapRef.current)
+      tileLayerRef.current = newTileLayer
 
-  // Auto-detect location on mount (with mock fallback)
+      markerRef.current = L.marker([lat, lng], { icon }).addTo(mapRef.current)
+    })
+  }, [mapOpen, currentLocation?.lat, currentLocation?.lng])
+
+
+  // Auto-detect location on mount
   useEffect(() => {
     if (!hasAutoDetected.current) {
       hasAutoDetected.current = true
-      // Try geolocation first, but use mock location as fallback
       detectLocation()
-      // Fallback to mock location after 2 seconds if geolocation fails
-      const fallbackTimer = setTimeout(() => {
-        if (!currentLocation) {
-          const mockLat = 37.7749
-          const mockLng = -122.4194
-          const mockName = 'San Francisco, CA 94102'
-          onLocationChange({ lat: mockLat, lng: mockLng, name: mockName })
-          setShowMapToggle(true)
-          setError(null)
-          setDetecting(false)
-        }
-      }, 2000)
-      return () => clearTimeout(fallbackTimer)
     }
-  }, [currentLocation, onLocationChange])
+  }, [])
 
   // Deferred load Leaflet after page content renders
   useEffect(() => {
@@ -286,15 +234,22 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
           id="mapToggle"
           type="button"
           aria-expanded={mapOpen}
-          aria-controls="locationMapFigure"
-          aria-label="Toggle location map"
+          aria-label="Show location map"
           onClick={toggleMap}
         />
       )}
 
-      <figure id="locationMapFigure" className={mapOpen ? 'is-open' : ''}>
-        <div id="locationMap" ref={mapContainerRef}></div>
-      </figure>
+      {mapOpen && (
+        <div className="map-modal-overlay" onClick={toggleMap}>
+          <div className="map-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="map-modal-header">
+              <span className="map-modal-title">{currentLocation?.name || 'Your location'}</span>
+              <button className="map-modal-close" onClick={toggleMap} aria-label="Close map">&times;</button>
+            </div>
+            <div id="locationMap" ref={mapContainerRef}></div>
+          </div>
+        </div>
+      )}
 
       {error && !currentLocation && (
         <p id="locationError" className="location-error">
