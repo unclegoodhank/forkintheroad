@@ -838,6 +838,24 @@
       width: auto;
       height: auto;
     }
+    .edit-field-row {
+      flex-direction: row !important;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 24px;
+    }
+    .edit-visited-date-input {
+      font-family: inherit; font-size: 0.9375rem;
+      color: var(--md-on-primary-container);
+      background: var(--md-surface-container-low);
+      border: 1px solid var(--color-subtle);
+      border-radius: var(--shape-xs);
+      padding: 9px 12px;
+      flex: 0 0 auto;
+    }
+    .edit-visited-date-input:focus {
+      outline: none; box-shadow: var(--focus-glow); border-color: var(--color-warm-text);
+    }
     .edit-field input, .edit-field select, .edit-field textarea {
       font-family: inherit; font-size: 0.9375rem;
       color: var(--md-on-primary-container);

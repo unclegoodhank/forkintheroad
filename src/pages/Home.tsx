@@ -395,7 +395,7 @@ export default function Home() {
               />
             </div>
 
-            <div className="edit-field">
+            <div className="edit-field edit-field-row">
               <label htmlFor="edit-visited" className="checkbox-label">
                 <input
                   id="edit-visited"
@@ -405,19 +405,16 @@ export default function Home() {
                 />
                 Visited
               </label>
-            </div>
-
-            {editFormData.visited && (
-              <div className="edit-field">
-                <label htmlFor="edit-visited-at">Visited Date</label>
+              {!!editFormData.visited && (
                 <input
                   id="edit-visited-at"
                   type="date"
+                  className="edit-visited-date-input"
                   value={editFormData.visited_at || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, visited_at: e.target.value })}
                 />
-              </div>
-            )}
+              )}
+            </div>
 
             <div className="card-edit-actions">
               <button className="btn" onClick={closeEditModal}>
