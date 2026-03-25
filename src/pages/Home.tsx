@@ -259,10 +259,16 @@ export default function Home() {
                         <>
                           {' · '}
                           <time dateTime={r.visited_at}>
-                            {new Date(r.visited_at + 'T12:00:00').toLocaleDateString('en-US', {
-                              month: 'short',
-                              year: 'numeric',
-                            })}
+                            {(() => {
+                              const visitedDate = new Date(r.visited_at + 'T12:00:00')
+                              const today = new Date()
+                              const isToday = visitedDate.toDateString() === today.toDateString()
+                              const dateStr = visitedDate.toLocaleDateString('en-US', {
+                                month: 'short',
+                                year: 'numeric',
+                              })
+                              return isToday ? `${dateStr} – Today` : dateStr
+                            })()}
                           </time>
                         </>
                       )}
