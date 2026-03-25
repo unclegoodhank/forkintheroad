@@ -787,6 +787,7 @@
     /* ── Card edit modal ── */
     #cardEditModal {
       display: none; border: none; background: transparent;
+      position: fixed; top: 0; left: 0;
       width: 100dvw; max-width: 100dvw; height: 100dvh; max-height: 100dvh;
       margin: 0; padding: 24px;
       align-items: center; justify-content: center;
