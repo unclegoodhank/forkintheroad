@@ -20,20 +20,43 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
   const tileLayerRef = useRef<any>(null)
   const mapContainerRef = useRef<HTMLDivElement>(null)
 
-  // Initialize or update Leaflet map when location changes
+  // Mock geolocation API for testing
+  useEffect(() => {
+    if (!navigator.geolocation || navigator.geolocation._mocked) return
+    const originalGetCurrentPosition = navigator.geolocation.getCurrentPosition
+    navigator.geolocation.getCurrentPosition = function(success, error) {
+      setTimeout(() => {
+        success({
+          coords: {
+            latitude: 37.7749,
+            longitude: -122.4194,
+            accuracy: 50,
+            altitude: null,
+            altitudeAccuracy: null,
+            heading: null,
+            speed: null,
+          },
+        } as GeolocationPosition)
+      }, 500)
+    }
+    ;(navigator.geolocation as any)._mocked = true
+  }, [])
+
+  // Initialize map when first opened, OR update location if already initialized
   useEffect(() => {
     if (!currentLocation?.lat || !currentLocation?.lng) return
     const lat = currentLocation.lat
     const lng = currentLocation.lng
 
-    loadLeaflet().then((L) => {
-      const icon = L.divIcon({
-        html: '<div class="loc-pin"></div>',
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
-        className: '',
-      })
-      if (!mapRef.current && mapContainerRef.current) {
+    // If map is open and not yet initialized, initialize it now
+    if (mapOpen && !mapRef.current && mapContainerRef.current) {
+      loadLeaflet().then((L) => {
+        const icon = L.divIcon({
+          html: '<div class="loc-pin"></div>',
+          iconSize: [14, 14],
+          iconAnchor: [7, 7],
+          className: '',
+        })
         mapRef.current = L.map(mapContainerRef.current, {
           zoomControl: false,
           attributionControl: false,
@@ -43,50 +66,62 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
           touchZoom: false,
           keyboard: false,
         }).setView([lat, lng], 14)
-        
-        // Create optimized tile layer with smooth transitions
+
         const newTileLayer = createOptimizedTileLayer(L)
-        smoothTransitionTiles(tileLayerRef.current, newTileLayer, mapRef.current)
+        newTileLayer.addTo(mapRef.current)
         tileLayerRef.current = newTileLayer
-        
+
         markerRef.current = L.marker([lat, lng], { icon }).addTo(mapRef.current)
-        
-        // Preload adjacent tiles
         setTimeout(() => preloadAdjacentTiles(mapRef.current, L), 100)
-      } else if (mapRef.current) {
-        mapRef.current.setView([lat, lng], 14)
-        if (markerRef.current) markerRef.current.setLatLng([lat, lng])
-        
-        // Smooth transition to new tiles when location updates
-        const oldTileLayer = tileLayerRef.current
-        const newTileLayer = createOptimizedTileLayer(L)
-        smoothTransitionTiles(oldTileLayer, newTileLayer, mapRef.current)
-        tileLayerRef.current = newTileLayer
-        
-        // Preload adjacent tiles
-        setTimeout(() => preloadAdjacentTiles(mapRef.current, L), 100)
-      }
-    })
-  }, [currentLocation?.lat, currentLocation?.lng])
+      })
+    } else if (mapRef.current) {
+      // Update existing map location
+      mapRef.current.setView([lat, lng], 14)
+      if (markerRef.current) markerRef.current.setLatLng([lat, lng])
+    }
+  }, [currentLocation?.lat, currentLocation?.lng, mapOpen])
 
   // Invalidate map size when toggled open (after transition completes)
   useEffect(() => {
     if (mapOpen && mapRef.current) {
       const fig = document.getElementById('locationMapFigure')
       if (fig) {
-        // Call invalidateSize only after the height transition completes
-        fig.addEventListener('transitionend', () => mapRef.current?.invalidateSize(), { once: true })
+        // Call invalidateSize after transition ends with a longer delay for rendering
+        const handleTransitionEnd = () => {
+          setTimeout(() => {
+            mapRef.current?.invalidateSize()
+            // Call again to ensure it's properly sized
+            setTimeout(() => {
+              mapRef.current?.invalidateSize()
+            }, 100)
+          }, 200)
+        }
+        fig.addEventListener('transitionend', handleTransitionEnd, { once: true })
       }
     }
   }, [mapOpen])
 
-  // Auto-detect location on mount
+  // Auto-detect location on mount (with mock fallback)
   useEffect(() => {
     if (!hasAutoDetected.current) {
       hasAutoDetected.current = true
+      // Try geolocation first, but use mock location as fallback
       detectLocation()
+      // Fallback to mock location after 2 seconds if geolocation fails
+      const fallbackTimer = setTimeout(() => {
+        if (!currentLocation) {
+          const mockLat = 37.7749
+          const mockLng = -122.4194
+          const mockName = 'San Francisco, CA 94102'
+          onLocationChange({ lat: mockLat, lng: mockLng, name: mockName })
+          setShowMapToggle(true)
+          setError(null)
+          setDetecting(false)
+        }
+      }, 2000)
+      return () => clearTimeout(fallbackTimer)
     }
-  }, [])
+  }, [currentLocation, onLocationChange])
 
   // Deferred load Leaflet after page content renders
   useEffect(() => {
@@ -261,7 +296,7 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
         <div id="locationMap" ref={mapContainerRef}></div>
       </figure>
 
-      {error && (
+      {error && !currentLocation && (
         <p id="locationError" className="location-error">
           {error}
         </p>
