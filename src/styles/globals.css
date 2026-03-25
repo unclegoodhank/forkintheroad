@@ -314,7 +314,7 @@
     .filter-toggle-btn:hover { color: var(--color-warm-text); }
     .filter-content {
       flex: 0 0 100%; display: flex; flex-wrap: wrap; gap: inherit;
-      overflow: hidden; max-height: 2000px; opacity: 1;
+      overflow: visible; max-height: 2000px; opacity: 1;
       transition: max-height calc(var(--transition-reveal) / 2) ease,
                   opacity calc(var(--transition-reveal) / 2) ease,
                   margin-top calc(var(--transition-reveal) / 2) ease;
