@@ -412,7 +412,7 @@ export default function Home() {
                 Visited
               </label>
               {!!editFormData.visited && (
-                <div style={{ position: 'relative', width: '328px' }}>
+                <div style={{ position: 'relative', width: '328px', overflow: 'visible' }}>
                   <input
                     id="edit-visited-at"
                     type="date"
@@ -426,7 +426,7 @@ export default function Home() {
                     return selectedDate.toDateString() === today.toDateString() ? (
                       <span style={{
                         position: 'absolute',
-                        left: '77px',
+                        left: '99px',
                         top: '50%',
                         transform: 'translateY(-50%)',
                         fontSize: '0.9375rem',
