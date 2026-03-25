@@ -1196,21 +1196,29 @@
       align-items: end;
       gap: 30px;
     }
-    .site-footer__name {
-      display: block;
+    .site-footer hgroup {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .site-footer h1 {
       font-family: 'Fraunces', Georgia, serif;
       font-style: italic;
       font-size: 1.875rem;
       font-weight: 400;
       color: var(--footer-color);
-      margin-bottom: 6px;
+      margin: 0 0 6px 0;
+      padding: 0;
       letter-spacing: -0.01875rem;
+      line-height: 1;
     }
-    .site-footer__tagline {
+    .site-footer p {
       font-size: 0.75rem;
       font-weight: 400;
-      letter-spacing: 0.1em;
-      color: var(--footer-muted);
+      letter-spacing: 0.15em;
+      color: hsl(30 5% 71% / 1);
+      margin: 0;
+      padding: 0;
     }
     .text-resizer {
       margin-top: 24px;

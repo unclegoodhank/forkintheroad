@@ -25,8 +25,10 @@ export default function Layout() {
       <footer className="site-footer" aria-label="Site footer">
         <div className="site-footer__inner">
           <div>
-            <span className="site-footer__name">Fork in the road</span>
-            <p className="site-footer__tagline">Your personal travel guide</p>
+            <hgroup>
+              <h1>Fork in the road</h1>
+              <p>Your personal travel guide</p>
+            </hgroup>
             <div className="text-resizer">
               <span className="text-resizer__label">Text size</span>
               <fieldset className="segmented">
