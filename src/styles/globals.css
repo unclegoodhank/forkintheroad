@@ -834,9 +834,13 @@
       width: fit-content;
     }
     .edit-field-row .checkbox-label {
-      margin-right: 24px;
+      margin-right: 12px;
       margin-top: 0;
       margin-bottom: 0;
+    }
+    .edit-field-row .edit-visited-date-input {
+      flex: 0 0 auto;
+      width: 328px;
     }
     .edit-field .checkbox-label input[type="checkbox"] {
       margin: 0;
