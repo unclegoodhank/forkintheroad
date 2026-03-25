@@ -426,7 +426,7 @@ export default function Home() {
                     return selectedDate.toDateString() === today.toDateString() ? (
                       <span style={{
                         position: 'absolute',
-                        left: '73px',
+                        left: '77px',
                         top: '50%',
                         transform: 'translateY(-50%)',
                         fontSize: '0.9375rem',
