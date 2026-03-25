@@ -29,6 +29,7 @@ export default function Layout() {
               <h1>Fork in the road</h1>
               <p>Your personal travel guide</p>
             </hgroup>
+            {/* ARCHIVED: Text Size module - restore if needed
             <div className="text-resizer">
               <span className="text-resizer__label">Text size</span>
               <fieldset className="segmented">
@@ -47,6 +48,7 @@ export default function Layout() {
                 </label>
               </fieldset>
             </div>
+            */}
           </div>
           <div>
             <p className="site-footer__copy">Made in Oakland, California.</p>
