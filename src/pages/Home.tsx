@@ -412,7 +412,7 @@ export default function Home() {
                 Visited
               </label>
               {!!editFormData.visited && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                <div style={{ position: 'relative', width: '328px' }}>
                   <input
                     id="edit-visited-at"
                     type="date"
@@ -424,7 +424,17 @@ export default function Home() {
                     const selectedDate = new Date(editFormData.visited_at + 'T12:00:00')
                     const today = new Date()
                     return selectedDate.toDateString() === today.toDateString() ? (
-                      <span style={{ fontSize: '0.75rem', color: 'var(--md-on-surface-variant)' }}>– Today</span>
+                      <span style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        fontSize: '0.9375rem',
+                        color: 'var(--md-on-surface-variant)',
+                        pointerEvents: 'none'
+                      }}>
+                        – Today
+                      </span>
                     ) : null
                   })()}
                 </div>
