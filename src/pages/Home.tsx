@@ -426,12 +426,13 @@ export default function Home() {
                     return selectedDate.toDateString() === today.toDateString() ? (
                       <span style={{
                         position: 'absolute',
-                        right: '12px',
+                        right: '38px',
                         top: '50%',
                         transform: 'translateY(-50%)',
                         fontSize: '0.9375rem',
                         color: 'var(--md-on-surface-variant)',
-                        pointerEvents: 'none'
+                        pointerEvents: 'none',
+                        whiteSpace: 'nowrap'
                       }}>
                         – Today
                       </span>
