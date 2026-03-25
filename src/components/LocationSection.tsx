@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 
 interface LocationSectionProps {
   currentLocation: { lat: number; lng: number; name: string } | null
@@ -9,8 +11,62 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
   const [detecting, setDetecting] = useState(false)
   const [mapOpen, setMapOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [locNameClass, setLocNameClass] = useState('')
+  const [showMapToggle, setShowMapToggle] = useState(!!currentLocation)
+  const [showUpdate, setShowUpdate] = useState(true)
+  const hasAutoDetected = useRef(false)
+  const mapRef = useRef<L.Map | null>(null)
+  const markerRef = useRef<L.Marker | null>(null)
+  const mapContainerRef = useRef<HTMLDivElement>(null)
 
-  const useCurrentLocation = () => {
+  // Initialize or update Leaflet map when location changes
+  useEffect(() => {
+    if (!currentLocation?.lat || !currentLocation?.lng) return
+    const lat = currentLocation.lat
+    const lng = currentLocation.lng
+    const icon = L.divIcon({
+      html: '<div class="loc-pin"></div>',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+      className: '',
+    })
+    if (!mapRef.current && mapContainerRef.current) {
+      mapRef.current = L.map(mapContainerRef.current, {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        touchZoom: false,
+        keyboard: false,
+      }).setView([lat, lng], 14)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mapRef.current)
+      markerRef.current = L.marker([lat, lng], { icon }).addTo(mapRef.current)
+    } else if (mapRef.current) {
+      mapRef.current.setView([lat, lng], 14)
+      if (markerRef.current) markerRef.current.setLatLng([lat, lng])
+    }
+  }, [currentLocation?.lat, currentLocation?.lng])
+
+  // Invalidate map size when toggled open
+  useEffect(() => {
+    if (mapOpen && mapRef.current) {
+      const fig = document.getElementById('locationMapFigure')
+      if (fig) {
+        fig.addEventListener('transitionend', () => mapRef.current?.invalidateSize(), { once: true })
+      }
+    }
+  }, [mapOpen])
+
+  // Auto-detect location on mount
+  useEffect(() => {
+    if (!hasAutoDetected.current) {
+      hasAutoDetected.current = true
+      detectLocation()
+    }
+  }, [])
+
+  const detectLocation = () => {
     if (!navigator.geolocation) {
       alert('Geolocation is not supported by your browser.')
       return
@@ -18,48 +74,76 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
 
     setDetecting(true)
     setError(null)
+    setShowUpdate(false)
+    setLocNameClass('is-detecting')
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const lat = position.coords.latitude
         const lng = position.coords.longitude
 
-        // Update hidden inputs
-        const latInput = document.getElementById('lat') as HTMLInputElement
-        const lngInput = document.getElementById('lng') as HTMLInputElement
-        if (latInput) latInput.value = lat.toFixed(6)
-        if (lngInput) lngInput.value = lng.toFixed(6)
-
+        // Set location immediately for distance calculations
         onLocationChange({ lat, lng, name: null as any })
         setError(null)
+        setShowMapToggle(true)
 
-        // Try to reverse geocode
-        try {
-          const place = await reverseGeocode(lat, lng)
-          onLocationChange({ lat, lng, name: place || null as any })
-        } catch (err) {
-          console.error('Reverse geocoding failed:', err)
-          onLocationChange({ lat, lng, name: null as any })
-        } finally {
-          setDetecting(false)
+        const detectingShownAt = Date.now()
+
+        // Reverse geocode
+        const place = await reverseGeocode(lat, lng)
+
+        // Ensure detecting state shows for at least 1 second
+        const elapsed = Date.now() - detectingShownAt
+        if (elapsed < 1000) {
+          await new Promise((r) => setTimeout(r, 1000 - elapsed))
         }
+
+        onLocationChange({ lat, lng, name: place || (null as any) })
+
+        // Animate the location name reveal
+        setLocNameClass('fading')
+        setTimeout(() => {
+          setLocNameClass('revealing')
+          setDetecting(false)
+          setTimeout(() => setShowUpdate(true), 1000)
+        }, 150)
       },
       (err) => {
         const tips: Record<number, string> = {
           1: 'Location access was denied. Allow it in your browser settings, then try again.',
-          2: 'Location unavailable. Enable Location Services for this browser in System Settings → Privacy & Security → Location Services.',
-          3: 'Timed out. Enable Location Services for this browser in System Settings → Privacy & Security → Location Services.',
+          2: 'Location unavailable. Enable Location Services for this browser in System Settings \u2192 Privacy & Security \u2192 Location Services.',
+          3: 'Timed out. Enable Location Services for this browser in System Settings \u2192 Privacy & Security \u2192 Location Services.',
         }
         setError(tips[err.code] || err.message)
         setDetecting(false)
+        setShowUpdate(true)
+        setLocNameClass('')
       },
       { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
     )
   }
 
   const reverseGeocode = async (lat: number, lng: number): Promise<string | null> => {
+    // Try BigDataCloud first
     try {
-      // Try Nominatim (OpenStreetMap)
+      const res = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+      )
+      const d = await res.json()
+      const zip = d.postcode || ''
+      if (zip) {
+        const fromZip = await zipToCity(zip)
+        if (fromZip) return `${fromZip.city}, ${fromZip.state} ${zip}`
+      }
+      const city = d.city || d.locality || ''
+      const state = (d.principalSubdivisionCode || '').replace('US-', '')
+      if (city) return [[city, state].filter(Boolean).join(', '), zip].filter(Boolean).join(' ')
+    } catch {
+      /* fall through to Nominatim */
+    }
+
+    // Fallback to Nominatim
+    try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=18`,
         { headers: { 'User-Agent': 'want-to-go-app/1.0' } }
@@ -69,12 +153,10 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
       const city = a.city || a.town || a.village || a.suburb || a.county || ''
       const state = (a['ISO3166-2-lvl4'] || '').replace('US-', '')
       const zip = a.postcode || ''
-
       if (zip) {
         const fromZip = await zipToCity(zip)
         if (fromZip) return `${fromZip.city}, ${fromZip.state} ${zip}`
       }
-
       return [[city, state].filter(Boolean).join(', '), zip].filter(Boolean).join(' ')
     } catch {
       return null
@@ -94,20 +176,25 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
     }
   }
 
+  const toggleMap = () => {
+    setMapOpen((prev) => !prev)
+  }
+
   return (
     <section className="location-section">
       <p id="currentLocationDisplay" className="current-location">
         <span className="location-label">
-          You're in
-          <span id="locName" className={detecting ? 'is-detecting' : ''}>
-            {currentLocation?.name ? ` ${currentLocation.name}` : ''}
+          You&rsquo;re in
+          <span id="locName" className={locNameClass}>
+            {!detecting && currentLocation?.name ? `\u00a0${currentLocation.name}` : ''}
           </span>
         </span>
         <button
           id="updateLocationLink"
           type="button"
-          onClick={useCurrentLocation}
-          disabled={detecting}
+          onClick={detectLocation}
+          style={showUpdate ? undefined : { visibility: 'hidden' }}
+          className={showUpdate ? 'visible' : ''}
         >
           <svg
             aria-hidden="true"
@@ -130,18 +217,19 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
         </button>
       </p>
 
-      <button
-        id="mapToggle"
-        type="button"
-        className="hidden"
-        aria-expanded={mapOpen}
-        aria-controls="locationMapFigure"
-        aria-label="Toggle location map"
-        onClick={() => setMapOpen(!mapOpen)}
-      ></button>
+      {showMapToggle && (
+        <button
+          id="mapToggle"
+          type="button"
+          aria-expanded={mapOpen}
+          aria-controls="locationMapFigure"
+          aria-label="Toggle location map"
+          onClick={toggleMap}
+        />
+      )}
 
       <figure id="locationMapFigure" className={mapOpen ? 'is-open' : ''}>
-        <div id="locationMap"></div>
+        <div id="locationMap" ref={mapContainerRef}></div>
       </figure>
 
       {error && (
@@ -150,8 +238,8 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
         </p>
       )}
 
-      <input type="hidden" id="lat" value={currentLocation?.lat.toFixed(6) || ''} />
-      <input type="hidden" id="lng" value={currentLocation?.lng.toFixed(6) || ''} />
+      <input type="hidden" id="lat" value={currentLocation?.lat?.toFixed(6) || ''} />
+      <input type="hidden" id="lng" value={currentLocation?.lng?.toFixed(6) || ''} />
     </section>
   )
 }

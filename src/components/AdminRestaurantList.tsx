@@ -1,139 +1,136 @@
-import { useState } from 'react'
 import { Restaurant } from '../types/api'
-import { api } from '../lib/api'
+import { isFoodDrink, normalizeState } from '../lib/admin-utils'
 
 interface AdminRestaurantListProps {
   restaurants: Restaurant[]
   onDelete: (id: number) => void
-  editingId: number | null
-  onEditStart: (id: number | null) => void
-  onRefresh: () => void
+  onEdit: (id: number) => void
+  sortKey: string
+  sortDir: number
+  onSort: (key: string) => void
+}
+
+function formatLocation(r: Restaurant): string {
+  const parts = [r.city, r.state ? normalizeState(r.state) : ''].filter(Boolean)
+  return parts.length ? parts.join(', ') : '—'
+}
+
+function SortHeader({
+  label,
+  field,
+  sortKey,
+  sortDir,
+  onSort,
+}: {
+  label: string
+  field: string
+  sortKey: string
+  sortDir: number
+  onSort: (key: string) => void
+}) {
+  const active = sortKey === field
+  return (
+    <th className="sortable" onClick={() => onSort(field)}>
+      {label}
+      {active && <span className="sort-arrow">{sortDir === 1 ? ' ▲' : ' ▼'}</span>}
+    </th>
+  )
 }
 
 export default function AdminRestaurantList({
   restaurants,
   onDelete,
-  editingId,
-  onEditStart,
-  onRefresh,
+  onEdit,
+  sortKey,
+  sortDir,
+  onSort,
 }: AdminRestaurantListProps) {
-  return (
-    <table className="admin-table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Cuisine</th>
-          <th>Note</th>
-          <th>Visited</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {restaurants.map((r) => (
-          <AdminRestaurantRow
-            key={r.id}
-            restaurant={r}
-            isEditing={editingId === r.id}
-            onEditStart={() => onEditStart(r.id)}
-            onEditEnd={() => onEditStart(null)}
-            onDelete={() => onDelete(r.id)}
-            onRefresh={onRefresh}
-          />
-        ))}
-      </tbody>
-    </table>
-  )
-}
+  // Group by country when sorted by city
+  const grouped = sortKey === 'city'
+  let groups: [string, Restaurant[]][] = []
 
-function AdminRestaurantRow({
-  restaurant,
-  isEditing,
-  onEditStart,
-  onEditEnd,
-  onDelete,
-  onRefresh,
-}: {
-  restaurant: Restaurant
-  isEditing: boolean
-  onEditStart: () => void
-  onEditEnd: () => void
-  onDelete: () => void
-  onRefresh: () => void
-}) {
-  const [editData, setEditData] = useState(restaurant)
-  const [saving, setSaving] = useState(false)
-
-  const handleSave = async () => {
-    setSaving(true)
-    try {
-      await api.put(`/api/restaurants/${restaurant.id}`, editData)
-      onRefresh()
-      onEditEnd()
-    } catch (err) {
-      alert('Failed to save')
-      console.error(err)
-    } finally {
-      setSaving(false)
+  if (grouped) {
+    const map = new Map<string, Restaurant[]>()
+    for (const r of restaurants) {
+      const key = r.country || '—'
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(r)
     }
+    groups = [...map.entries()].sort(([a], [b]) => {
+      if (a === 'United States') return -1
+      if (b === 'United States') return 1
+      if (a === '—') return 1
+      if (b === '—') return -1
+      return a.localeCompare(b)
+    })
   }
 
-  if (isEditing) {
-    return (
-      <tr className="editing-row">
-        <td>
-          <input
-            type="text"
-            value={editData.title}
-            onChange={(e) => setEditData({ ...editData, title: e.target.value })}
-          />
-        </td>
-        <td>
-          <input
-            type="text"
-            value={editData.cuisine}
-            onChange={(e) => setEditData({ ...editData, cuisine: e.target.value })}
-          />
-        </td>
-        <td>
-          <input
-            type="text"
-            value={editData.note}
-            onChange={(e) => setEditData({ ...editData, note: e.target.value })}
-          />
-        </td>
-        <td>
-          <input
-            type="checkbox"
-            checked={editData.visited}
-            onChange={(e) => setEditData({ ...editData, visited: e.target.checked })}
-          />
-        </td>
-        <td>
-          <button onClick={handleSave} disabled={saving} className="btn-save">
-            {saving ? 'Saving...' : 'Save'}
-          </button>
-          <button onClick={onEditEnd} className="btn-cancel">
-            Cancel
-          </button>
-        </td>
-      </tr>
-    )
-  }
-
-  return (
-    <tr>
-      <td>{restaurant.title}</td>
-      <td>{restaurant.cuisine}</td>
-      <td>{restaurant.note}</td>
-      <td>{restaurant.visited ? '✓' : '○'}</td>
-      <td>
-        <button onClick={onEditStart} className="btn-small">
-          Edit
-        </button>
-        <button onClick={onDelete} className="btn-small btn-danger">
-          Delete
-        </button>
+  const renderRow = (r: Restaurant) => (
+    <tr key={r.id}>
+      <td className="col-title">{r.title}</td>
+      <td>{formatLocation(r)}</td>
+      <td>{r.cuisine}</td>
+      <td className="col-note" title={r.note}>{r.note}</td>
+      <td className="col-coords">
+        {r.lat != null ? (
+          <a
+            href={`https://www.google.com/maps?q=${r.lat},${r.lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {r.lat.toFixed(4)}, {r.lng!.toFixed(4)}
+          </a>
+        ) : (
+          '—'
+        )}
+      </td>
+      <td>{r.visited ? <span className="admin-visited-badge">Visited</span> : ''}</td>
+      <td style={{ textAlign: 'center' }}>{isFoodDrink(r.type) ? 'Yes' : ''}</td>
+      <td style={{ textAlign: 'center' }}>{r.open_after_10pm ? '✓' : ''}</td>
+      <td style={{ textAlign: 'center' }}>{r.open_after_11pm ? '✓' : ''}</td>
+      <td style={{ textAlign: 'center' }}>{r.open_after_midnight ? '✓' : ''}</td>
+      <td className="col-actions">
+        <button onClick={() => onEdit(r.id)} className="btn-small">Edit</button>
+        <button onClick={() => onDelete(r.id)} className="btn-small btn-danger">Delete</button>
       </td>
     </tr>
   )
+
+  return (
+    <div className="admin-table-wrap">
+      <table className="admin-table">
+        <thead>
+          <tr>
+            <SortHeader label="Name" field="title" sortKey={sortKey} sortDir={sortDir} onSort={onSort} />
+            <SortHeader label="Location" field="city" sortKey={sortKey} sortDir={sortDir} onSort={onSort} />
+            <SortHeader label="Cuisine" field="cuisine" sortKey={sortKey} sortDir={sortDir} onSort={onSort} />
+            <th>Note</th>
+            <SortHeader label="Coords" field="lat" sortKey={sortKey} sortDir={sortDir} onSort={onSort} />
+            <SortHeader label="Visited" field="visited" sortKey={sortKey} sortDir={sortDir} onSort={onSort} />
+            <SortHeader label="Food & Drink" field="type" sortKey={sortKey} sortDir={sortDir} onSort={onSort} />
+            <SortHeader label="10 PM" field="open_after_10pm" sortKey={sortKey} sortDir={sortDir} onSort={onSort} />
+            <SortHeader label="11 PM" field="open_after_11pm" sortKey={sortKey} sortDir={sortDir} onSort={onSort} />
+            <SortHeader label="Midnight" field="open_after_midnight" sortKey={sortKey} sortDir={sortDir} onSort={onSort} />
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {grouped
+            ? groups.map(([country, items]) => (
+                <Fragment key={country}>
+                  <tr className="group-header">
+                    <td colSpan={11}>
+                      {country} <span className="group-count">({items.length})</span>
+                    </td>
+                  </tr>
+                  {items.map(renderRow)}
+                </Fragment>
+              ))
+            : restaurants.map(renderRow)}
+        </tbody>
+      </table>
+    </div>
+  )
 }
+
+import { Fragment } from 'react'

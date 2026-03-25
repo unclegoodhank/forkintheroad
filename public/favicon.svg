@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <style>
+      @media (prefers-color-scheme: dark) {
+        .fork-color { fill: #FF4444; }
+        .bg-color { fill: #1a1a1a; }
+      }
+      @media (prefers-color-scheme: light) {
+        .fork-color { fill: #CC0000; }
+        .bg-color { fill: #ffffff; }
+      }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="64" height="64" class="bg-color"/>
+
+  <!-- Fork handle -->
+  <rect x="28" y="32" width="8" height="20" class="fork-color" rx="4"/>
+
+  <!-- Fork prongs -->
+  <g class="fork-color">
+    <!-- Left prong -->
+    <path d="M 20 32 Q 16 28 16 20 Q 16 14 20 14 Q 24 14 24 20 L 24 32" stroke="currentColor" stroke-width="0" fill="currentColor"/>
+    <rect x="16" y="14" width="8" height="18" rx="4" class="fork-color"/>
+
+    <!-- Middle prong -->
+    <rect x="28" y="8" width="8" height="24" rx="4" class="fork-color"/>
+
+    <!-- Right prong -->
+    <rect x="40" y="14" width="8" height="18" rx="4" class="fork-color"/>
+  </g>
+</svg>
