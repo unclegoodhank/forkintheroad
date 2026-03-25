@@ -412,13 +412,22 @@ export default function Home() {
                 Visited
               </label>
               {!!editFormData.visited && (
-                <input
-                  id="edit-visited-at"
-                  type="date"
-                  className="edit-visited-date-input"
-                  value={editFormData.visited_at || ''}
-                  onChange={(e) => setEditFormData({ ...editFormData, visited_at: e.target.value })}
-                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+                  <input
+                    id="edit-visited-at"
+                    type="date"
+                    className="edit-visited-date-input"
+                    value={editFormData.visited_at || ''}
+                    onChange={(e) => setEditFormData({ ...editFormData, visited_at: e.target.value })}
+                  />
+                  {editFormData.visited_at && (() => {
+                    const selectedDate = new Date(editFormData.visited_at + 'T12:00:00')
+                    const today = new Date()
+                    return selectedDate.toDateString() === today.toDateString() ? (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--md-on-surface-variant)' }}>– Today</span>
+                    ) : null
+                  })()}
+                </div>
               )}
             </div>
 
