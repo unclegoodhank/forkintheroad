@@ -25,6 +25,10 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1)
   const perPage = 10
 
+  // Edit modal
+  const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(null)
+  const [editFormData, setEditFormData] = useState<Partial<Restaurant>>({})
+
   // Fetch restaurants on mount
   useEffect(() => {
     fetchRestaurants()
@@ -145,6 +149,32 @@ export default function Home() {
       )
     } catch (err) {
       console.error('Failed to update visited status:', err)
+    }
+  }
+
+  const openEditModal = (restaurant: Restaurant) => {
+    setEditingRestaurant(restaurant)
+    setEditFormData(restaurant)
+  }
+
+  const closeEditModal = () => {
+    setEditingRestaurant(null)
+    setEditFormData({})
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editingRestaurant) return
+    try {
+      await api.put(`/api/restaurants/${editingRestaurant.id}`, editFormData)
+      setRestaurants((prev) =>
+        prev.map((r) =>
+          r.id === editingRestaurant.id ? { ...r, ...editFormData } : r
+        )
+      )
+      closeEditModal()
+    } catch (err) {
+      console.error('Failed to save restaurant:', err)
+      alert('Failed to save changes')
     }
   }
 
@@ -270,7 +300,7 @@ export default function Home() {
                   <button
                     className="card-edit-btn"
                     aria-label={`Edit ${r.title}`}
-                    onClick={() => handleToggleVisited(r.id, !r.visited)}
+                    onClick={() => openEditModal(r)}
                     type="button"
                   >
                     <svg
@@ -326,6 +356,79 @@ export default function Home() {
             </button>
           </div>
         </nav>
+      )}
+
+      {editingRestaurant && (
+        <dialog id="cardEditModal" open>
+          <div className="card-edit-sheet">
+            <div className="card-edit-header">
+              <h2>{editingRestaurant.title}</h2>
+            </div>
+
+            <div className="edit-field">
+              <label htmlFor="edit-title">Restaurant Name</label>
+              <input
+                id="edit-title"
+                type="text"
+                value={editFormData.title || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+              />
+            </div>
+
+            <div className="edit-field">
+              <label htmlFor="edit-cuisine">Cuisine</label>
+              <input
+                id="edit-cuisine"
+                type="text"
+                value={editFormData.cuisine || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, cuisine: e.target.value })}
+              />
+            </div>
+
+            <div className="edit-field">
+              <label htmlFor="edit-note">Note</label>
+              <input
+                id="edit-note"
+                type="text"
+                value={editFormData.note || ''}
+                onChange={(e) => setEditFormData({ ...editFormData, note: e.target.value })}
+              />
+            </div>
+
+            <div className="edit-field">
+              <label htmlFor="edit-visited">
+                <input
+                  id="edit-visited"
+                  type="checkbox"
+                  checked={!!editFormData.visited}
+                  onChange={(e) => setEditFormData({ ...editFormData, visited: e.target.checked ? 1 : 0 })}
+                />
+                Visited
+              </label>
+            </div>
+
+            {editFormData.visited && (
+              <div className="edit-field">
+                <label htmlFor="edit-visited-at">Visited Date</label>
+                <input
+                  id="edit-visited-at"
+                  type="date"
+                  value={editFormData.visited_at || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, visited_at: e.target.value })}
+                />
+              </div>
+            )}
+
+            <div className="card-edit-actions">
+              <button className="btn" onClick={closeEditModal}>
+                Cancel
+              </button>
+              <button className="btn primary" onClick={handleSaveEdit}>
+                Save
+              </button>
+            </div>
+          </div>
+        </dialog>
       )}
     </main>
   )
