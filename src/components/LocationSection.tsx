@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import { loadLeaflet, deferredLoadLeaflet } from '../lib/leaflet-loader'
+import { createOptimizedTileLayer, smoothTransitionTiles, preloadAdjacentTiles } from '../lib/tile-manager'
 
 interface LocationSectionProps {
   currentLocation: { lat: number; lng: number; name: string } | null
@@ -15,8 +15,9 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
   const [showMapToggle, setShowMapToggle] = useState(!!currentLocation)
   const [showUpdate, setShowUpdate] = useState(true)
   const hasAutoDetected = useRef(false)
-  const mapRef = useRef<L.Map | null>(null)
-  const markerRef = useRef<L.Marker | null>(null)
+  const mapRef = useRef<any>(null)
+  const markerRef = useRef<any>(null)
+  const tileLayerRef = useRef<any>(null)
   const mapContainerRef = useRef<HTMLDivElement>(null)
 
   // Initialize or update Leaflet map when location changes
@@ -24,28 +25,48 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
     if (!currentLocation?.lat || !currentLocation?.lng) return
     const lat = currentLocation.lat
     const lng = currentLocation.lng
-    const icon = L.divIcon({
-      html: '<div class="loc-pin"></div>',
-      iconSize: [14, 14],
-      iconAnchor: [7, 7],
-      className: '',
+
+    loadLeaflet().then((L) => {
+      const icon = L.divIcon({
+        html: '<div class="loc-pin"></div>',
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+        className: '',
+      })
+      if (!mapRef.current && mapContainerRef.current) {
+        mapRef.current = L.map(mapContainerRef.current, {
+          zoomControl: false,
+          attributionControl: false,
+          dragging: false,
+          scrollWheelZoom: false,
+          doubleClickZoom: false,
+          touchZoom: false,
+          keyboard: false,
+        }).setView([lat, lng], 14)
+        
+        // Create optimized tile layer with smooth transitions
+        const newTileLayer = createOptimizedTileLayer(L)
+        smoothTransitionTiles(tileLayerRef.current, newTileLayer, mapRef.current)
+        tileLayerRef.current = newTileLayer
+        
+        markerRef.current = L.marker([lat, lng], { icon }).addTo(mapRef.current)
+        
+        // Preload adjacent tiles
+        setTimeout(() => preloadAdjacentTiles(mapRef.current, L), 100)
+      } else if (mapRef.current) {
+        mapRef.current.setView([lat, lng], 14)
+        if (markerRef.current) markerRef.current.setLatLng([lat, lng])
+        
+        // Smooth transition to new tiles when location updates
+        const oldTileLayer = tileLayerRef.current
+        const newTileLayer = createOptimizedTileLayer(L)
+        smoothTransitionTiles(oldTileLayer, newTileLayer, mapRef.current)
+        tileLayerRef.current = newTileLayer
+        
+        // Preload adjacent tiles
+        setTimeout(() => preloadAdjacentTiles(mapRef.current, L), 100)
+      }
     })
-    if (!mapRef.current && mapContainerRef.current) {
-      mapRef.current = L.map(mapContainerRef.current, {
-        zoomControl: false,
-        attributionControl: false,
-        dragging: false,
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-        touchZoom: false,
-        keyboard: false,
-      }).setView([lat, lng], 14)
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mapRef.current)
-      markerRef.current = L.marker([lat, lng], { icon }).addTo(mapRef.current)
-    } else if (mapRef.current) {
-      mapRef.current.setView([lat, lng], 14)
-      if (markerRef.current) markerRef.current.setLatLng([lat, lng])
-    }
   }, [currentLocation?.lat, currentLocation?.lng])
 
   // Invalidate map size when toggled open
@@ -53,6 +74,8 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
     if (mapOpen && mapRef.current) {
       const fig = document.getElementById('locationMapFigure')
       if (fig) {
+        // Call invalidateSize immediately and again after transition
+        mapRef.current.invalidateSize()
         fig.addEventListener('transitionend', () => mapRef.current?.invalidateSize(), { once: true })
       }
     }
@@ -64,6 +87,13 @@ export default function LocationSection({ currentLocation, onLocationChange }: L
       hasAutoDetected.current = true
       detectLocation()
     }
+  }, [])
+
+  // Deferred load Leaflet after page content renders
+  useEffect(() => {
+    deferredLoadLeaflet().catch(() => {
+      // Silently fail
+    })
   }, [])
 
   const detectLocation = () => {
