@@ -37,7 +37,10 @@ app.get('/', (req, res) => {
 
 // ── Restaurant API ─────────────────────────────────────────────────────────
 app.get('/api/restaurants', (req, res) => {
-  const rows = db.prepare('SELECT * FROM restaurants ORDER BY id').all();
+  const limit = req.query.limit ? parseInt(req.query.limit, 10) : null;
+  const rows = limit
+    ? db.prepare('SELECT * FROM restaurants ORDER BY id LIMIT ?').all(limit)
+    : db.prepare('SELECT * FROM restaurants ORDER BY id').all();
   res.json(rows);
 });
 

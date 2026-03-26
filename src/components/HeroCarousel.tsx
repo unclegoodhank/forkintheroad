@@ -43,6 +43,7 @@ export default function HeroCarousel() {
           className={`carousel-slide${i === current ? ' active' : ''}`}
           alt=""
           aria-hidden="true"
+          onLoad={(e) => e.currentTarget.classList.add('loaded')}
         />
       ))}
     </section>

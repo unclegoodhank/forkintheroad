@@ -190,10 +190,12 @@ export default function Home() {
   const editTriggerRef = useRef<HTMLButtonElement | null>(null)
   const justMarkedVisitedRef = useRef<number | null>(null)
   const cardRefs = useRef<Map<number, HTMLLIElement>>(new Map())
+  const countRef = useRef<HTMLParagraphElement>(null)
+  const prevCountRef = useRef<number | null>(null)
 
-  // Fetch restaurants on mount
+  // Fetch restaurants on mount — show first 5 immediately, then load all
   useEffect(() => {
-    fetchRestaurants()
+    fetchInitial()
   }, [])
 
   // Track meta/ctrl key held state for button hint
@@ -256,10 +258,40 @@ export default function Home() {
     }
   }, [filteredData])
 
+  // Flash the count whenever it changes (any filter)
+  useEffect(() => {
+    if (loading) return
+    const el = countRef.current
+    if (!el) return
+    if (prevCountRef.current === filteredData.length) return
+    prevCountRef.current = filteredData.length
+    el.classList.remove('count-changed')
+    void el.offsetWidth // force reflow to restart animation
+    el.classList.add('count-changed')
+  }, [filteredData.length, loading])
+
   // Apply filters whenever they change
   useEffect(() => {
     applyFilters()
   }, [restaurants, searchQuery, selectedCuisine, radiusFilter, visitedFilter, addedDaysFilter, sortOrder, currentLocation])
+
+  const fetchInitial = async () => {
+    try {
+      setLoading(true)
+      // Phase 1: fetch first 5 to show cards fast
+      const first = await api.get('/api/restaurants?limit=5')
+      setRestaurants(first.data)
+      setError(null)
+      setLoading(false)
+      // Phase 2: fetch all in background
+      const all = await api.get('/api/restaurants')
+      setRestaurants(all.data)
+    } catch (err) {
+      setError('Failed to fetch restaurants')
+      console.error(err)
+      setLoading(false)
+    }
+  }
 
   const fetchRestaurants = async () => {
     try {
@@ -464,7 +496,7 @@ export default function Home() {
       />
 
       <div className="results-row">
-        <p id="resultsCount" aria-live="polite" aria-atomic="true">
+        <p id="resultsCount" ref={countRef} aria-live="polite" aria-atomic="true">
           {loading ? 'Loading...' : `${filteredData.length} place${filteredData.length !== 1 ? 's' : ''}`}
         </p>
         {totalPages > 1 && (

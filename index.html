@@ -3,11 +3,78 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/masthead-title.svg" as="image" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&display=swap" /></noscript>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fork in the road</title>
+    <style>
+      /* Inline critical shell — visible until React replaces #root contents */
+      html, body { margin: 0; background: hsla(42, 60%, 97%, 1); }
+      .shell { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+      .shell-header {
+        display: flex; align-items: center; gap: 14px;
+        padding: 28px 0 18px;
+      }
+      .shell-icon {
+        width: 48px; height: 48px;
+        background: hsla(45, 19%, 92%, 1);
+        border-radius: 12px;
+      }
+      .shell-title-svg {
+        display: block;
+        width: clamp(16.5rem, 48vw, 31.5rem);
+        height: auto;
+      }
+      .shell-subtitle {
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        font-size: 0.85rem; color: hsl(36 23% 45%);
+        margin: 2px 0 0;
+      }
+      .shell-carousel {
+        height: 200px; border-radius: 20px;
+        background: linear-gradient(90deg, hsla(42,60%,97%,1) 25%, hsla(42,67%,94%,1) 50%, hsla(42,60%,97%,1) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s ease-in-out infinite;
+      }
+      .shell-bar {
+        margin-top: 20px; height: 14px; width: 45%;
+        border-radius: 7px;
+        background: hsla(42, 60%, 97%, 1);
+      }
+      .shell-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+      .shell-card {
+        height: 88px; border-radius: 16px;
+        background: hsla(42, 60%, 97%, 1);
+      }
+      @keyframes shimmer {
+        0%   { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Shell skeleton — replaced instantly when React mounts -->
+      <div class="shell">
+        <div class="shell-header">
+          <div class="shell-icon"></div>
+          <div>
+            <img src="/masthead-title.svg" alt="Fork in the road" class="shell-title-svg" />
+            <div class="shell-subtitle">Your personal travel guide</div>
+          </div>
+        </div>
+        <div class="shell-carousel"></div>
+        <div class="shell-bar"></div>
+        <div class="shell-cards">
+          <div class="shell-card"></div>
+          <div class="shell-card"></div>
+          <div class="shell-card"></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

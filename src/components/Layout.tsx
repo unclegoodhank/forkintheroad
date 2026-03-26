@@ -15,9 +15,11 @@ export default function Layout() {
       <a href="#cardContainer" className="skip-link">Skip to results</a>
       <header className="site-masthead" aria-label="Site header">
         <div className="site-masthead__inner">
-          <img src="/images/Fork Icon Illustration.png" alt="" aria-hidden="true" className="site-masthead__icon" />
+          <img src="/images/Fork Icon Illustration.png" alt="" aria-hidden="true" className="site-masthead__icon" onLoad={(e) => e.currentTarget.classList.add('loaded')} />
           <hgroup>
-            <h1>Fork in the road</h1>
+            <h1 aria-label="Fork in the road">
+              <img src="/masthead-title.svg" alt="" aria-hidden="true" className="masthead-title-svg" onLoad={(e) => e.currentTarget.classList.add('loaded')} />
+            </h1>
             <p>Your personal travel guide</p>
           </hgroup>
         </div>
