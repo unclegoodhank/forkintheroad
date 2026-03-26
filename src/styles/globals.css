@@ -79,6 +79,7 @@
 
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      overflow-x: hidden;
       background-color: var(--md-surface);
       background-image: var(--bg-noise-texture);
       background-size: 200px 200px;
